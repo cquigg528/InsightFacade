@@ -1,0 +1,508 @@
+{
+  "title": "valid wildcard 2",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "NOT": {
+            "IS": {
+              "courses_dept": "*c*"
+            }
+          }
+        },
+        {
+          "AND": [
+            {
+              "LT": {
+                "courses_year": 2010
+              }
+            },
+            {
+              "EQ": {
+                "courses_avg": 90
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_title",
+        "courses_avg",
+        "courses_pass",
+        "courses_fail",
+        "courses_year"
+      ],
+      "ORDER": "courses_year"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "thtr",
+      "courses_title": "bibliog & resrch",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "sts",
+      "courses_title": "sts mstrs colloq",
+      "courses_avg": 90,
+      "courses_pass": 5,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "sowk",
+      "courses_title": "soc work doc sem",
+      "courses_avg": 90,
+      "courses_pass": 7,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "sans",
+      "courses_title": "intro sanskrit",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "port",
+      "courses_title": "elementary port",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "phys",
+      "courses_title": "quantum mech ii",
+      "courses_avg": 90,
+      "courses_pass": 12,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "phar",
+      "courses_title": "seminar",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "phar",
+      "courses_title": "seminar",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "phar",
+      "courses_title": "peer teaching 2",
+      "courses_avg": 90,
+      "courses_pass": 25,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "path",
+      "courses_title": "msc thesis",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "path",
+      "courses_title": "msc thesis",
+      "courses_avg": 90,
+      "courses_pass": 3,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "path",
+      "courses_title": "clk in lab medic",
+      "courses_avg": 90,
+      "courses_pass": 12,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "nurs",
+      "courses_title": "cl pro prim care",
+      "courses_avg": 90,
+      "courses_pass": 14,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "mine",
+      "courses_title": "seminar",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "mine",
+      "courses_title": "seminar",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "midw",
+      "courses_title": "comp thry&prctc",
+      "courses_avg": 90,
+      "courses_pass": 10,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "medi",
+      "courses_title": "m.sc. thesis",
+      "courses_avg": 90,
+      "courses_pass": 6,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "math",
+      "courses_title": "algb geometry i",
+      "courses_avg": 90,
+      "courses_pass": 9,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "math",
+      "courses_title": "combinatorial op",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "math",
+      "courses_title": "prt diff equa i",
+      "courses_avg": 90,
+      "courses_pass": 5,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "math",
+      "courses_title": "discrete math",
+      "courses_avg": 90,
+      "courses_pass": 5,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "math",
+      "courses_title": "tpcs algebra",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "ling",
+      "courses_title": "fld mthd ling ii",
+      "courses_avg": 90,
+      "courses_pass": 7,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "libr",
+      "courses_title": "research collbrt",
+      "courses_avg": 90,
+      "courses_pass": 3,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "kin",
+      "courses_title": "bioenrgtc ph act",
+      "courses_avg": 90,
+      "courses_pass": 15,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "ital",
+      "courses_title": "advanced ital i",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "hgse",
+      "courses_title": "frst ntns rsorcs",
+      "courses_avg": 90,
+      "courses_pass": 21,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "grsj",
+      "courses_title": "gndr sex crt rce",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "germ",
+      "courses_title": "conv german ii",
+      "courses_avg": 90,
+      "courses_pass": 7,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "frst",
+      "courses_title": "tec comm skls ii",
+      "courses_avg": 90,
+      "courses_pass": 15,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "frst",
+      "courses_title": "plnt molec biol",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "epse",
+      "courses_title": "tech for vis imp",
+      "courses_avg": 90,
+      "courses_pass": 11,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "edst",
+      "courses_title": "tcher union educ",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "edst",
+      "courses_title": "ldrshp educ org",
+      "courses_avg": 90,
+      "courses_pass": 39,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "edst",
+      "courses_title": "adu edu pro",
+      "courses_avg": 90,
+      "courses_pass": 15,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "dent",
+      "courses_title": "clin endo yr 3",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "dent",
+      "courses_title": "masters thesis",
+      "courses_avg": 90,
+      "courses_pass": 1,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "dent",
+      "courses_title": "m.sc. thesis",
+      "courses_avg": 90,
+      "courses_pass": 1,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "dent",
+      "courses_title": "biomec cr-fac i",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "dent",
+      "courses_title": "oral pathology",
+      "courses_avg": 90,
+      "courses_pass": 23,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "dent",
+      "courses_title": "prs pln&outc i",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "dent",
+      "courses_title": "prosth lit rv i",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "audi",
+      "courses_title": "hearing sci ii",
+      "courses_avg": 90,
+      "courses_pass": 12,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "arth",
+      "courses_title": "master's thesis",
+      "courses_avg": 90,
+      "courses_pass": 3,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "arth",
+      "courses_title": "master's thesis",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "arth",
+      "courses_title": "master's thesis",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "arst",
+      "courses_title": "arch rsrch&schlr",
+      "courses_avg": 90,
+      "courses_pass": 6,
+      "courses_fail": 0,
+      "courses_year": 1900
+    },
+    {
+      "courses_dept": "phys",
+      "courses_title": "quantum mech ii",
+      "courses_avg": 90,
+      "courses_pass": 12,
+      "courses_fail": 0,
+      "courses_year": 2007
+    },
+    {
+      "courses_dept": "phar",
+      "courses_title": "seminar",
+      "courses_avg": 90,
+      "courses_pass": 1,
+      "courses_fail": 0,
+      "courses_year": 2007
+    },
+    {
+      "courses_dept": "path",
+      "courses_title": "seminar",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 2007
+    },
+    {
+      "courses_dept": "math",
+      "courses_title": "prt diff equa i",
+      "courses_avg": 90,
+      "courses_pass": 5,
+      "courses_fail": 0,
+      "courses_year": 2007
+    },
+    {
+      "courses_dept": "frst",
+      "courses_title": "plnt molec biol",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 2007
+    },
+    {
+      "courses_dept": "nurs",
+      "courses_title": "cl pro prim care",
+      "courses_avg": 90,
+      "courses_pass": 14,
+      "courses_fail": 0,
+      "courses_year": 2008
+    },
+    {
+      "courses_dept": "math",
+      "courses_title": "combinatorial op",
+      "courses_avg": 90,
+      "courses_pass": 4,
+      "courses_fail": 0,
+      "courses_year": 2008
+    },
+    {
+      "courses_dept": "libr",
+      "courses_title": "research collbrt",
+      "courses_avg": 90,
+      "courses_pass": 2,
+      "courses_fail": 0,
+      "courses_year": 2008
+    },
+    {
+      "courses_dept": "arst",
+      "courses_title": "arch rsrch&schlr",
+      "courses_avg": 90,
+      "courses_pass": 6,
+      "courses_fail": 0,
+      "courses_year": 2008
+    },
+    {
+      "courses_dept": "path",
+      "courses_title": "msc thesis",
+      "courses_avg": 90,
+      "courses_pass": 1,
+      "courses_fail": 0,
+      "courses_year": 2009
+    },
+    {
+      "courses_dept": "audi",
+      "courses_title": "hearing sci ii",
+      "courses_avg": 90,
+      "courses_pass": 12,
+      "courses_fail": 0,
+      "courses_year": 2009
+    }
+  ]
+}
