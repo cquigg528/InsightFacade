@@ -1,0 +1,31 @@
+{
+  "title": "equal to test",
+  "input": {
+    "WHERE": {
+      "EQ": {
+        "courses_avg": 98
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "crwr",
+      "courses_instructor": "grady, albert wayne",
+      "courses_avg": 98
+    },
+    {
+      "courses_dept": "crwr",
+      "courses_instructor": "maillard, keith",
+      "courses_avg": 98
+    }
+  ]
+}

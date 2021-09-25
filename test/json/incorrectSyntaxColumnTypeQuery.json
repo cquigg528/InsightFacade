@@ -1,0 +1,18 @@
+{
+  "title": "Incorrect Syntax Column data type Query",
+  "input": {
+    "WHERE": {
+      "GT": {
+        "courses_avg": 99
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "      "
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

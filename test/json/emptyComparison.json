@@ -1,0 +1,28 @@
+{
+  "errorMsg": "EQ should only have 1 key, has 0",
+  "title": "empty comparison",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_uuid": "*h*"
+          }
+        },
+        {
+          "EQ": {}
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

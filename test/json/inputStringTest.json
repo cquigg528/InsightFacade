@@ -1,0 +1,35 @@
+{
+  "title": "inputstring c*",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_dept": "c*"
+          }
+        },
+        {
+          "GT": {
+            "courses_avg": 98
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "cnps",
+      "courses_id": "574",
+      "courses_avg": 99.19
+    }
+  ]
+}

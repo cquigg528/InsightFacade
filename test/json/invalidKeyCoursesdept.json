@@ -1,0 +1,30 @@
+{
+  "errorMsg": "Invalid key coursesdept in IS",
+  "title": "invalid key coursesdept",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "coursesdept": "math"
+          }
+        },
+        {
+          "GT": {
+            "courses_id": "100"
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

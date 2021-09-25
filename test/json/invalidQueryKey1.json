@@ -1,0 +1,19 @@
+{
+  "title": "Invalid Query Key multiple key types",
+  "input": {
+  "WHERE":{
+    "GT":{
+      "courses_avg":97
+    }
+  },
+  "OPTIONS":{
+    "COLUMNS":[
+      "courses_dept",
+      "rooms_avg"
+    ],
+    "ORDER":"courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

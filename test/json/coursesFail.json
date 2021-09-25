@@ -1,0 +1,34 @@
+{
+  "title": "courses_fail test",
+  "input": {
+    "WHERE": {
+      "GT": {
+        "courses_fail": 265
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg",
+        "courses_fail"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "chem",
+      "courses_instructor": "",
+      "courses_avg": 67.42,
+      "courses_fail": 266
+    },
+    {
+      "courses_dept": "chem",
+      "courses_instructor": "",
+      "courses_avg": 68.2,
+      "courses_fail": 287
+    }
+  ]
+}

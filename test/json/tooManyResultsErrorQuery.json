@@ -1,0 +1,16 @@
+{
+  "title":"too many results 5000 from query",
+  "input":{
+    "WHERE":{
+    },
+    "OPTIONS":{
+      "COLUMNS":[
+        "courses_dept",
+        "courses_avg"
+      ],
+      "ORDER":"courses_avg"
+    }
+  },
+  "errorExpected":true,
+  "with":"ResultTooLargeError"
+}

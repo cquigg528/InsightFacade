@@ -1,0 +1,28 @@
+{
+  "title": "or two keys",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "LT": {
+            "courses_fail": 100
+          },
+          "GT": {
+            "courses_fail": 100
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg",
+        "courses_fail"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

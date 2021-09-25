@@ -1,0 +1,28 @@
+{
+  "errorMsg": "NOT should only have 1 key, has 0",
+  "title": "empty not",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_dept": "***"
+          }
+        },
+        {
+          "GT": {}
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

@@ -1,0 +1,19 @@
+{
+  "title": "InvalidQueryKey key not in dataset",
+  "input": {
+  "WHERE":{
+    "GT":{
+      "courses_avg":97
+    }
+  },
+  "OPTIONS":{
+    "COLUMNS":[
+      "courses_dept",
+      "courses_fakekey"
+    ],
+    "ORDER":"courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
