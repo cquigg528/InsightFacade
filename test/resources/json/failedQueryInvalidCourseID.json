@@ -1,0 +1,60 @@
+{
+  "errorMsg": "Referenced dataset \"course\" not added yet",
+  "title": "Failed Query Invalid Course ID",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "course_fail": 10
+              }
+            },
+            {
+              "LT": {
+                "course_pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "course_year": 2012
+              }
+            },
+            {
+              "IS": {
+                "course_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "course_instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "course_title": "Introduction to Software Engineering"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "course_dept",
+        "course_id",
+        "course_avg"
+      ],
+      "ORDER": "course_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

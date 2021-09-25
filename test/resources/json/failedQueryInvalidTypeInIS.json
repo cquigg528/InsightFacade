@@ -1,0 +1,60 @@
+{
+  "errorMsg": "Invalid value type in IS, should be string",
+  "title": "FailedQueryInvalidTypeInIS",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 90
+              }
+            },
+            {
+              "LT": {
+                "courses_audit": 10
+              }
+            },
+            {
+              "EQ": {
+                "courses_year": 2000
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "adhe"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "courses_instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "courses_id": 110
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

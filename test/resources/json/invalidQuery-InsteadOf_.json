@@ -1,0 +1,60 @@
+{
+  "errorMsg": "Cannot read property 'GROUP' of undefined",
+  "title": "Invalid Query - instead of _",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses-fail": 10
+              }
+            },
+            {
+              "LT": {
+                "courses-pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "courses-year": 2012
+              }
+            },
+            {
+              "IS": {
+                "courses-dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "courses-instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "courses-title": "Introduction to Software Engineering"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses-dept",
+        "courses-id",
+        "courses-avg"
+      ],
+      "ORDER": "courses-avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

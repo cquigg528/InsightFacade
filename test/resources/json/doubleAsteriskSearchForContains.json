@@ -1,0 +1,486 @@
+{
+  "title": "Double Asterisk search for contains",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_fail": 40
+              }
+            },
+            {
+              "LT": {
+                "courses_pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "courses_year": 2012
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "IS": {
+                "courses_instructor": "*greg*"
+              }
+            },
+            {
+              "EQ": {
+                "courses_year": 2015
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg",
+        "courses_instructor"
+      ],
+      "ORDER": "courses_dept"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "apsc",
+      "courses_id": "160",
+      "courses_avg": 68.86,
+      "courses_instructor": "berg, celina;miller, gregor"
+    },
+    {
+      "courses_dept": "apsc",
+      "courses_id": "160",
+      "courses_avg": 73.7,
+      "courses_instructor": "khosravi, hassan;miller, gregor"
+    },
+    {
+      "courses_dept": "apsc",
+      "courses_id": "160",
+      "courses_avg": 75.43,
+      "courses_instructor": "khosravi, hassan;miller, gregor"
+    },
+    {
+      "courses_dept": "arch",
+      "courses_id": "531",
+      "courses_avg": 81.3,
+      "courses_instructor": "johnson, gregory"
+    },
+    {
+      "courses_dept": "arch",
+      "courses_id": "511",
+      "courses_avg": 81.23,
+      "courses_instructor": "johnson, gregory"
+    },
+    {
+      "courses_dept": "arst",
+      "courses_id": "565",
+      "courses_avg": 81.95,
+      "courses_instructor": "kozak, greg"
+    },
+    {
+      "courses_dept": "babs",
+      "courses_id": "540",
+      "courses_avg": 81.87,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "babs",
+      "courses_id": "540",
+      "courses_avg": 87.24,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "babs",
+      "courses_id": "540",
+      "courses_avg": 88.88,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "bama",
+      "courses_id": "541",
+      "courses_avg": 80.36,
+      "courses_instructor": "silk, timothy;werker, gregory"
+    },
+    {
+      "courses_dept": "bama",
+      "courses_id": "541",
+      "courses_avg": 80.47,
+      "courses_instructor": "silk, timothy;werker, gregory"
+    },
+    {
+      "courses_dept": "basc",
+      "courses_id": "550",
+      "courses_avg": 84.9,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "basc",
+      "courses_id": "550",
+      "courses_avg": 84.67,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "basc",
+      "courses_id": "550",
+      "courses_avg": 84.1,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "basc",
+      "courses_id": "524",
+      "courses_avg": 86.04,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "biol",
+      "courses_id": "336",
+      "courses_avg": 72.52,
+      "courses_instructor": "bole, gregory michael;whitton, jeannette"
+    },
+    {
+      "courses_dept": "biol",
+      "courses_id": "121",
+      "courses_avg": 69.28,
+      "courses_instructor": "bole, gregory michael"
+    },
+    {
+      "courses_dept": "biol",
+      "courses_id": "121",
+      "courses_avg": 69.42,
+      "courses_instructor": "bole, gregory michael"
+    },
+    {
+      "courses_dept": "biol",
+      "courses_id": "121",
+      "courses_avg": 71.63,
+      "courses_instructor": "bole, gregory michael"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "341",
+      "courses_avg": 71.78,
+      "courses_instructor": "dake, gregory"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 65.32,
+      "courses_instructor": "dake, gregory;perrin, david"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 56.2,
+      "courses_instructor": "dake, gregory;perrin, david"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 73.54,
+      "courses_instructor": "dake, gregory"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 68.06,
+      "courses_instructor": "dake, gregory"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 58.6,
+      "courses_instructor": "dake, gregory;tanner, martin"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 63.59,
+      "courses_instructor": "stewart, jaclyn"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 68.28,
+      "courses_instructor": "dake, gregory;stewart, jaclyn"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 62.17,
+      "courses_instructor": "rogers, christine;stewart, jaclyn"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 61.71,
+      "courses_instructor": "stewart, jaclyn;withers, stephen"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "233",
+      "courses_avg": 70.08,
+      "courses_instructor": "stewart, jaclyn"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "154",
+      "courses_avg": 64.97,
+      "courses_instructor": "gibson, gregory"
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "121",
+      "courses_avg": 57.25,
+      "courses_instructor": "burnell, e elliott;lekhi, priya"
+    },
+    {
+      "courses_dept": "civl",
+      "courses_id": "478",
+      "courses_avg": 81.73,
+      "courses_instructor": "johnson, gregory"
+    },
+    {
+      "courses_dept": "civl",
+      "courses_id": "215",
+      "courses_avg": 75.99,
+      "courses_instructor": "lawrence, gregory"
+    },
+    {
+      "courses_dept": "civl",
+      "courses_id": "201",
+      "courses_avg": 85.6,
+      "courses_instructor": "isaacson, michael d;johnson, gregory;staub-french, sheryl"
+    },
+    {
+      "courses_dept": "comm",
+      "courses_id": "290",
+      "courses_avg": 74.72,
+      "courses_instructor": "huh, woonghee tim;werker, gregory"
+    },
+    {
+      "courses_dept": "comm",
+      "courses_id": "290",
+      "courses_avg": 73.65,
+      "courses_instructor": "huh, woonghee tim;werker, gregory"
+    },
+    {
+      "courses_dept": "comm",
+      "courses_id": "290",
+      "courses_avg": 76.8,
+      "courses_instructor": "graham, brian;werker, gregory"
+    },
+    {
+      "courses_dept": "comm",
+      "courses_id": "290",
+      "courses_avg": 72.55,
+      "courses_instructor": "graham, brian;werker, gregory"
+    },
+    {
+      "courses_dept": "comm",
+      "courses_id": "204",
+      "courses_avg": 78.54,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "comm",
+      "courses_id": "204",
+      "courses_avg": 77.08,
+      "courses_instructor": "werker, gregory"
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_id": "110",
+      "courses_avg": 84.91,
+      "courses_instructor": "kiczales, gregor"
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_id": "110",
+      "courses_avg": 70.78,
+      "courses_instructor": "kiczales, gregor"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "490",
+      "courses_avg": 83.64,
+      "courses_instructor": "mackie, gregory"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "221",
+      "courses_avg": 73.73,
+      "courses_instructor": "mackie, gregory"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "220",
+      "courses_avg": 76.55,
+      "courses_instructor": "morgan, george macgregor"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "112",
+      "courses_avg": 74.1,
+      "courses_instructor": "morgan, george macgregor"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "112",
+      "courses_avg": 72.65,
+      "courses_instructor": "morgan, george macgregor"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "112",
+      "courses_avg": 74.59,
+      "courses_instructor": "morgan, george macgregor"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "112",
+      "courses_avg": 71.42,
+      "courses_instructor": "morgan, george macgregor"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "112",
+      "courses_avg": 72.55,
+      "courses_instructor": "morgan, george macgregor"
+    },
+    {
+      "courses_dept": "engl",
+      "courses_id": "112",
+      "courses_avg": 72.83,
+      "courses_instructor": "morgan, george macgregor"
+    },
+    {
+      "courses_dept": "eosc",
+      "courses_id": "540",
+      "courses_avg": 84.54,
+      "courses_instructor": "dipple, gregory"
+    },
+    {
+      "courses_dept": "eosc",
+      "courses_id": "430",
+      "courses_avg": 83.2,
+      "courses_instructor": "dipple, gregory"
+    },
+    {
+      "courses_dept": "eosc",
+      "courses_id": "322",
+      "courses_avg": 75.22,
+      "courses_instructor": "dipple, gregory"
+    },
+    {
+      "courses_dept": "frst",
+      "courses_id": "232",
+      "courses_avg": 68.76,
+      "courses_instructor": "smith, gregory"
+    },
+    {
+      "courses_dept": "geob",
+      "courses_id": "500",
+      "courses_avg": 87,
+      "courses_instructor": "henry, gregory h;mckendry, ian"
+    },
+    {
+      "courses_dept": "geob",
+      "courses_id": "207",
+      "courses_avg": 69.67,
+      "courses_instructor": "henry, gregory h"
+    },
+    {
+      "courses_dept": "geog",
+      "courses_id": "345",
+      "courses_avg": 66.68,
+      "courses_instructor": "gregory, derek john"
+    },
+    {
+      "courses_dept": "geog",
+      "courses_id": "321",
+      "courses_avg": 67.66,
+      "courses_instructor": "gregory, derek john"
+    },
+    {
+      "courses_dept": "math",
+      "courses_id": "184",
+      "courses_avg": 60.48,
+      "courses_instructor": "rechnitzer, andrew"
+    },
+    {
+      "courses_dept": "math",
+      "courses_id": "101",
+      "courses_avg": 59.8,
+      "courses_instructor": "martin, gregory"
+    },
+    {
+      "courses_dept": "mech",
+      "courses_id": "459",
+      "courses_avg": 89.22,
+      "courses_instructor": "atabaki, nima;chiao, mu;fengler, markus;hodgson, antony;mckesson, christopher;parsons, gregg;van der loos, hendrik;winkelman, paul"
+    },
+    {
+      "courses_dept": "mech",
+      "courses_id": "458",
+      "courses_avg": 83.61,
+      "courses_instructor": "atabaki, nima;chiao, mu;fengler, markus;hodgson, antony;mckesson, christopher;parsons, gregg;van der loos, hendrik;winkelman, paul"
+    },
+    {
+      "courses_dept": "mech",
+      "courses_id": "457",
+      "courses_avg": 84.9,
+      "courses_instructor": "atabaki, nima;chiao, mu;fengler, markus;hodgson, antony;mckesson, christopher;parsons, gregg;van der loos, hendrik;winkelman, paul"
+    },
+    {
+      "courses_dept": "mech",
+      "courses_id": "454",
+      "courses_avg": 86.27,
+      "courses_instructor": "atabaki, nima;chiao, mu;fengler, markus;hodgson, antony;mckesson, christopher;parsons, gregg;van der loos, hendrik;winkelman, paul"
+    },
+    {
+      "courses_dept": "medg",
+      "courses_id": "521",
+      "courses_avg": 87.33,
+      "courses_instructor": "morin, gregg"
+    },
+    {
+      "courses_dept": "relg",
+      "courses_id": "308",
+      "courses_avg": 80.23,
+      "courses_instructor": "gardner, gregg"
+    },
+    {
+      "courses_dept": "thtr",
+      "courses_id": "472",
+      "courses_avg": 88,
+      "courses_instructor": "mcgregor, chris"
+    },
+    {
+      "courses_dept": "thtr",
+      "courses_id": "371",
+      "courses_avg": 84.33,
+      "courses_instructor": "heatley, stephen;mcgregor, chris"
+    },
+    {
+      "courses_dept": "wood",
+      "courses_id": "487",
+      "courses_avg": 76.41,
+      "courses_instructor": "smith, gregory"
+    },
+    {
+      "courses_dept": "wood",
+      "courses_id": "241",
+      "courses_avg": 73.44,
+      "courses_instructor": "smith, gregory"
+    }
+  ]
+}

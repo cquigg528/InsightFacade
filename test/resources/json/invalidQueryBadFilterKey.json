@@ -1,0 +1,60 @@
+{
+  "errorMsg": "Invalid filter key: GTEQ",
+  "title": "Invalid Query Bad Filter Key",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GTEQ": {
+                "courses-fail": 10
+              }
+            },
+            {
+              "LT": {
+                "courses-pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "courses-year": 2012
+              }
+            },
+            {
+              "IS": {
+                "courses-dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "courses-instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "courses-title": "Introduction to Software Engineering"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
