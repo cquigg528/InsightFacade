@@ -60,6 +60,7 @@ describe("InsightFacade", function () {
 		let facade: IInsightFacade;
 
 		// Runs before each "it"
+
 		beforeEach(function () {
 			clearDisk();
 			facade = new InsightFacade();
@@ -120,26 +121,9 @@ describe("InsightFacade", function () {
 							numRows: 64612,
 						},
 					];
-
-					expect(insightDatasets).to.have.deep.members(expectedDatasets);
 					expect(insightDatasets).to.be.an.instanceof(Array);
+					expect(insightDatasets).to.have.deep.members(expectedDatasets);
 					expect(insightDatasets).to.have.length(2);
-
-					const insightDatasetCourses = insightDatasets.find((dataset) => dataset.id === "courses");
-					expect(insightDatasetCourses).to.exist;
-					expect(insightDatasetCourses).to.deep.equal({
-						id: "courses",
-						kind: InsightDatasetKind.Courses,
-						numRows: 64612,
-					});
-
-					const insightDatasetCourses2 = insightDatasets.find((dataset) => dataset.id === "courses-2");
-					expect(insightDatasetCourses2).to.exist;
-					expect(insightDatasetCourses2).to.deep.equal({
-						id: "courses-2",
-						kind: InsightDatasetKind.Courses,
-						numRows: 64612,
-					});
 				});
 		});
 	});
@@ -683,6 +667,49 @@ describe("InsightFacade", function () {
 						{
 							id: "roomtest",
 							kind: InsightDatasetKind.Rooms,
+						},
+					]);
+				});
+		});
+	});
+
+	describe("removeDataset", function () {
+		let facade: IInsightFacade = new InsightFacade();
+
+		beforeEach(function () {
+			clearDisk();
+			facade = new InsightFacade();
+		});
+
+		it("should successfully remove a dataset", function () {
+			return facade
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => facade.removeDataset("courses"))
+				.then((removedID) => {
+					expect(removedID).to.deep.equal("courses");
+				})
+				.then(() => facade.listDatasets())
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.deep.equal([]);
+				});
+		});
+
+		it("should fail to remove a dataset because no dataset is added", function () {
+			return expect(facade.removeDataset("courses")).eventually.to.be.rejectedWith(NotFoundError);
+		});
+
+		it("should fail to remove a dataset because ID does not match", function () {
+			return facade
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					expect(facade.removeDataset("courses-2")).eventually.to.be.rejectedWith(NotFoundError);
+				})
+				.then(() => facade.listDatasets())
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.deep.equal([
+						{
+							id: "courses",
+							kind: InsightDatasetKind.Courses,
 							numRows: 64612,
 						},
 					]);
@@ -691,17 +718,24 @@ describe("InsightFacade", function () {
 
 		it("should be able to add dataset that includes an invalid jason", function () {
 			coursesWithInvalidJson = getContentFromArchives("invalidCourse.zip");
+			return facade.addDataset("courses", coursesWithInvalidJson, InsightDatasetKind.Courses).then((addedIds) => {
+				return facade.listDatasets();
+			});
+		});
+
+		it("should fail to remove a dataset due to ID having an underscore", function () {
 			return facade
-				.addDataset("courses", coursesWithInvalidJson, InsightDatasetKind.Courses)
-				.then((addedIds) => {
-					return facade.listDatasets();
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					expect(facade.removeDataset("c_ou_rses")).eventually.to.be.rejectedWith(InsightError);
 				})
+				.then(() => facade.listDatasets())
 				.then((insightDatasets) => {
 					expect(insightDatasets).to.deep.equal([
 						{
 							id: "courses",
 							kind: InsightDatasetKind.Courses,
-							numRows: 3,
+							numRows: 64612,
 						},
 					]);
 				});
@@ -761,16 +795,17 @@ describe("InsightFacade", function () {
 			return expect(result).eventually.to.be.rejectedWith(InsightError);
 		});
 
-		it("should accept valid id with whitespace", function () {
+		it("should fail to to remove a dataset due to ID being whitespaces only", function () {
 			return facade
-				.addDataset("courses ubc", courses, InsightDatasetKind.Courses)
-				.then((addedIds) => {
-					return facade.listDatasets();
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					expect(facade.removeDataset("   ")).eventually.to.be.rejectedWith(InsightError);
 				})
+				.then(() => facade.listDatasets())
 				.then((insightDatasets) => {
 					expect(insightDatasets).to.deep.equal([
 						{
-							id: "courses ubc",
+							id: "courses",
 							kind: InsightDatasetKind.Courses,
 							numRows: 64612,
 						},
@@ -895,5 +930,62 @@ describe("InsightFacade", function () {
 				expect(addedIds).to.deep.equal(["courses"]);
 			});
 		});
+
+		it("should successfully remove one of two datasets", function () {
+			return facade
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => facade.addDataset("courses-2", courses, InsightDatasetKind.Courses))
+				.then(() => facade.removeDataset("courses-2"))
+				.then((removedID) => {
+					expect(removedID).to.deep.equal("courses-2");
+				})
+				.then(() => facade.listDatasets())
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.deep.equal([
+						{
+							id: "courses",
+							kind: InsightDatasetKind.Courses,
+							numRows: 64612,
+						},
+					]);
+				});
+		});
+	});
+
+	describe("performQuery", function () {
+		let facade: IInsightFacade = new InsightFacade();
+
+		before(function () {
+			clearDisk();
+			facade = new InsightFacade();
+			return facade
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => facade.addDataset("courses-2", courses, InsightDatasetKind.Courses));
+		});
+
+		testFolder<Input, Output, Error>(
+			"performQuery",
+			(input: Input): Promise<Output> => {
+				return facade.performQuery(input);
+			},
+			"./test/resources/json",
+			{
+				assertOnResult: (expected, actual) => {
+					expect(actual).to.be.instanceof(Array);
+					expect(actual).to.have.deep.members(expected);
+					expect(actual).to.have.length(expected.length);
+				},
+				errorValidator: (error): error is Error => error === "InsightError" || error === "ResultTooLargeError",
+				assertOnError: (expected, actual) => {
+					if (expected === "InsightError") {
+						expect(actual).to.be.instanceof(InsightError);
+					} else if (expected === "ResultTooLargeError") {
+						expect(actual).to.be.instanceof(ResultTooLargeError);
+					} else {
+						expect.fail("UNEXPECTED ERROR");
+					}
+				},
+			}
+		);
 	});
 });
