@@ -15,7 +15,6 @@ import {testFolder} from "@ubccpsc310/folder-test";
 
 use(chaiAsPromised);
 
-
 type Input = any;
 type Output = any[];
 type Error = "InsightError" | "ResultTooLargeError";
@@ -448,9 +447,7 @@ describe("InsightFacade", function () {
 		);
 	});
 
-
 	describe("Add Dataset", function () {
-
 		let facade: IInsightFacade;
 
 		// Runs before each "it"
@@ -458,7 +455,6 @@ describe("InsightFacade", function () {
 			clearDisk();
 			facade = new InsightFacade();
 		});
-
 
 		it("should list one dataset with InsightDatasetKind rooms", function () {
 			return facade
@@ -617,15 +613,15 @@ describe("InsightFacade", function () {
 		});
 
 		it("should reject an invalid dataset: id is all whitespace", function () {
-			return expect(
-				facade.addDataset("    ", courses, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
+			return expect(facade.addDataset("    ", courses, InsightDatasetKind.Courses)).to.eventually.be.rejectedWith(
+				InsightError
+			);
 		});
 
 		it("should reject an invalid dataset: id is empty string", function () {
-			return expect(
-				facade.addDataset("", courses, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
+			return expect(facade.addDataset("", courses, InsightDatasetKind.Courses)).to.eventually.be.rejectedWith(
+				InsightError
+			);
 		});
 
 		it("should reject an invalid dataset: course files not under a folder courses/", function () {
