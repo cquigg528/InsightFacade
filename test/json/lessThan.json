@@ -1,0 +1,36 @@
+{
+  "title": "less than, valid",
+  "input": {
+    "WHERE": {
+      "LT": {
+        "courses_avg": 1
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "lfs",
+      "courses_instructor": "",
+      "courses_avg": 0
+    },
+    {
+      "courses_dept": "lfs",
+      "courses_instructor": "",
+      "courses_avg": 0
+    },
+    {
+      "courses_dept": "frst",
+      "courses_instructor": "",
+      "courses_avg": 0
+    }
+  ]
+}

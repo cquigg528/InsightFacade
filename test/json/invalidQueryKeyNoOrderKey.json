@@ -1,0 +1,19 @@
+{
+  "title": "Invalid Query Key no key to order on in dataset",
+  "input": {
+  "WHERE":{
+    "GT":{
+      "courses_avg":97
+    }
+  },
+  "OPTIONS":{
+    "COLUMNS":[
+      "courses_dept",
+      "courses_avg"
+    ],
+    "ORDER":"courses_instructor"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

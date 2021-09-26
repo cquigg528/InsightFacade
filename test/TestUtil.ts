@@ -2,11 +2,19 @@ import * as fs from "fs-extra";
 
 const persistDir = "./data";
 
-// Note that the two function declarations below are essentially equivalent
-const getContentFromArchives = (name: string) => fs.readFileSync(`test/resources/archives/${name}`).toString("base64");
+const getContentFromArchives = (name: string): string => {
+	return fs.readFileSync("test/resources/archives/" + name).toString("base64");
+};
+
 
 function clearDisk(): void {
 	fs.removeSync(persistDir);
 }
 
-export {getContentFromArchives, persistDir, clearDisk};
+
+const getContent = (name: string): string => {
+	return fs.readFile("test/resources/archives/ubcCourses/" + name).toString();
+};
+
+export {getContentFromArchives, persistDir, clearDisk, getContent};
+

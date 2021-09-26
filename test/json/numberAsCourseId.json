@@ -1,0 +1,39 @@
+{
+  "errorMsg": "Invalid value type in IS, should be string",
+  "title": "inputstring *",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "AND": [
+            {
+              "IS": {
+                "courses_dept": "math"
+              }
+            },
+            {
+              "EQ": {
+                "courses_avg": 90
+              }
+            }
+          ]
+        },
+        {
+          "IS": {
+            "courses_id": 400
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

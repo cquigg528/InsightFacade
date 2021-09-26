@@ -1,0 +1,29 @@
+{
+  "errorMsg": "AND should only have 1 key, has 2",
+  "title": "And has two keys",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_dept": "math"
+          },
+          "LT": {
+            "courses_fail": 50
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg",
+        "courses_fail"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

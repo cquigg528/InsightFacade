@@ -1,0 +1,21 @@
+{
+  "errorMsg": "ORDER key must be in COLUMNS",
+  "title": "No order",
+  "input": {
+    "WHERE": {
+      "EQ": {
+        "courses_avg": 98
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": ""
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

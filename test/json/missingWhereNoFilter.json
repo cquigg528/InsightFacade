@@ -1,0 +1,16 @@
+{
+  "errorMsg": "Missing WHERE",
+  "title": "missing where, no filter",
+  "input": {
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

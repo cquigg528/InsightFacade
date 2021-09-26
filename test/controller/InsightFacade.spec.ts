@@ -7,12 +7,14 @@ import {
 	ResultTooLargeError,
 } from "../../src/controller/IInsightFacade";
 import InsightFacade from "../../src/controller/InsightFacade";
+
 import {expect, use} from "chai";
 import chaiAsPromised from "chai-as-promised";
 import {clearDisk, getContentFromArchives} from "../TestUtil";
 import {testFolder} from "@ubccpsc310/folder-test";
 
 use(chaiAsPromised);
+
 
 type Input = any;
 type Output = any[];
@@ -133,6 +135,88 @@ describe("InsightFacade", function () {
 		beforeEach(function () {
 			clearDisk();
 			facade = new InsightFacade();
+		});
+    
+    it("should not accept underscore at beginning of id", function () {
+			return facade.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				const result = facade.removeDataset("_courses");
+				return expect(result).eventually.to.be.rejectedWith(InsightError);
+			});
+		});
+		it("should not accept underscore at end of id", function () {
+			return facade.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				const result = facade.removeDataset("courses_");
+				return expect(result).eventually.to.be.rejectedWith(InsightError);
+			});
+		});
+		it("should not accept underscore in middle of id", function () {
+			return facade.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				const result = facade.removeDataset("cou_rses");
+				return expect(result).eventually.to.be.rejectedWith(InsightError);
+			});
+		});
+		it("should not accept whitespace as id", function () {
+			return facade.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				const result = facade.removeDataset("    ");
+				return expect(result).eventually.to.be.rejectedWith(InsightError);
+			});
+		});
+
+		it("should throw a not found error if id hasn't been added yet ", function () {
+			return facade.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				const result = facade.removeDataset("courses-2");
+				return expect(result).eventually.to.be.rejectedWith(NotFoundError);
+			});
+		});
+
+		it("should not accept underscore at beginning of id in remove", function () {
+			return facade.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				const result = facade.removeDataset("_courses");
+				return expect(result).eventually.to.be.rejectedWith(InsightError);
+			});
+		});
+
+		it("should remove entry once but error on second try", function () {
+			return facade
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					return facade.addDataset("courses-2", courses, InsightDatasetKind.Courses);
+				})
+				.then(() => {
+					return facade.removeDataset("courses");
+				})
+				.then(() => {
+					const result = facade.removeDataset("courses");
+					return expect(result).eventually.to.be.rejectedWith(NotFoundError);
+				});
+		});
+
+		it("should correctly remove entry that is present in dataset", function () {
+			return facade
+				.addDataset("courses", courses, InsightDatasetKind.Courses)
+				.then(() => {
+					return facade.addDataset("courses-2", courses, InsightDatasetKind.Courses);
+				})
+				.then(() => {
+					return facade.removeDataset("courses-2");
+				})
+				.then((addedIds) => {
+					return facade.listDatasets();
+				})
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.deep.equal([
+						{
+							id: "courses",
+							kind: InsightDatasetKind.Courses,
+							numRows: 64612,
+						},
+					]);
+				});
+		});
+    
+		it("should not remove before anything has been added", function () {
+			const result = facade.removeDataset("courses");
+			return expect(result).eventually.to.be.rejectedWith(NotFoundError);
 		});
 
 		it(
@@ -356,6 +440,7 @@ describe("InsightFacade", function () {
 		);
 	});
 
+
 	describe("Add Dataset", function () {
 		let coursesWithInvalidJson: string;
 
@@ -367,6 +452,113 @@ describe("InsightFacade", function () {
 			facade = new InsightFacade();
 		});
 
+  
+  it("should list one dataset with InsightDatasetKind rooms", function () {
+			return facade
+				.addDataset("roomtest", courses, InsightDatasetKind.Rooms)
+				.then((addedIds) => {
+					return facade.listDatasets();
+				})
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.deep.equal([
+						{
+							id: "roomtest",
+							kind: InsightDatasetKind.Rooms,
+							numRows: 64612,
+						},
+					]);
+				});
+		});
+
+		it("should be able to add dataset that includes an invalid jason", function () {
+			coursesWithInvalidJson = getContentFromArchives("invalidCourse.zip");
+			return facade
+				.addDataset("courses", coursesWithInvalidJson, InsightDatasetKind.Courses)
+				.then((addedIds) => {
+					return facade.listDatasets();
+				})
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.deep.equal([
+						{
+							id: "courses",
+							kind: InsightDatasetKind.Courses,
+							numRows: 3,
+						},
+					]);
+				});
+		});
+
+		it("should list no datasets when invalid directory holding data added (no courses folder)", function () {
+			const result = facade.addDataset("courses", ubcCourses, InsightDatasetKind.Courses);
+
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should list no datasets non-zip file is uploaded", function () {
+			const result = facade.addDataset("courses", unzip, InsightDatasetKind.Courses);
+
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should list no datasets when no course sections in zip", function () {
+			const result = facade.addDataset("courses-5", courses2, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should not add duplicate id dataset", function () {
+			return facade.addDataset("courses", courses, InsightDatasetKind.Courses).then(() => {
+				const result = facade.addDataset("courses", courses, InsightDatasetKind.Courses);
+				return expect(result).eventually.to.be.rejectedWith(InsightError);
+			});
+		});
+
+		it("should reject invalid id underscore to start", function () {
+			const result = facade.addDataset("_courses", courses, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should reject invalid id underscore to end", function () {
+			const result = facade.addDataset("courses_", courses, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+		it("should reject invalid id underscore in middle", function () {
+			const result = facade.addDataset("cou_rses", courses, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+		it("should reject invalid whitespace id", function () {
+			const result = facade.addDataset("      ", courses, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+		it("should reject invalid whitespace id", function () {
+			const result = facade.addDataset(" ", courses, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+		it("should reject invalid whitespace id with underscore", function () {
+			const result = facade.addDataset(" _", courses, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+		it("should reject invalid whitespace id with underscore and normal character", function () {
+			const result = facade.addDataset("a _", courses, InsightDatasetKind.Courses);
+			return expect(result).eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should accept valid id with whitespace", function () {
+			return facade
+				.addDataset("courses ubc", courses, InsightDatasetKind.Courses)
+				.then((addedIds) => {
+					return facade.listDatasets();
+				})
+				.then((insightDatasets) => {
+					expect(insightDatasets).to.deep.equal([
+						{
+							id: "courses ubc",
+							kind: InsightDatasetKind.Courses,
+							numRows: 64612,
+						},
+					]);
+				});
+		});
+    
 		it("should add a valid dataset: collection empty", function () {
 			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses).then((idList) => {
 				expect(idList).to.deep.equal(["courses"]);

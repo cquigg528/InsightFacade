@@ -1,0 +1,22 @@
+{
+  "errorMsg": "ORDER key must be in COLUMNS",
+  "title": "ordered by rooms",
+  "input": {
+    "WHERE": {
+      "GT": {
+        "courses_fail": 270
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_instructor",
+        "courses_avg",
+        "courses_fail"
+      ],
+      "ORDER": "rooms_dept"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

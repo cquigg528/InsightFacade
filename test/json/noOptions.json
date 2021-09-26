@@ -1,0 +1,14 @@
+{
+  "errorMsg": "OPTIONS missing COLUMNS",
+  "title": "noOptions test",
+  "input": {
+    "WHERE": {
+      "EQ": {
+        "courses_avg": 98
+      }
+    },
+    "OPTIONS": {}
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

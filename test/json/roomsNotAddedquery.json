@@ -1,0 +1,26 @@
+{
+  "errorMsg": "Referenced dataset \"rooms\" not added yet",
+  "title": "rooms not added query error",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "LT": {
+            "courses_fail": 100
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "rooms_dept",
+        "courses_instructor",
+        "courses_avg",
+        "courses_fail"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

@@ -1,0 +1,30 @@
+{
+  "errorMsg": "Invalid key fail in GT",
+  "title": "invalid key fail",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_dept": "math"
+          }
+        },
+        {
+          "GT": {
+            "fail": "100"
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

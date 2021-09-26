@@ -1,0 +1,20 @@
+{
+  "title": "Incorrect Syntax WHERE to WHAT Query",
+  "input": {
+    "WHAT": {
+      "GT": {
+        "courses_avg": 99
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+          "courses_dept",
+          "courses_instructor",
+          "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
