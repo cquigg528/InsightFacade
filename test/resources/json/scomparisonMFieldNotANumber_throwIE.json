@@ -1,0 +1,38 @@
+{
+  "title": "mfield in IS: requires number not string",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 97
+              }
+            },
+            {
+              "IS": {
+                "courses_avg": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "EQ": {
+            "courses_avg": 60
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

@@ -1,0 +1,419 @@
+{
+  "title": "validNegation",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "NOT": {
+            "GT": {
+              "courses_avg": 69
+            }
+          }
+        },
+        {
+          "IS": {
+            "courses_dept": "cpsc"
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_title",
+        "courses_avg",
+        "courses_pass",
+        "courses_fail"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intgrt sys desgn",
+      "courses_avg": 64,
+      "courses_pass": 3,
+      "courses_fail": 1
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intgrt sys desgn",
+      "courses_avg": 64,
+      "courses_pass": 3,
+      "courses_fail": 1
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intro comp sys",
+      "courses_avg": 64.62,
+      "courses_pass": 57,
+      "courses_fail": 14
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basic alg&data",
+      "courses_avg": 65.1,
+      "courses_pass": 62,
+      "courses_fail": 9
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basic alg&data",
+      "courses_avg": 65.26,
+      "courses_pass": 29,
+      "courses_fail": 5
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intel systems",
+      "courses_avg": 66.13,
+      "courses_pass": 26,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intel systems",
+      "courses_avg": 66.13,
+      "courses_pass": 26,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 66.34,
+      "courses_pass": 79,
+      "courses_fail": 11
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 66.76,
+      "courses_pass": 163,
+      "courses_fail": 22
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intro comp sys",
+      "courses_avg": 66.95,
+      "courses_pass": 63,
+      "courses_fail": 11
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "model comptn",
+      "courses_avg": 67.13,
+      "courses_pass": 56,
+      "courses_fail": 11
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 67.16,
+      "courses_pass": 84,
+      "courses_fail": 11
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "artificial intel",
+      "courses_avg": 67.48,
+      "courses_pass": 60,
+      "courses_fail": 6
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basic alg&data",
+      "courses_avg": 67.62,
+      "courses_pass": 25,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 67.76,
+      "courses_pass": 67,
+      "courses_fail": 9
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "comptn, progrmng",
+      "courses_avg": 67.79,
+      "courses_pass": 99,
+      "courses_fail": 21
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "comptn, progrmng",
+      "courses_avg": 67.82,
+      "courses_pass": 87,
+      "courses_fail": 17
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "comp graphics",
+      "courses_avg": 67.85,
+      "courses_pass": 17,
+      "courses_fail": 3
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 67.86,
+      "courses_pass": 104,
+      "courses_fail": 14
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basics comp syst",
+      "courses_avg": 67.91,
+      "courses_pass": 105,
+      "courses_fail": 17
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basics comp syst",
+      "courses_avg": 67.91,
+      "courses_pass": 105,
+      "courses_fail": 17
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intro comp sys",
+      "courses_avg": 67.97,
+      "courses_pass": 151,
+      "courses_fail": 18
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 68.07,
+      "courses_pass": 82,
+      "courses_fail": 8
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "sftwr constructn",
+      "courses_avg": 68.13,
+      "courses_pass": 68,
+      "courses_fail": 10
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basics comp syst",
+      "courses_avg": 68.22,
+      "courses_pass": 112,
+      "courses_fail": 13
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basics comp syst",
+      "courses_avg": 68.22,
+      "courses_pass": 112,
+      "courses_fail": 13
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 68.33,
+      "courses_pass": 85,
+      "courses_fail": 15
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "num approx/discr",
+      "courses_avg": 68.35,
+      "courses_pass": 14,
+      "courses_fail": 3
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "num approx/discr",
+      "courses_avg": 68.35,
+      "courses_pass": 14,
+      "courses_fail": 3
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "machine lrn mine",
+      "courses_avg": 68.4,
+      "courses_pass": 44,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "machine lrn mine",
+      "courses_avg": 68.4,
+      "courses_pass": 44,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 68.45,
+      "courses_pass": 198,
+      "courses_fail": 21
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "internet comp",
+      "courses_avg": 68.54,
+      "courses_pass": 44,
+      "courses_fail": 2
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basic alg&data",
+      "courses_avg": 68.56,
+      "courses_pass": 104,
+      "courses_fail": 11
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "sftwr constructn",
+      "courses_avg": 68.57,
+      "courses_pass": 52,
+      "courses_fail": 15
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "num comp alg prb",
+      "courses_avg": 68.64,
+      "courses_pass": 45,
+      "courses_fail": 5
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "num comp alg prb",
+      "courses_avg": 68.64,
+      "courses_pass": 45,
+      "courses_fail": 5
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "model comptn",
+      "courses_avg": 68.68,
+      "courses_pass": 60,
+      "courses_fail": 11
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "model comptn",
+      "courses_avg": 68.7,
+      "courses_pass": 87,
+      "courses_fail": 10
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "adv rel databse",
+      "courses_avg": 68.76,
+      "courses_pass": 50,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "adv alg dsgn&anl",
+      "courses_avg": 68.77,
+      "courses_pass": 44,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "adv alg dsgn&anl",
+      "courses_avg": 68.77,
+      "courses_pass": 44,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 68.77,
+      "courses_pass": 156,
+      "courses_fail": 14
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "basic alg&data",
+      "courses_avg": 68.77,
+      "courses_pass": 59,
+      "courses_fail": 3
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intro comp sys",
+      "courses_avg": 68.77,
+      "courses_pass": 88,
+      "courses_fail": 7
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "adv opertng sysm",
+      "courses_avg": 68.79,
+      "courses_pass": 24,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "adv opertng sysm",
+      "courses_avg": 68.79,
+      "courses_pass": 24,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "adv opertng sysm",
+      "courses_avg": 68.81,
+      "courses_pass": 27,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "adv opertng sysm",
+      "courses_avg": 68.81,
+      "courses_pass": 27,
+      "courses_fail": 4
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intel systems",
+      "courses_avg": 68.84,
+      "courses_pass": 23,
+      "courses_fail": 2
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intel systems",
+      "courses_avg": 68.84,
+      "courses_pass": 23,
+      "courses_fail": 2
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 68.89,
+      "courses_pass": 72,
+      "courses_fail": 12
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "comptn, progrmng",
+      "courses_avg": 68.9,
+      "courses_pass": 47,
+      "courses_fail": 13
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "intr alg dsgn&an",
+      "courses_avg": 68.94,
+      "courses_pass": 78,
+      "courses_fail": 9
+    },
+    {
+      "courses_dept": "cpsc",
+      "courses_title": "artificial intel",
+      "courses_avg": 69,
+      "courses_pass": 47,
+      "courses_fail": 6
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "title": "id and dataset id misspelled",
+  "input": {
+    "WHERE": {
+      "GT": {
+        "courses_avg": 99
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "cou_pt",
+        "courses_instructor",
+        "rses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

@@ -1,0 +1,38 @@
+{
+  "title": "course_dept is sfield, needs string not 20",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 97
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": 20
+              }
+            }
+          ]
+        },
+        {
+          "EQ": {
+            "courses_avg": 60
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

@@ -1,0 +1,37 @@
+{
+  "title": "order key is not in columns array",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 97
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "EQ": {
+            "courses_avg": 60
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

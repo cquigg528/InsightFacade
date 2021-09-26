@@ -1,0 +1,38 @@
+{
+  "title": "order key is not a string",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 97
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "EQ": {
+            "courses_avg": 60
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": 90
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
