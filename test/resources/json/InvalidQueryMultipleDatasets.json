@@ -1,0 +1,21 @@
+{
+  "title": "Invalid Query Multiple Datasets",
+  "input": {
+    "WHERE": {
+      "GT": {
+        "courses_avg": 99,
+        "courses-2_avg": 98
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses-2_dept",
+        "courses_instructor",
+        "courses-2_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

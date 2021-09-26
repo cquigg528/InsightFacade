@@ -1,0 +1,60 @@
+{
+  "errorMsg": "Invalid key type in GT",
+  "title": "Failed Query m_query cannot be s_key",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_dept": "cpsc"
+              }
+            },
+            {
+              "LT": {
+                "courses_instructor": "greg"
+              }
+            },
+            {
+              "EQ": {
+                "courses_title": "Introduction to Errors"
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "courses_instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "courses_title": "*ntroduction to Software Engineering"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

@@ -1,0 +1,45 @@
+{
+  "errorMsg": "Missing OPTIONS",
+  "title": "Failed Query Missing Options",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_fail": 10
+              }
+            },
+            {
+              "LT": {
+                "courses_pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "courses_year": 2012
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "IS": {
+                "courses_instructor": "Gregor Kiczales"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

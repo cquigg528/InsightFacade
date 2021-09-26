@@ -1,0 +1,53 @@
+{
+  "errorMsg": "OR must be a non-empty array",
+  "title": "Failed Query OR must be a non-empty array",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_fail": 10
+              }
+            },
+            {
+              "LT": {
+                "courses_pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "courses_year": 2012
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "OR": {
+            "NOT": {
+              "IS": {
+                "courses_instructor": ""
+              }
+            }
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

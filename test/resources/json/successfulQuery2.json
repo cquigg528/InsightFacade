@@ -1,0 +1,65 @@
+{
+  "title": "SuccessfulQuery2",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 90
+              }
+            },
+            {
+              "LT": {
+                "courses_audit": 10
+              }
+            },
+            {
+              "EQ": {
+                "courses_year": 2000
+              }
+            },
+            {
+              "IS": {
+                "courses_id": "101"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "courses_instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "courses_uuid": "231"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "musc",
+      "courses_id": "312",
+      "courses_avg": 85.13
+    }
+  ]
+}

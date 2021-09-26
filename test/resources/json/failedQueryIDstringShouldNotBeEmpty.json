@@ -1,0 +1,60 @@
+{
+  "errorMsg": "Referenced dataset cannot be empty string",
+  "title": "Failed Query IDstring should not be empty",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "_fail": "10"
+              }
+            },
+            {
+              "LT": {
+                "_pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "_year": 2012
+              }
+            },
+            {
+              "IS": {
+                "_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "_instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "_title": "*ntroduction to Software Engineering"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "_dept",
+        "_id",
+        "_avg"
+      ],
+      "ORDER": "_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

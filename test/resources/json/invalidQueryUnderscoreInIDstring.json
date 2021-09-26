@@ -1,0 +1,60 @@
+{
+  "errorMsg": "Referenced dataset \"c\" not added yet",
+  "title": "Invalid Query Underscore in IDstring",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "c_ourses_fail": 10
+              }
+            },
+            {
+              "LT": {
+                "c_ourses_pass": 400
+              }
+            },
+            {
+              "EQ": {
+                "c_ourses_year": 2012
+              }
+            },
+            {
+              "IS": {
+                "c_ourses_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "NOT": {
+                "IS": {
+                  "c_ourses_instructor": "Gregor Kiczales"
+                }
+              }
+            },
+            {
+              "IS": {
+                "c_ourses_title": "Introduction **to** Software Engineering"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "c_ourses_dept",
+        "c_ourses_id",
+        "c_ourses_avg"
+      ],
+      "ORDER": "c_ourses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
