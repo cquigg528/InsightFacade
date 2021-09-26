@@ -1,0 +1,99 @@
+{
+  "title": "simpleOrAndQuery",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 97
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "cpsc"
+              }
+            }
+          ]
+        },
+        {
+          "EQ": {
+            "courses_avg": 60
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "test",
+      "courses_id": "100",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "phil",
+      "courses_id": "120",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "phar",
+      "courses_id": "303",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "hist",
+      "courses_id": "432",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "dhyg",
+      "courses_id": "405",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "dhyg",
+      "courses_id": "405",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "dhyg",
+      "courses_id": "401",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "dhyg",
+      "courses_id": "110",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "417",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "chem",
+      "courses_id": "417",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "busi",
+      "courses_id": "444",
+      "courses_avg": 60
+    },
+    {
+      "courses_dept": "busi",
+      "courses_id": "441",
+      "courses_avg": 60
+    }
+  ]
+}

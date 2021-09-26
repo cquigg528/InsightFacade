@@ -1,0 +1,33 @@
+{
+  "title": "empty return",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "NOT": {
+            "IS": {
+              "courses_dept": "cpsc"
+            }
+          }
+        },
+        {
+          "IS": {
+            "courses_dept": "cpsc"
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_title",
+        "courses_avg",
+        "courses_pass",
+        "courses_fail"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": []
+}

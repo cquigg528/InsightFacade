@@ -1,0 +1,30 @@
+{
+  "title": "noFilterRTL",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "EQ": {
+            "courses_avg": "courses_dept"
+          }
+        },
+        {
+          "EQ": {
+            "courses_avg": 60
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_title",
+        "courses_avg",
+        "courses_pass",
+        "courses_fail"
+      ]
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
