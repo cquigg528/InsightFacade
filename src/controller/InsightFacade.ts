@@ -1,4 +1,4 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind} from "./IInsightFacade";
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError} from "./IInsightFacade";
 
 export default class InsightFacade implements IInsightFacade {
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -12,7 +12,6 @@ export default class InsightFacade implements IInsightFacade {
 	public performQuery(query: any): Promise<any[]> {
 		return Promise.resolve([]);
 	}
-
 
 	/**
 	 * Remove a dataset from insightUBC.
@@ -34,6 +33,14 @@ export default class InsightFacade implements IInsightFacade {
 	 * that subsequent queries for that id should fail unless a new addDataset happens first.
 	 */
 	public removeDataset(id: string): Promise<string> {
+		const validIdRegex = /^[^_]+$/;
+
+		// if regex does not match, reject
+		if (!id.match(validIdRegex)) {
+			return Promise.reject(InsightError);
+		}
+
+		// !!!! return stub
 		return Promise.resolve("");
 	}
 }
