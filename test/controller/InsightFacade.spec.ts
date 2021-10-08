@@ -482,13 +482,6 @@ describe("InsightFacade", function () {
 				facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
 			).to.eventually.be.rejectedWith(InsightError);
 		});
-
-		it("should be able to add dataset that includes an invalid jason", function () {
-			coursesWithInvalidJson = getContentFromArchives("invalidCourse.zip");
-			return facade.addDataset("courses", coursesWithInvalidJson, InsightDatasetKind.Courses).then((addedIds) => {
-				expect(addedIds).to.deep.equal(["courses"]);
-			});
-		});
 	});
 });
 
