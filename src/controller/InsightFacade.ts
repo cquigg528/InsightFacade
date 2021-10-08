@@ -40,16 +40,6 @@ interface JSONCourse {
 	Subject: string;
 }
 
-class Course {
-	private name: string;
-	private sections: string[];
-
-	constructor(name: string, sections: string[]) {
-		this.name = name;
-		this.sections = sections;
-	}
-}
-
 class Dataset implements InsightDataset {
 	public id: string;
 	public kind: InsightDatasetKind;
@@ -137,7 +127,6 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 
-		// eslint-disable-next-line max-lines-per-function
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		// Check if id is invalid: contains underscores or only whitespace, or is already in dataset
 		if (id.includes("_")) {
