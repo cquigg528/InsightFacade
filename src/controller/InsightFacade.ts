@@ -1,8 +1,165 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError} from "./IInsightFacade";
+import JSZip from "jszip";
+import * as fs from "fs-extra";
+import {readdir} from "fs-extra";
+
+interface JSONCourse {
+	tier_eight_five: number;
+	tier_ninety: number;
+	Title: string;
+	Section: string;
+	Detail: string;
+	tier_seventy_two: number;
+	Other: number;
+	Low: number;
+	tier_sixty_four: number;
+	tier_zero: number;
+	tier_seventy_six: number;
+	tier_thirty: number;
+	tier_fifty: number;
+	Professor: string;
+	Audit: number;
+	tier_g_fifty: number;
+	tier_forty: number;
+	Withdrew: number;
+	Year: string;
+	tier_twenty: number;
+	Stddev: number;
+	Enrolled: number;
+	tier_fifty_five: number;
+	tier_eighty: number;
+	tier_sixty: number;
+	tier_ten: number;
+	High: number;
+	Course: string;
+	Session: string;
+	Pass: number;
+	Fail: number;
+	Avg: number;
+	Campus: string;
+	Subject: string;
+}
+
+class Course {
+	private name: string;
+	private sections: string[];
+
+	constructor(name: string, sections: string[]) {
+		this.name = name;
+		this.sections = sections;
+	}
+}
+
+class Dataset implements InsightDataset {
+	public id: string;
+	public kind: InsightDatasetKind;
+	public numRows: number;
+	public coursesJson: JSONCourse[];
+
+	constructor(id: string, kind: InsightDatasetKind) {
+		this.id = id;
+		this.coursesJson = [];
+		this.numRows = 0;
+		this.kind = kind;
+	}
+
+	public addCourse(course: JSONCourse): void {
+		this.coursesJson.push(course);
+		this.numRows += 1;
+	}
+}
 
 export default class InsightFacade implements IInsightFacade {
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		return Promise.resolve([]);
+	private datasets: string[];
+
+	constructor() {
+		this.datasets = [];
+	}
+
+
+	private async loadDataset (datasetObj: Dataset, content: string) {
+		let jsZip = new JSZip();
+		let jsonObject;
+		let zip;
+		try {
+			zip = await jsZip.loadAsync(content, {base64: true});
+		} catch(error) {
+			return Promise.reject(new InsightError("Not a proper ZIP file!"));
+		}
+		// jsZip returns an array, so if its length is 0 then there is no folder named courses
+		if (jsZip.folder(/courses/).length <= 0) {
+			return Promise.reject(new InsightError("No folder named courses!"));
+		}
+		// iterate over all the files in the zip folder
+		for (let filename of Object.keys(zip.files)) {
+			// first file will be a folder, we can ignore this
+			if (zip.files[filename].dir) {
+				continue;
+			}
+			// get file data and parse it so it will be a JSON object
+			let fileData = await zip.files[filename].async("string");
+			try {
+				jsonObject = JSON.parse(fileData);
+			} catch(e) {
+				continue;
+			}
+			// add json object to dataset
+			await this.addJSONObjectToDataset(jsonObject, datasetObj, filename);
+		}
+	}
+
+	private async addJSONObjectToDataset(jsonObject: any, datasetObj: Dataset, filename: string): Promise<boolean> {
+		// ignore empty results
+		if (!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0) {
+			return false;
+		}
+		// add all the sections one by one to the datasetObj
+		for (let section of jsonObject.result) {
+			if (this.validateSection(section)) {
+				datasetObj.addCourse(section as JSONCourse);
+				delete jsonObject.result[section];
+			}
+		}
+		// write the course to ./data/ folder
+		let path = `./data/${datasetObj.id}/`;
+		await fs.promises.mkdir(path, {recursive: true});
+		// code adapted from https://stackoverflow.com/questions/573145/get-everything-after-the-dash-in-a-string-in-javascript/35236900
+		fs.writeJSON(`${path}${filename.split("/")[1]}`, jsonObject.result);
+		return true;
+	}
+
+	private validateSection(val: any): boolean {
+		// code adapted from https://stackoverflow.com/questions/54881865/check-if-multiple-keys-exists-in-json-object
+		// Ensures that the section has all parameters that we will need
+		const neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
+			"Audit", "Section", "Year"];
+		return neededKeys.every((key) => Object.keys(val).includes(key));
+	}
+
+
+		// eslint-disable-next-line max-lines-per-function
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		// Check if id is invalid: contains underscores or only whitespace, or is already in dataset
+		if (id.includes("_")) {
+			return Promise.reject(new InsightError("Invalid ID: Contains an underscore (_)."));
+		}
+		if (id.trim() === "") {
+			return Promise.reject(new InsightError("Invalid ID: Contains only whitespace."));
+		}
+		if (this.datasets.includes(id)) {
+			return Promise.reject(new InsightError("Dataset already contains this ID."));
+		}
+		if (kind !== InsightDatasetKind.Courses) {
+			return Promise.reject(new InsightError("Invalid kind! We only accept courses."));
+		}
+		let datasetObj = new Dataset(id, kind);
+
+		await this.loadDataset(datasetObj, content);
+		if (datasetObj.numRows === 0) {
+			return Promise.reject(new InsightError("Dataset contains no valid sections!"));
+		}
+		this.datasets.push(datasetObj.id);
+		return Promise.resolve(this.datasets);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
