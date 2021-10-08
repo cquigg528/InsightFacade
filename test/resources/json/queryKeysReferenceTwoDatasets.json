@@ -1,0 +1,22 @@
+{
+	"title": "query keys reference two datasets",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"courses_avg": 99
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"courses_dept",
+				"courses_title",
+				"cours_avg",
+				"cours_pass",
+				"courses_fail"
+			],
+			"ORDER": "courses_avg"
+		}
+	},
+	"errorExpected": true,
+	"with": "InsightError"
+}

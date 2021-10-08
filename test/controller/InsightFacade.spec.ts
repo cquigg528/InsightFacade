@@ -366,6 +366,13 @@ describe("InsightFacade", function () {
 			facade = new InsightFacade();
 		});
 
+		it("should be able to add dataset that includes invalid json ", function () {
+			coursesWithInvalidJson = getContentFromArchives("barb.zip");
+			return facade
+				.addDataset("test", coursesWithInvalidJson, InsightDatasetKind.Courses)
+				.then((addedIDs) => expect(addedIDs).to.deep.equal(["test"]));
+		});
+
 		it("should add a valid dataset: collection empty", function () {
 			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses).then((idList) => {
 				expect(idList).to.deep.equal(["courses"]);
@@ -375,7 +382,6 @@ describe("InsightFacade", function () {
 		});
 
 		it("should add a valid dataset: collection already has one valid dataset", function () {
-			const smallTestContentStr = getContentFromArchives("smallTest.zip");
 			return facade
 				.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
 				.then(() => {

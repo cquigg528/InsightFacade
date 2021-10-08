@@ -2,18 +2,9 @@
   "title": "noFilterRTL",
   "input": {
     "WHERE": {
-      "OR": [
-        {
-          "EQ": {
-            "courses_avg": "courses_dept"
-          }
-        },
-        {
-          "EQ": {
-            "courses_avg": 60
-          }
-        }
-      ]
+		  "EQ": {
+			"courses_avg": "courses_dept"
+		  }
     },
     "OPTIONS": {
       "COLUMNS": [
