@@ -1,69 +1,73 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError} from "./IInsightFacade";
+import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
 import JSZip from "jszip";
 import * as fs from "fs-extra";
 import {readdir} from "fs-extra";
 
-interface JSONCourse {
-	tier_eight_five: number;
-	tier_ninety: number;
-	Title: string;
-	Section: string;
-	Detail: string;
-	tier_seventy_two: number;
-	Other: number;
-	Low: number;
-	tier_sixty_four: number;
-	tier_zero: number;
-	tier_seventy_six: number;
-	tier_thirty: number;
-	tier_fifty: number;
-	Professor: string;
-	Audit: number;
-	tier_g_fifty: number;
-	tier_forty: number;
-	Withdrew: number;
-	Year: string;
-	tier_twenty: number;
-	Stddev: number;
-	Enrolled: number;
-	tier_fifty_five: number;
-	tier_eighty: number;
-	tier_sixty: number;
-	tier_ten: number;
-	High: number;
-	Course: string;
-	Session: string;
-	Pass: number;
-	Fail: number;
-	Avg: number;
-	Campus: string;
-	Subject: string;
-}
+// Not using this but keeping it commented out for now in case we want to use it in the future
+// interface JSONCourse {
+// 	tier_eight_five: number;
+// 	tier_ninety: number;
+// 	Title: string;
+// 	Section: string;
+// 	Detail: string;
+// 	tier_seventy_two: number;
+// 	Other: number;
+// 	Low: number;
+// 	tier_sixty_four: number;
+// 	tier_zero: number;
+// 	tier_seventy_six: number;
+// 	tier_thirty: number;
+// 	tier_fifty: number;
+// 	Professor: string;
+// 	Audit: number;
+// 	tier_g_fifty: number;
+// 	tier_forty: number;
+// 	Withdrew: number;
+// 	Year: string;
+// 	tier_twenty: number;
+// 	Stddev: number;
+// 	Enrolled: number;
+// 	tier_fifty_five: number;
+// 	tier_eighty: number;
+// 	tier_sixty: number;
+// 	tier_ten: number;
+// 	High: number;
+// 	Course: string;
+// 	Session: string;
+// 	Pass: number;
+// 	Fail: number;
+// 	Avg: number;
+// 	Campus: string;
+// 	Subject: string;
+// }
 
 class Dataset implements InsightDataset {
 	public id: string;
 	public kind: InsightDatasetKind;
 	public numRows: number;
-	public coursesJson: JSONCourse[];
 
 	constructor(id: string, kind: InsightDatasetKind) {
 		this.id = id;
-		this.coursesJson = [];
 		this.numRows = 0;
 		this.kind = kind;
 	}
 
-	public addCourse(course: JSONCourse): void {
-		this.coursesJson.push(course);
+	// In this class we can add different methods to search for a course from disk
+	// We will handle the logic of parsing the query in InsightFacade
+	// Then call the appropriate getter that's here in Dataset
+
+	public addCourse(): void {
 		this.numRows += 1;
 	}
 }
 
 export default class InsightFacade implements IInsightFacade {
-	private datasets: string[];
+	private datasets: InsightDataset[];
+	private datasetIds: string[];
 
 	constructor() {
 		this.datasets = [];
+		this.datasetIds = [];
 	}
 
 
@@ -76,15 +80,23 @@ export default class InsightFacade implements IInsightFacade {
 		} catch(error) {
 			return Promise.reject(new InsightError("Not a proper ZIP file!"));
 		}
-		// jsZip returns an array, so if its length is 0 then there is no folder named courses
-		if (jsZip.folder(/courses/).length <= 0) {
+		// jsZip.folder() returns an array, so if its length is 0 then there is no folder named courses
+		if (jsZip.folder(/courses/).length !== 1) {
 			return Promise.reject(new InsightError("No folder named courses!"));
 		}
+
 		// iterate over all the files in the zip folder
 		for (let filename of Object.keys(zip.files)) {
 			// first file will be a folder, we can ignore this
 			if (zip.files[filename].dir) {
 				continue;
+			}
+			// check if the file is in the courses folder
+			// not sure if we should continue or throw an error here... TODO
+			const regex = new RegExp("courses/.*");
+			if (!(regex.test(zip.files[filename].name))) {
+				continue;
+				// return Promise.reject(new InsightError("Files should not be outside of courses folder!"));
 			}
 			// get file data and parse it so it will be a JSON object
 			let fileData = await zip.files[filename].async("string");
@@ -106,7 +118,8 @@ export default class InsightFacade implements IInsightFacade {
 		// add all the sections one by one to the datasetObj
 		for (let section of jsonObject.result) {
 			if (this.validateSection(section)) {
-				datasetObj.addCourse(section as JSONCourse);
+				datasetObj.addCourse();
+			} else {
 				delete jsonObject.result[section];
 			}
 		}
@@ -128,6 +141,7 @@ export default class InsightFacade implements IInsightFacade {
 
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		// TODO: speed up implementation
 		// Check if id is invalid: contains underscores or only whitespace, or is already in dataset
 		if (id.includes("_")) {
 			return Promise.reject(new InsightError("Invalid ID: Contains an underscore (_)."));
@@ -135,7 +149,7 @@ export default class InsightFacade implements IInsightFacade {
 		if (id.trim() === "") {
 			return Promise.reject(new InsightError("Invalid ID: Contains only whitespace."));
 		}
-		if (this.datasets.includes(id)) {
+		if (this.datasetIds.includes(id)) {
 			return Promise.reject(new InsightError("Dataset already contains this ID."));
 		}
 		if (kind !== InsightDatasetKind.Courses) {
@@ -147,15 +161,17 @@ export default class InsightFacade implements IInsightFacade {
 		if (datasetObj.numRows === 0) {
 			return Promise.reject(new InsightError("Dataset contains no valid sections!"));
 		}
-		this.datasets.push(datasetObj.id);
-		return Promise.resolve(this.datasets);
+		this.datasets.push(datasetObj as InsightDataset);
+		this.datasetIds.push(datasetObj.id);
+		return Promise.resolve(this.datasetIds);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
-		return Promise.resolve([]);
+		return Promise.resolve(this.datasets);
 	}
 
 	public performQuery(query: any): Promise<any[]> {
+		// TODO: implement performQuery
 		return Promise.resolve([]);
 	}
 
@@ -178,15 +194,30 @@ export default class InsightFacade implements IInsightFacade {
 	 * This will delete both disk and memory caches for the dataset for the id meaning
 	 * that subsequent queries for that id should fail unless a new addDataset happens first.
 	 */
-	public removeDataset(id: string): Promise<string> {
+	public async removeDataset(id: string): Promise<string> {
 		const validIdRegex = /^[^_]+$/;
 
 		// if regex does not match, reject
-		if (!id.match(validIdRegex)) {
-			return Promise.reject(InsightError);
+		if (!id.match(validIdRegex) || id.trim() === "") {
+			return Promise.reject(new InsightError("Invalid ID!"));
 		}
-
-		// !!!! return stub
-		return Promise.resolve("");
+		if (this.datasetIds.includes(id)) {
+			let path = `./data/${id}/`;
+			try {
+				await fs.rmdir(path, {recursive: true});
+			} catch {
+				return Promise.reject(new InsightError("Failed to remove directory!"));
+			}
+		} else {
+			return Promise.reject(new NotFoundError("Could not find that ID!"));
+		}
+		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+		this.datasets.forEach( (dataset, index) => {
+			if (dataset.id === id) {
+				this.datasets.splice(index, 1);
+				this.datasetIds.splice(index, 1);
+			}
+		});
+		return Promise.resolve(id);
 	}
 }
