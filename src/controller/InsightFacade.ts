@@ -86,13 +86,13 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// iterate over all the files in the zip folder
+		let promises = [];
 		for (let filename of Object.keys(zip.files)) {
 			// first file will be a folder, we can ignore this
 			if (zip.files[filename].dir) {
 				continue;
 			}
 			// check if the file is in the courses folder
-			// not sure if we should continue or throw an error here... TODO
 			const regex = new RegExp("courses/.*");
 			if (!(regex.test(zip.files[filename].name))) {
 				continue;
@@ -106,14 +106,15 @@ export default class InsightFacade implements IInsightFacade {
 				continue;
 			}
 			// add json object to dataset
-			await this.addJSONObjectToDataset(jsonObject, datasetObj, filename);
+			promises.push(this.addJSONObjectToDataset(jsonObject, datasetObj, filename));
 		}
+		return await Promise.all(promises);
 	}
 
-	private async addJSONObjectToDataset(jsonObject: any, datasetObj: Dataset, filename: string): Promise<boolean> {
+	private async addJSONObjectToDataset(jsonObject: any, datasetObj: Dataset, filename: string): Promise<void> {
 		// ignore empty results
 		if (!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0) {
-			return false;
+			return;
 		}
 		// add all the sections one by one to the datasetObj
 		for (let section of jsonObject.result) {
@@ -127,8 +128,7 @@ export default class InsightFacade implements IInsightFacade {
 		let path = `./data/${datasetObj.id}/`;
 		await fs.promises.mkdir(path, {recursive: true});
 		// code adapted from https://stackoverflow.com/questions/573145/get-everything-after-the-dash-in-a-string-in-javascript/35236900
-		fs.writeJSON(`${path}${filename.split("/")[1]}`, jsonObject.result);
-		return true;
+		return await fs.writeJSON(`${path}${filename.split("/")[1]}`, jsonObject.result);
 	}
 
 	private validateSection(val: any): boolean {
@@ -141,7 +141,6 @@ export default class InsightFacade implements IInsightFacade {
 
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		// TODO: speed up implementation
 		// Check if id is invalid: contains underscores or only whitespace, or is already in dataset
 		if (id.includes("_")) {
 			return Promise.reject(new InsightError("Invalid ID: Contains an underscore (_)."));
