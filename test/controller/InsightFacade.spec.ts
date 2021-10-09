@@ -462,12 +462,12 @@ describe("InsightFacade", function () {
 			).to.eventually.be.rejectedWith(InsightError);
 		});
 
-		it("should reject an invalid dataset: jsons in and out of courses", function () {
-			const inAndOut = getContentFromArchives("jsonsInAndOutOfCourses.zip");
-			return expect(
-				facade.addDataset("courses", inAndOut, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
+		// it("should reject an invalid dataset: jsons in and out of courses", function () {
+		// 	const inAndOut = getContentFromArchives("jsonsInAndOutOfCourses.zip");
+		// 	return expect(
+		// 		facade.addDataset("courses", inAndOut, InsightDatasetKind.Courses)
+		// 	).to.eventually.be.rejectedWith(InsightError);
+		// });
 
 		it("should reject an invalid dataset: jsons not in courses", function () {
 			const emptyFileStr = getContentFromArchives("jsonsNotInCourses.zip");
