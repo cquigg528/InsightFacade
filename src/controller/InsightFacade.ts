@@ -96,7 +96,6 @@ export default class InsightFacade implements IInsightFacade {
 			const regex = new RegExp("courses/.*");
 			if (!(regex.test(zip.files[filename].name))) {
 				continue;
-				// return Promise.reject(new InsightError("Files should not be outside of courses folder!"));
 			}
 			// get file data and parse it so it will be a JSON object
 			let fileData = await zip.files[filename].async("string");
