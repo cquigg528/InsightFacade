@@ -1,7 +1,7 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
 import JSZip from "jszip";
 import * as fs from "fs-extra";
-import {readdir} from "fs-extra";
+import {Dataset} from "./Dataset";
 
 // Not using this but keeping it commented out for now in case we want to use it in the future
 // interface JSONCourse {
@@ -41,25 +41,6 @@ import {readdir} from "fs-extra";
 // 	Subject: string;
 // }
 
-class Dataset implements InsightDataset {
-	public id: string;
-	public kind: InsightDatasetKind;
-	public numRows: number;
-
-	constructor(id: string, kind: InsightDatasetKind) {
-		this.id = id;
-		this.numRows = 0;
-		this.kind = kind;
-	}
-
-	// In this class we can add different methods to search for a course from disk
-	// We will handle the logic of parsing the query in InsightFacade
-	// Then call the appropriate getter that's here in Dataset
-
-	public addCourse(): void {
-		this.numRows += 1;
-	}
-}
 
 export default class InsightFacade implements IInsightFacade {
 	private datasets: InsightDataset[];
@@ -68,74 +49,6 @@ export default class InsightFacade implements IInsightFacade {
 	constructor() {
 		this.datasets = [];
 		this.datasetIds = [];
-	}
-
-
-	private async loadDataset (datasetObj: Dataset, content: string) {
-		let jsZip = new JSZip();
-		let jsonObject;
-		let zip;
-		try {
-			zip = await jsZip.loadAsync(content, {base64: true});
-		} catch(error) {
-			return Promise.reject(new InsightError("Not a proper ZIP file!"));
-		}
-		// jsZip.folder() returns an array, so if its length is 0 then there is no folder named courses
-		if (jsZip.folder(/courses/).length !== 1) {
-			return Promise.reject(new InsightError("No folder named courses!"));
-		}
-
-		// iterate over all the files in the zip folder
-		let promises = [];
-		for (let filename of Object.keys(zip.files)) {
-			// first file will be a folder, we can ignore this
-			if (zip.files[filename].dir) {
-				continue;
-			}
-			// check if the file is in the courses folder
-			const regex = new RegExp("courses/.*");
-			if (!(regex.test(zip.files[filename].name))) {
-				continue;
-			}
-			// get file data and parse it so it will be a JSON object
-			let fileData = await zip.files[filename].async("string");
-			try {
-				jsonObject = JSON.parse(fileData);
-			} catch(e) {
-				continue;
-			}
-			// add json object to dataset
-			promises.push(this.addJSONObjectToDataset(jsonObject, datasetObj, filename));
-		}
-		return await Promise.all(promises);
-	}
-
-	private async addJSONObjectToDataset(jsonObject: any, datasetObj: Dataset, filename: string): Promise<void> {
-		// ignore empty results
-		if (!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0) {
-			return;
-		}
-		// add all the sections one by one to the datasetObj
-		for (let section of jsonObject.result) {
-			if (this.validateSection(section)) {
-				datasetObj.addCourse();
-			} else {
-				delete jsonObject.result[section];
-			}
-		}
-		// write the course to ./data/ folder
-		let path = `./data/${datasetObj.id}/`;
-		await fs.promises.mkdir(path, {recursive: true});
-		// code adapted from https://stackoverflow.com/questions/573145/get-everything-after-the-dash-in-a-string-in-javascript/35236900
-		return await fs.writeJSON(`${path}${filename.split("/")[1]}`, jsonObject.result);
-	}
-
-	private validateSection(val: any): boolean {
-		// code adapted from https://stackoverflow.com/questions/54881865/check-if-multiple-keys-exists-in-json-object
-		// Ensures that the section has all parameters that we will need
-		const neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
-			"Audit", "Section", "Year"];
-		return neededKeys.every((key) => Object.keys(val).includes(key));
 	}
 
 
@@ -155,7 +68,7 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		let datasetObj = new Dataset(id, kind);
 
-		await this.loadDataset(datasetObj, content);
+		await datasetObj.loadDataset(content);
 		if (datasetObj.numRows === 0) {
 			return Promise.reject(new InsightError("Dataset contains no valid sections!"));
 		}
@@ -212,6 +125,8 @@ export default class InsightFacade implements IInsightFacade {
 		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
 		this.datasets.forEach( (dataset, index) => {
 			if (dataset.id === id) {
+				// datasets should only be added in addDataset and removed in removeDataset, and both methods
+				// add/remove from both datasets and datasetIds, so it's safe to to remove both here.
 				this.datasets.splice(index, 1);
 				this.datasetIds.splice(index, 1);
 			}
