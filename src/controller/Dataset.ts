@@ -2,7 +2,6 @@ import {InsightDataset, InsightDatasetKind, InsightError} from "./IInsightFacade
 import JSZip from "jszip";
 import * as fs from "fs-extra";
 
-
 export class Dataset implements InsightDataset {
 	public id: string;
 	public kind: InsightDatasetKind;
@@ -37,14 +36,14 @@ export class Dataset implements InsightDataset {
 			}
 			// check if the file is in the courses folder
 			const regex = new RegExp("courses/.*");
-			if (!regex.test(zip.files[filename].name)) {
+			if (!(regex.test(zip.files[filename].name))) {
 				continue;
 			}
 			// get file data and parse it so it will be a JSON object
 			let fileData = await zip.files[filename].async("string");
 			try {
 				jsonObject = JSON.parse(fileData);
-			} catch (e) {
+			} catch(e) {
 				continue;
 			}
 			// add json object to dataset
@@ -55,7 +54,7 @@ export class Dataset implements InsightDataset {
 
 	private async addJSONObjectToDataset(jsonObject: any, filename: string): Promise<void> {
 		// ignore empty results
-		if (!Object.keys(jsonObject).includes("result") || jsonObject.result.length === 0) {
+		if (!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0) {
 			return;
 		}
 		// add all the sections one by one to the datasetObj
@@ -79,18 +78,9 @@ export class Dataset implements InsightDataset {
 	private validateSection(val: any): boolean {
 		// code adapted from https://stackoverflow.com/questions/54881865/check-if-multiple-keys-exists-in-json-object
 		// Ensures that the section has all parameters that we will need
-		const neededKeys = [
-			"Subject",
-			"Course",
-			"Avg",
-			"Professor",
-			"Title",
-			"Pass",
-			"Fail",
-			"Audit",
-			"Section",
-			"Year",
-		];
+		const neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
+			"Audit", "Section", "Year"];
+
 		return neededKeys.every((key) => Object.keys(val).includes(key));
 	}
 
@@ -170,7 +160,7 @@ export class Dataset implements InsightDataset {
 		let regex: RegExp;
 		let courses = await this.setUpSearch();
 		let listOfCourses = courses.flat(1);
-		if (inputstring.charAt(0) === "*" && inputstring.charAt(inputstring.length - 1) === "*") {
+		if ((inputstring.charAt(0) === "*") && (inputstring.charAt(inputstring.length - 1) === "*")) {
 			regex = new RegExp(".*" + inputstring.substring(1, inputstring.length - 1) + ".*", "i");
 		} else if (inputstring.charAt(0) === "*") {
 			regex = new RegExp(".*" + inputstring.substring(1), "i");
@@ -201,7 +191,7 @@ export class Dataset implements InsightDataset {
 		}
 		return listOfCourses.filter(function (item) {
 			// We test each element of the object to see if one string matches the regexp.
-			return regex.test(item[searchKey]);
+			return (regex.test(item[searchKey]));
 		});
 	}
 
