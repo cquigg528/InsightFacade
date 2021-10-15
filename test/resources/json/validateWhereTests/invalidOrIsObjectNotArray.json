@@ -1,0 +1,33 @@
+{
+	"title": "invalid mkey: should be number not string",
+	"input":
+	{
+		"WHERE":{
+			"OR":
+				{
+					"AND":[
+						{
+							"GT":{
+								"courses_avg":"hi"
+							}
+						},
+						{
+							"IS":{
+								"courses_dept":"adhe"
+							}
+						}
+					]
+				}
+
+		},
+		"OPTIONS":{
+			"COLUMNS":[
+				"courses_avg",
+				"courses_dept"
+			],
+			"ORDER":"courses_avg"
+		}
+
+	} ,
+	"with": false
+}

@@ -1,0 +1,12 @@
+{
+	"title": "invalid query no columns, return null",
+	"input": {
+		"WHERE":{
+		},
+		"OPTIONS": {
+			"ORDER":"courses_avg"
+		}
+	},
+	"errorExpected": false,
+	"with": false
+}

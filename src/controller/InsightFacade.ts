@@ -1,83 +1,26 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
+import {QueryValidator} from "./QueryValidator";
+import QueryFilters from "./QueryFilters";
+import {Dataset} from "./Dataset";
 import JSZip from "jszip";
 import * as fs from "fs-extra";
-import {readdir} from "fs-extra";
-
-// Not using this but keeping it commented out for now in case we want to use it in the future
-// interface JSONCourse {
-// 	tier_eight_five: number;
-// 	tier_ninety: number;
-// 	Title: string;
-// 	Section: string;
-// 	Detail: string;
-// 	tier_seventy_two: number;
-// 	Other: number;
-// 	Low: number;
-// 	tier_sixty_four: number;
-// 	tier_zero: number;
-// 	tier_seventy_six: number;
-// 	tier_thirty: number;
-// 	tier_fifty: number;
-// 	Professor: string;
-// 	Audit: number;
-// 	tier_g_fifty: number;
-// 	tier_forty: number;
-// 	Withdrew: number;
-// 	Year: string;
-// 	tier_twenty: number;
-// 	Stddev: number;
-// 	Enrolled: number;
-// 	tier_fifty_five: number;
-// 	tier_eighty: number;
-// 	tier_sixty: number;
-// 	tier_ten: number;
-// 	High: number;
-// 	Course: string;
-// 	Session: string;
-// 	Pass: number;
-// 	Fail: number;
-// 	Avg: number;
-// 	Campus: string;
-// 	Subject: string;
-// }
-
-class Dataset implements InsightDataset {
-	public id: string;
-	public kind: InsightDatasetKind;
-	public numRows: number;
-
-	constructor(id: string, kind: InsightDatasetKind) {
-		this.id = id;
-		this.numRows = 0;
-		this.kind = kind;
-	}
-
-	// In this class we can add different methods to search for a course from disk
-	// We will handle the logic of parsing the query in InsightFacade
-	// Then call the appropriate getter that's here in Dataset
-
-	public addCourse(): void {
-		this.numRows += 1;
-	}
-}
 
 export default class InsightFacade implements IInsightFacade {
 	private datasets: InsightDataset[];
-	private datasetIds: string[];
+	public datasetIds: string[];
 
 	constructor() {
 		this.datasets = [];
 		this.datasetIds = [];
 	}
 
-
-	private async loadDataset (datasetObj: Dataset, content: string) {
+	private async loadDataset(datasetObj: Dataset, content: string) {
 		let jsZip = new JSZip();
 		let jsonObject;
 		let zip;
 		try {
 			zip = await jsZip.loadAsync(content, {base64: true});
-		} catch(error) {
+		} catch (error) {
 			return Promise.reject(new InsightError("Not a proper ZIP file!"));
 		}
 		// jsZip.folder() returns an array, so if its length is 0 then there is no folder named courses
@@ -94,14 +37,14 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			// check if the file is in the courses folder
 			const regex = new RegExp("courses/.*");
-			if (!(regex.test(zip.files[filename].name))) {
+			if (!regex.test(zip.files[filename].name)) {
 				continue;
 			}
 			// get file data and parse it so it will be a JSON object
 			let fileData = await zip.files[filename].async("string");
 			try {
 				jsonObject = JSON.parse(fileData);
-			} catch(e) {
+			} catch (e) {
 				continue;
 			}
 			// add json object to dataset
@@ -112,7 +55,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	private async addJSONObjectToDataset(jsonObject: any, datasetObj: Dataset, filename: string): Promise<void> {
 		// ignore empty results
-		if (!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0) {
+		if (!Object.keys(jsonObject).includes("result") || jsonObject.result.length === 0) {
 			return;
 		}
 		// add all the sections one by one to the datasetObj
@@ -133,11 +76,20 @@ export default class InsightFacade implements IInsightFacade {
 	private validateSection(val: any): boolean {
 		// code adapted from https://stackoverflow.com/questions/54881865/check-if-multiple-keys-exists-in-json-object
 		// Ensures that the section has all parameters that we will need
-		const neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
-			"Audit", "Section", "Year"];
+		const neededKeys = [
+			"Subject",
+			"Course",
+			"Avg",
+			"Professor",
+			"Title",
+			"Pass",
+			"Fail",
+			"Audit",
+			"Section",
+			"Year",
+		];
 		return neededKeys.every((key) => Object.keys(val).includes(key));
 	}
-
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		// Check if id is invalid: contains underscores or only whitespace, or is already in dataset
@@ -168,9 +120,43 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.resolve(this.datasets);
 	}
 
-	public performQuery(query: any): Promise<any[]> {
-		// TODO: implement performQuery
-		return Promise.resolve([]);
+	/**
+	 * Perform a query on insightUBC.
+	 *
+	 * @param query  The query to be performed.
+	 *
+	 * If a query is incorrectly formatted, references a dataset not added (in memory or on disk),
+	 * or references multiple datasets, it should be rejected.
+	 *
+	 * @return Promise <any[]>
+	 *
+	 * The promise should fulfill with an array of results.
+	 * The promise should reject with a ResultTooLargeError (if the query returns too many results)
+	 * or an InsightError (for any other source of failure) describing the error.
+	 */
+	public async performQuery(query: any): Promise<any[]> {
+		let validQuery: QueryFilters | null;
+		let searchResults: any[];
+		let sortedSearchResults: any[];
+
+		let validator: QueryValidator = new QueryValidator(query);
+		if (!validator.setUpQueryValidation(this.datasetIds, query)) {
+			return Promise.reject(InsightError);
+		}
+
+		validQuery = await validator.validateAndParseQuery();
+
+		if (validQuery === null) {
+			// query found to be invalid
+			return Promise.reject(InsightError);
+		}
+
+		// searchResults = await performDatasetSearch(validQuery);
+
+		// sortedSearchResults = await sortResults(searchResults);
+
+		// stub
+		return Promise.reject(null);
 	}
 
 	/**
@@ -210,7 +196,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new NotFoundError("Could not find that ID!"));
 		}
 		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-		this.datasets.forEach( (dataset, index) => {
+		this.datasets.forEach((dataset, index) => {
 			if (dataset.id === id) {
 				this.datasets.splice(index, 1);
 				this.datasetIds.splice(index, 1);

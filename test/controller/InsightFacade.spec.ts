@@ -11,6 +11,8 @@ import {expect, use} from "chai";
 import chaiAsPromised from "chai-as-promised";
 import {clearDisk, getContentFromArchives} from "../TestUtil";
 import {testFolder} from "@ubccpsc310/folder-test";
+import {QueryValidator} from "../../src/controller/QueryValidator";
+import {isDeepStrictEqual} from "util";
 
 use(chaiAsPromised);
 
@@ -18,20 +20,26 @@ type Input = any;
 type Output = any[];
 type Error = "InsightError" | "ResultTooLargeError";
 
+type CheckQueryOutput = boolean;
+type ValidateWhereOutput = boolean;
+type ValidateParseOptionsOutput = string[];
+
 // Notes:
 // Can use nested describes, and attach before handles to different describes
 describe("InsightFacade", function () {
 	let coursesContentStr: string;
+	let smallerTestStr: string;
 
 	// If getContentFromArchives throws exception, whole test suite crashes.  Use
 	// the before() construct for more specific error messages.  Runs before any of the
 	// tests - runs before it's describe
 	before(function () {
 		coursesContentStr = getContentFromArchives("courses.zip");
+		smallerTestStr = getContentFromArchives("smallTest.zip");
 	});
 
 	describe("List Datasets", function () {
-		let facade: IInsightFacade;
+		let facade: InsightFacade;
 
 		// Runs before each "it"
 		beforeEach(function () {
@@ -353,6 +361,161 @@ describe("InsightFacade", function () {
 				},
 			}
 		);
+	});
+
+	describe("QueryValidator Dynamic Tests", function () {
+		let facade: InsightFacade;
+		let validator: QueryValidator;
+
+		describe("setUpQueryValidation", function () {
+			before(function () {
+				clearDisk();
+				facade = new InsightFacade();
+				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+			});
+
+			testFolder<Input, CheckQueryOutput, Error>(
+				"Dynamic quickCheckQuery testing",
+				(input): CheckQueryOutput => {
+					validator = new QueryValidator(input);
+					return validator.setUpQueryValidation(facade.datasetIds, input);
+				},
+				"./test/resources/json/setUpQueryTests",
+				{
+					errorValidator: (error): error is Error =>
+						error === "InsightError" || error === "ResultTooLargeError",
+
+					assertOnError: (expected, actual) => {
+						if (expected === "InsightError") {
+							expect(actual).to.be.instanceof(InsightError);
+						} else if (expected === "ResultTooLargeError") {
+							expect(actual).to.be.instanceof(ResultTooLargeError);
+						} else {
+							// this should be unreachable
+							expect.fail("UNEXPECTED ERROR");
+						}
+					},
+
+					assertOnResult: (expected, actual) => {
+						expect(actual).to.equal(expected);
+					},
+				}
+			);
+		});
+
+		describe("validateWhere", function () {
+			before(function () {
+				clearDisk();
+				facade = new InsightFacade();
+				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+			});
+
+			testFolder<Input, ValidateWhereOutput, Error>(
+				"Dynamic validateWhere testing",
+				(input): ValidateWhereOutput => {
+					validator = new QueryValidator(input);
+					validator.mkeys = [
+						"courses" + "_avg",
+						"courses" + "_pass",
+						"courses" + "_fail",
+						"courses" + "_audit",
+						"courses" + "_year"
+					];
+					validator.skeys = [
+						"courses" + "_dept",
+						"courses" + "_id",
+						"courses" + "_instructor",
+						"courses" + "_title",
+						"courses" + "_uuid"
+					];
+					validator.validateWhere();
+					return validator.validWhere;
+				},
+				"./test/resources/json/validateWhereTests",
+				{
+					errorValidator: (error): error is Error =>
+						error === "InsightError" || error === "ResultTooLargeError",
+
+					assertOnError: (expected, actual) => {
+						if (expected === "InsightError") {
+							expect(actual).to.be.instanceof(InsightError);
+						} else if (expected === "ResultTooLargeError") {
+							expect(actual).to.be.instanceof(ResultTooLargeError);
+						} else {
+							// this should be unreachable
+							expect.fail("UNEXPECTED ERROR");
+						}
+					},
+
+					assertOnResult: (expected, actual) => {
+						expect(actual).to.equal(expected);
+					},
+				}
+			);
+		});
+
+		describe("validateAndParseOptions", function () {
+			before(function () {
+				clearDisk();
+				facade = new InsightFacade();
+				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+			});
+
+			testFolder<Input, ValidateParseOptionsOutput, Error>(
+				"Dynamic validateWhere testing",
+				(input): ValidateParseOptionsOutput => {
+					validator = new QueryValidator(input);
+					validator.mkeys = [
+						"courses" + "_avg",
+						"courses" + "_pass",
+						"courses" + "_fail",
+						"courses" + "_audit",
+						"courses" + "_year"
+					];
+					validator.skeys = [
+						"courses" + "_dept",
+						"courses" + "_id",
+						"courses" + "_instructor",
+						"courses" + "_title",
+						"courses" + "_uuid"
+					];
+					return validator.validateAndParseOptions();
+				},
+				"./test/resources/json/validateAndParseOptions",
+				{
+					errorValidator: (error): error is Error =>
+						error === "InsightError" || error === "ResultTooLargeError",
+
+					assertOnError: (expected, actual) => {
+						if (expected === "InsightError") {
+							expect(actual).to.be.instanceof(InsightError);
+						} else if (expected === "ResultTooLargeError") {
+							expect(actual).to.be.instanceof(ResultTooLargeError);
+						} else {
+							// this should be unreachable
+							expect.fail("UNEXPECTED ERROR");
+						}
+					},
+
+					assertOnResult: (expected, actual) => {
+						expect(actual).to.deep.equal(expected);
+						if (isDeepStrictEqual(expected, [])) {
+							expect(validator.validOptions).to.be.false;
+							expect(validator.order).to.deep.equal("");
+						} else {
+							expect(validator.validOptions).to.be.true;
+							if (Object.prototype.hasOwnProperty.call(validator.query.OPTIONS, "ORDER")) {
+								expect(validator.order).to.not.deep.equal("");
+								expect(validator.query.OPTIONS.COLUMNS).to.include(validator.order);
+							} else {
+								expect(validator.order).to.deep.equal("");
+
+							}
+						}
+					},
+				}
+			);
+		});
 	});
 
 	describe("Add Dataset", function () {

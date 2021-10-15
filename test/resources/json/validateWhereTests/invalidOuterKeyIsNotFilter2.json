@@ -1,0 +1,38 @@
+{
+	"title": "outer key is not FILTER 2",
+	"input":
+	{
+		"WHERE":{
+			"OR":[
+				{
+					"AND":[
+						{
+							"GT":{
+								"courses_avg":90
+							}
+						},
+						{
+							"IS":{
+								"courses_dept":"adhe"
+							}
+						}
+					]
+				},
+				{
+					"courses_avg":{
+						"courses_avg":95
+					}
+				}
+			]
+		},
+		"OPTIONS":{
+			"COLUMNS":[
+				"courses_avg",
+				"courses_dept"
+			],
+			"ORDER":"courses_avg"
+		}
+
+	} ,
+	"with": false
+}

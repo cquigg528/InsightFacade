@@ -1,0 +1,16 @@
+{
+	"title": "invalid query columns not strings, return null",
+	"input": {
+		"WHERE":{
+		},
+		"OPTIONS":{
+			"COLUMNS":[
+				1,
+				2
+			],
+			"ORDER":"courses_avg"
+		}
+	},
+	"errorExpected": false,
+	"with": false
+}
