@@ -1,56 +1,18 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
+import {QueryValidator} from "./QueryValidator";
+import QueryFilters from "./QueryFilters";
+import {Dataset} from "./Dataset";
 import JSZip from "jszip";
 import * as fs from "fs-extra";
-import {Dataset} from "./Dataset";
-
-// Not using this but keeping it commented out for now in case we want to use it in the future
-// interface JSONCourse {
-// 	tier_eight_five: number;
-// 	tier_ninety: number;
-// 	Title: string;
-// 	Section: string;
-// 	Detail: string;
-// 	tier_seventy_two: number;
-// 	Other: number;
-// 	Low: number;
-// 	tier_sixty_four: number;
-// 	tier_zero: number;
-// 	tier_seventy_six: number;
-// 	tier_thirty: number;
-// 	tier_fifty: number;
-// 	Professor: string;
-// 	Audit: number;
-// 	tier_g_fifty: number;
-// 	tier_forty: number;
-// 	Withdrew: number;
-// 	Year: string;
-// 	tier_twenty: number;
-// 	Stddev: number;
-// 	Enrolled: number;
-// 	tier_fifty_five: number;
-// 	tier_eighty: number;
-// 	tier_sixty: number;
-// 	tier_ten: number;
-// 	High: number;
-// 	Course: string;
-// 	Session: string;
-// 	Pass: number;
-// 	Fail: number;
-// 	Avg: number;
-// 	Campus: string;
-// 	Subject: string;
-// }
-
 
 export default class InsightFacade implements IInsightFacade {
 	private datasets: InsightDataset[];
-	private datasetIds: string[];
+	public datasetIds: string[];
 
 	constructor() {
 		this.datasets = [];
 		this.datasetIds = [];
 	}
-
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		// Check if id is invalid: contains underscores or only whitespace, or is already in dataset
@@ -81,9 +43,43 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.resolve(this.datasets);
 	}
 
-	public performQuery(query: any): Promise<any[]> {
-		// TODO: implement performQuery
-		return Promise.resolve([]);
+	/**
+	 * Perform a query on insightUBC.
+	 *
+	 * @param query  The query to be performed.
+	 *
+	 * If a query is incorrectly formatted, references a dataset not added (in memory or on disk),
+	 * or references multiple datasets, it should be rejected.
+	 *
+	 * @return Promise <any[]>
+	 *
+	 * The promise should fulfill with an array of results.
+	 * The promise should reject with a ResultTooLargeError (if the query returns too many results)
+	 * or an InsightError (for any other source of failure) describing the error.
+	 */
+	public async performQuery(query: any): Promise<any[]> {
+		let validQuery: QueryFilters | null;
+		let searchResults: any[];
+		let sortedSearchResults: any[];
+
+		let validator: QueryValidator = new QueryValidator(query);
+		if (!validator.setUpQueryValidation(this.datasetIds, query)) {
+			return Promise.reject(InsightError);
+		}
+
+		validQuery = await validator.validateAndParseQuery();
+
+		if (validQuery === null) {
+			// query found to be invalid
+			return Promise.reject(InsightError);
+		}
+
+		// searchResults = await performDatasetSearch(validQuery);
+
+		// sortedSearchResults = await sortResults(searchResults);
+
+		// stub
+		return Promise.reject(null);
 	}
 
 	/**
@@ -123,7 +119,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new NotFoundError("Could not find that ID!"));
 		}
 		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-		this.datasets.forEach( (dataset, index) => {
+		this.datasets.forEach((dataset, index) => {
 			if (dataset.id === id) {
 				// datasets should only be added in addDataset and removed in removeDataset, and both methods
 				// add/remove from both datasets and datasetIds, so it's safe to to remove both here.

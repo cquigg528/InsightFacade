@@ -1,0 +1,38 @@
+{
+	"title": "not ORDER",
+	"input":
+	{
+		"WHERE":{
+			"OR":[
+				{
+					"AND":[
+						{
+							"GT":{
+								"courses_avg":90
+							}
+						},
+						{
+							"IS":{
+								"courses_dept":"adhe"
+							}
+						}
+					]
+				},
+				{
+					"EQ":{
+						"courses_avg":95
+					}
+				}
+			]
+		},
+		"OPTIONS":{
+			"COLUMNS":[
+				"courses_avg",
+				"courses_dept"
+			],
+			"ORDR":"courses_avg"
+		}
+
+	},
+	"with": []
+}

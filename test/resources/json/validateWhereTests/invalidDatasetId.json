@@ -1,0 +1,38 @@
+{
+	"title": "invalid dataset id",
+	"input":
+	{
+		"WHERE":{
+			"OR":[
+				{
+					"AND":[
+						{
+							"GT":{
+								"couses_avg":90
+							}
+						},
+						{
+							"IS":{
+								"courses_dept":"adhe"
+							}
+						}
+					]
+				},
+				{
+					"EQ":{
+						"courses_avg":95
+					}
+				}
+			]
+		},
+		"OPTIONS":{
+			"COLUMNS":[
+				"courses_avg",
+				"courses_dept"
+			],
+			"ORDER":"courses_avg"
+		}
+
+	} ,
+	"with": false
+}

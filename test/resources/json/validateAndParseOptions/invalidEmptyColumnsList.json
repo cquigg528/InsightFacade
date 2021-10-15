@@ -1,0 +1,36 @@
+{
+	"title": "COLUMNS is empty list",
+	"input":
+	{
+		"WHERE":{
+			"OR":[
+				{
+					"AND":[
+						{
+							"GT":{
+								"courses_avg":90
+							}
+						},
+						{
+							"IS":{
+								"courses_dept":"adhe"
+							}
+						}
+					]
+				},
+				{
+					"EQ":{
+						"courses_avg":95
+					}
+				}
+			]
+		},
+		"OPTIONS":{
+			"COLMNS":[
+			],
+			"ORDER":"courses_avg"
+		}
+
+	},
+	"with": []
+}

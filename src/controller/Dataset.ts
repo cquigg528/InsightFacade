@@ -13,13 +13,13 @@ export class Dataset implements InsightDataset {
 		this.kind = kind;
 	}
 
-	public async loadDataset (content: string) {
+	public async loadDataset(content: string) {
 		let jsZip = new JSZip();
 		let jsonObject;
 		let zip;
 		try {
 			zip = await jsZip.loadAsync(content, {base64: true});
-		} catch(error) {
+		} catch (error) {
 			return Promise.reject(new InsightError("Not a proper ZIP file!"));
 		}
 		// jsZip.folder() returns an array, so if its length is 0 then there is no folder named courses
@@ -80,6 +80,7 @@ export class Dataset implements InsightDataset {
 		// Ensures that the section has all parameters that we will need
 		const neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
 			"Audit", "Section", "Year"];
+
 		return neededKeys.every((key) => Object.keys(val).includes(key));
 	}
 
