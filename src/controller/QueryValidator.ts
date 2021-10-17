@@ -1,4 +1,4 @@
-import QueryFilters from "./QueryFilters";
+import QueryDispatch from "./QueryDispatch";
 
 const logicKeys = ["AND", "OR"];
 const mCompareKeys = ["LT", "GT", "EQ"];
@@ -14,7 +14,6 @@ export class QueryValidator {
 	public validWhere: boolean;
 	public validOptions: boolean;
 	public order: string;
-
 
 	constructor(query: any) {
 		this.query = query;
@@ -51,28 +50,16 @@ export class QueryValidator {
 			return false;
 		}
 		this.datasetID = id;
-		this.mkeys = [
-			id + "_avg",
-			id + "_pass",
-			id + "_fail",
-			id + "_audit",
-			id + "_year"
-		];
-		this.skeys = [
-			id + "_dept",
-			id + "_id",
-			id + "_instructor",
-			id + "_title",
-			id + "_uuid"
-		];
+		this.mkeys = [id + "_avg", id + "_pass", id + "_fail", id + "_audit", id + "_year"];
+		this.skeys = [id + "_dept", id + "_id", id + "_instructor", id + "_title", id + "_uuid"];
 		return true;
 	}
 
 	// performs query syntactic checks and accumulates search information by calling
 	// deconstructQuery
-	// returns list of QueryFilters or null if invalid query
+	// returns QueryDispatch object or null if invalid query
 	public async validateAndParseQuery(): Promise<any> {
-		let parsedQuery: QueryFilters | null;
+		let parsedQuery: QueryDispatch | null;
 
 		// Method: check structure from top down
 		const outerKeysExpected: string[] = ["WHERE", "OPTIONS"];
@@ -97,32 +84,38 @@ export class QueryValidator {
 	// if query found to be invalid at any time
 	// REQUIRES: query has outer ordered keys ["WHERE", "OPTIONS"]
 	public async deconstructQuery(): Promise<any> {
-		let queryFilters: QueryFilters;
-
-		// first check if we even have any filters
-		if (Object.entries(this.query.WHERE).length === 0) {
-			queryFilters = new QueryFilters(true, true, [null, null]);
-		} else {
-			queryFilters = new QueryFilters(true, false, [null, null]);
-		}
+		let queryDispatchObj: QueryDispatch;
 
 		this.validateWhere();
-		const optionsAndOrder: string[] = this.validateAndParseOptions();
+		const columns: string[] = this.validateAndParseOptions();
 
 		if (!this.validWhere || !this.validOptions) {
 			return Promise.reject(null);
 		}
 
-		// write columns test!! TODO
+		// first check if we even have any filters
+		if (Object.entries(this.query.WHERE).length === 0) {
+			queryDispatchObj = new QueryDispatch(true, [], "");
+		} else {
+			queryDispatchObj = new QueryDispatch(false, [], "");
+		}
 
-		// set columns, order in queryFilters!!! TODO
+		// set columns, order in queryDispatchObj
+		queryDispatchObj.columns = columns;
+		if (this.order !== "") {
+			queryDispatchObj.order = this.order;
+		}
 
-		// then build query dispatch
-		// TODO!!!
-		this.buildQueryDispatch(queryFilters);
+		if (queryDispatchObj.emptyWhere) {
+			return Promise.resolve(queryDispatchObj);
+		}
 
-		// !!! STUB
-		return Promise.reject(queryFilters);
+		// build query dispatch
+		const filterObj = this.query.WHERE;
+
+		queryDispatchObj.buildQueryDispatch(filterObj);
+
+		return Promise.resolve(queryDispatchObj);
 	}
 
 	public validateWhere(): void {
@@ -136,25 +129,20 @@ export class QueryValidator {
 	// !!!!! recursion stuff
 	public checkWhere(obj: any): void {
 		if (this.validWhere) {
-
 			if (this.isArray(obj)) {
 				this.traverseArray(obj);
-
-			} else if ((typeof obj === "object") && (obj !== null)) {
+			} else if (typeof obj === "object" && obj !== null) {
 				this.traverseObject(obj);
 			}
 		}
 	}
 
 	public traverseObject(obj: any): void {
-
 		const keys = Object.keys(obj);
 		keys.forEach((key) => {
-
 			// restrict acceptable keys to those in EBNF
 			if (!possibleKeys.concat(this.mkeys).concat(this.skeys).includes(key)) {
 				this.validWhere = false;
-
 			} else if (this.mkeys.concat(this.skeys).includes(key)) {
 				if (this.isObject(obj[key]) || this.isArray(obj[key])) {
 					this.validWhere = false;
@@ -203,7 +191,7 @@ export class QueryValidator {
 
 	public isSComparisonValid(obj: any, key: string): boolean {
 		const skeyList = Object.keys(obj[key]);
-		const inputstringList: string[] = Object.values((obj[key]));
+		const inputstringList: string[] = Object.values(obj[key]);
 
 		// require the following to be true
 		const onlyOneSkey: boolean = skeyList.length === 1;
@@ -275,16 +263,11 @@ export class QueryValidator {
 		} else {
 			return [];
 		}
-
-	}
-
-	public buildQueryDispatch(queryFilters: QueryFilters): void {
-		// stub
 	}
 
 	public traverseArray(arr: any): void {
-		arr.forEach((x: any) => {
-			this.checkWhere(x);
+		arr.forEach((obj: any) => {
+			this.checkWhere(obj);
 		});
 	}
 	// code based off of example found at

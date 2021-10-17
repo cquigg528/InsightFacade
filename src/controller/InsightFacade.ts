@@ -1,6 +1,6 @@
 import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
 import {QueryValidator} from "./QueryValidator";
-import QueryFilters from "./QueryFilters";
+import QueryFilter from "./QueryFilter";
 import {Dataset} from "./Dataset";
 import JSZip from "jszip";
 import * as fs from "fs-extra";
@@ -58,7 +58,7 @@ export default class InsightFacade implements IInsightFacade {
 	 * or an InsightError (for any other source of failure) describing the error.
 	 */
 	public async performQuery(query: any): Promise<any[]> {
-		let validQuery: QueryFilters | null;
+		let validQuery: QueryFilter | null;
 		let searchResults: any[];
 		let sortedSearchResults: any[];
 

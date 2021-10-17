@@ -13,6 +13,7 @@ import {clearDisk, getContentFromArchives} from "../TestUtil";
 import {testFolder} from "@ubccpsc310/folder-test";
 import {QueryValidator} from "../../src/controller/QueryValidator";
 import {isDeepStrictEqual} from "util";
+import QueryDispatch from "../../src/controller/QueryDispatch";
 
 use(chaiAsPromised);
 
@@ -419,14 +420,14 @@ describe("InsightFacade", function () {
 						"courses" + "_pass",
 						"courses" + "_fail",
 						"courses" + "_audit",
-						"courses" + "_year"
+						"courses" + "_year",
 					];
 					validator.skeys = [
 						"courses" + "_dept",
 						"courses" + "_id",
 						"courses" + "_instructor",
 						"courses" + "_title",
-						"courses" + "_uuid"
+						"courses" + "_uuid",
 					];
 					validator.validateWhere();
 					return validator.validWhere;
@@ -470,14 +471,14 @@ describe("InsightFacade", function () {
 						"courses" + "_pass",
 						"courses" + "_fail",
 						"courses" + "_audit",
-						"courses" + "_year"
+						"courses" + "_year",
 					];
 					validator.skeys = [
 						"courses" + "_dept",
 						"courses" + "_id",
 						"courses" + "_instructor",
 						"courses" + "_title",
-						"courses" + "_uuid"
+						"courses" + "_uuid",
 					];
 					return validator.validateAndParseOptions();
 				},
@@ -509,12 +510,114 @@ describe("InsightFacade", function () {
 								expect(validator.query.OPTIONS.COLUMNS).to.include(validator.order);
 							} else {
 								expect(validator.order).to.deep.equal("");
-
 							}
 						}
 					},
 				}
 			);
+		});
+	});
+
+	describe("Query Dispatch Tests", function () {
+		let facade: InsightFacade;
+		let queryDispatchObj: QueryDispatch;
+
+		describe("buildQueryDispatch", function () {
+			before(function () {
+				clearDisk();
+				facade = new InsightFacade();
+			});
+
+			it("should build a simple query filter tree", function () {
+				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses)
+					.then(() => {
+						const testObj =
+							{
+								WHERE:{
+									OR:[
+										{
+											AND:[
+												{
+													GT:{
+														courses_avg:90
+													}
+												},
+												{
+													IS:{
+														courses_dept:"adhe"
+													}
+												}
+											]
+										},
+										{
+											EQ:{
+												courses_avg:95
+											}
+										}
+									]
+								},
+								OPTIONS:{
+									COLUMNS:[
+										"courses_avg",
+										"courses_dept"
+									],
+									ORDER:"courses_avg"
+								}
+							};
+						const testObj2 = {
+							WHERE: {
+								OR: [
+									{
+										AND: [
+											{
+												GT: {
+													courses_fail: 10
+												}
+											},
+											{
+												LT: {
+													courses_pass: 400
+												}
+											},
+											{
+												EQ: {
+													courses_year: 2012
+												}
+											},
+											{
+												IS: {
+													courses_dept: "cpsc"
+												}
+											}
+										]
+									},
+									{
+										AND: [
+											{
+												IS: {
+													courses_instructor: "Gregor Kiczales"
+												}
+											}
+										]
+									}
+								]
+							},
+							OPTIONS: {
+								COLUMNS: [
+									"courses_dept",
+									"courses_id",
+									"courses_avg"
+								],
+								ORDER: "courses_avg"
+							}
+						};
+
+						queryDispatchObj = new QueryDispatch(false, [], "");
+						queryDispatchObj.buildQueryDispatch(testObj);
+
+						expect(queryDispatchObj.query).to.not.be.null;
+					});
+			});
 		});
 	});
 
