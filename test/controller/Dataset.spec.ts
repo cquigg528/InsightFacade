@@ -25,7 +25,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "avg", 70);
+					return dataset.findCoursesByMComparator("gt", "avg", 70, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -191,7 +191,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "avg", 50);
+					return dataset.findCoursesByMComparator("lt", "avg", 50, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -243,7 +243,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "avg", 90);
+					return dataset.findCoursesByMComparator("eq", "avg", 90, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -295,7 +295,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "pass", 29);
+					return dataset.findCoursesByMComparator("gt", "pass", 29, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -385,7 +385,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "pass", 29);
+					return dataset.findCoursesByMComparator("lt", "pass", 29, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -627,7 +627,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "pass", 29);
+					return dataset.findCoursesByMComparator("eq", "pass", 29, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -679,7 +679,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "fail", 12);
+					return dataset.findCoursesByMComparator("gt", "fail", 12, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -845,7 +845,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "fail", 12);
+					return dataset.findCoursesByMComparator("lt", "fail", 12, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1012,7 +1012,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "fail", 22);
+					return dataset.findCoursesByMComparator("eq", "fail", 22, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1064,7 +1064,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "audit", 9);
+					return dataset.findCoursesByMComparator("gt", "audit", 9, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1344,7 +1344,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "audit", 9);
+					return dataset.findCoursesByMComparator("lt", "audit", 9, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1396,7 +1396,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "audit", 9);
+					return dataset.findCoursesByMComparator("eq", "audit", 9, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1448,7 +1448,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "year", 2015);
+					return dataset.findCoursesByMComparator("gt", "year", 2015, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1576,7 +1576,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "year", 2015);
+					return dataset.findCoursesByMComparator("lt", "year", 2015, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1704,7 +1704,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "year", 2015);
+					return dataset.findCoursesByMComparator("eq", "year", 2015, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1832,7 +1832,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "avg", 101);
+					return dataset.findCoursesByMComparator("gt", "avg", 101, false, []);
 				})
 				.then((listofCourses) => {
 					expect(listofCourses).to.deep.equal([]);
@@ -1852,7 +1852,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("instructor", "San");
+					return dataset.findCoursesBySComparator("is", "instructor", "San", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1981,7 +1981,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("dept", "CPSC");
+					return dataset.findCoursesBySComparator("is", "dept", "CPSC", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2110,7 +2110,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("id", "504");
+					return dataset.findCoursesBySComparator("is", "id", "504", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2353,7 +2353,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("uuid", "002");
+					return dataset.findCoursesBySComparator("is", "uuid", "002", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2482,7 +2482,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("instructor", "alice");
+					return dataset.findCoursesBySComparator("is", "instructor", "alice", false, []);
 				})
 				.then((listofCourses) => {
 					expect(listofCourses).to.deep.equal([]);
@@ -2493,7 +2493,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("instructor", "*an");
+					return dataset.findCoursesBySComparator("is", "instructor", "*an", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2736,7 +2736,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("uuid", "00*");
+					return dataset.findCoursesBySComparator("is", "uuid", "00*", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [

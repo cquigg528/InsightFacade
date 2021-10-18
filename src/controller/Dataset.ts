@@ -113,11 +113,10 @@ export class Dataset implements InsightDataset {
 		return listOfCourses;
 	}
 
-	public async findCoursesByMComparator(mcomparator: string, mkey: string, number: number): Promise<any[]> {
-		// mcomparator is one of lt, gt, eq
-		// mkey is one of avg, pass, fail, audit, year
-		// number is a number
-		let courses = await this.setUpSearch();
+	public async findCoursesByMComparator(mcomparator: string, mkey: string, number: number, customCourses: boolean,
+		ccourses: any[]): Promise<any[]> {
+		// mcomparator is one of lt, gt, eq, mkey is one of avg, pass, fail, audit, year
+		let courses: any[] = customCourses ? ccourses : await this.setUpSearch();
 		let listOfCourses = courses.flat(1);
 		let comparator: any;
 		switch (mcomparator) {
@@ -136,10 +135,14 @@ export class Dataset implements InsightDataset {
 				return x === y;
 			};
 			break;
+		case "neq":
+			comparator = function (x: number, y: number) {
+				return x !== y;
+			};
+			break;
 		default:
 			return Promise.reject("Invalid mcomparator!");
-		}
-		let searchKey: string;
+		} let searchKey: string;
 		switch (mkey) {
 		case "avg":
 			searchKey = "Avg";
@@ -156,28 +159,33 @@ export class Dataset implements InsightDataset {
 		case "year":
 			searchKey = "Year";
 			break;
-		default:
-			return Promise.reject("Invalid mkey!");
-		}
-		return listOfCourses.filter(function (item) {
+		default: return Promise.reject("Invalid mkey!");
+		} return listOfCourses.filter(function (item) {
 			return comparator(parseInt(item[searchKey], 10), number);
 		});
 	}
 
-	public async findCoursesBySComparator(skey: string, inputstring: string): Promise<any[]> {
+	public async findCoursesBySComparator(comparator: string, skey: string, inptstr: string, customCourses: boolean,
+		ccourses: any[]): Promise<any[]> {
 		// skey is one of dept, id, instructor, title, uuid
-		// inputstring is anything
-		let regex: RegExp;
-		let courses = await this.setUpSearch();
-		let listOfCourses = courses.flat(1);
-		if (inputstring.charAt(0) === "*" && inputstring.charAt(inputstring.length - 1) === "*") {
-			regex = new RegExp(".*" + inputstring.substring(1, inputstring.length - 1) + ".*", "i");
-		} else if (inputstring.charAt(0) === "*") {
-			regex = new RegExp(".*" + inputstring.substring(1), "i");
-		} else if (inputstring.charAt(inputstring.length - 1) === "*") {
-			regex = new RegExp(inputstring.substring(0, inputstring.length - 1) + ".*", "i");
+		// inptstr is anything
+
+		let courses: any[];
+		if (customCourses) {
+			courses = ccourses;
 		} else {
-			regex = new RegExp(inputstring, "i");
+			courses = await this.setUpSearch();
+		}
+		let regex: RegExp;
+		let listOfCourses = courses.flat(1);
+		if (inptstr.charAt(0) === "*" && inptstr.charAt(inptstr.length - 1) === "*") {
+			regex = new RegExp(".*" + inptstr.substring(1, inptstr.length - 1) + ".*", "i");
+		} else if (inptstr.charAt(0) === "*") {
+			regex = new RegExp(".*" + inptstr.substring(1), "i");
+		} else if (inptstr.charAt(inptstr.length - 1) === "*") {
+			regex = new RegExp(inptstr.substring(0, inptstr.length - 1) + ".*", "i");
+		} else {
+			regex = new RegExp(inptstr, "i");
 		}
 		let searchKey: string;
 		switch (skey) {
@@ -201,7 +209,13 @@ export class Dataset implements InsightDataset {
 		}
 		return listOfCourses.filter(function (item) {
 			// We test each element of the object to see if one string matches the regexp.
-			return regex.test(item[searchKey]);
+			if (comparator === "is") {
+				return regex.test(item[searchKey]);
+			} else if (comparator === "isnot") {
+				return !regex.test(item[searchKey]);
+			} else {
+				console.log("invalid comparator in findCoursesBySComparator");
+			}
 		});
 	}
 

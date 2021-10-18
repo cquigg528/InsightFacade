@@ -14,6 +14,8 @@ import {testFolder} from "@ubccpsc310/folder-test";
 import {QueryValidator} from "../../src/controller/QueryValidator";
 import {isDeepStrictEqual} from "util";
 import QueryDispatch from "../../src/controller/QueryDispatch";
+import QueryFilter from "../../src/controller/QueryFilter";
+import DatasetSearch from "../../src/controller/DatasetSearch";
 
 use(chaiAsPromised);
 
@@ -21,7 +23,7 @@ type Input = any;
 type Output = any[];
 type Error = "InsightError" | "ResultTooLargeError";
 
-type CheckQueryOutput = boolean;
+type SetUpQueryValidationOutput = string | null;
 type ValidateWhereOutput = boolean;
 type ValidateParseOptionsOutput = string[];
 
@@ -375,9 +377,9 @@ describe("InsightFacade", function () {
 				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
 			});
 
-			testFolder<Input, CheckQueryOutput, Error>(
-				"Dynamic quickCheckQuery testing",
-				(input): CheckQueryOutput => {
+			testFolder<Input, SetUpQueryValidationOutput, Error>(
+				"Dynamic setUpQueryValidation testing",
+				(input): SetUpQueryValidationOutput => {
 					validator = new QueryValidator(input);
 					return validator.setUpQueryValidation(facade.datasetIds, input);
 				},
@@ -522,101 +524,315 @@ describe("InsightFacade", function () {
 		let facade: InsightFacade;
 		let queryDispatchObj: QueryDispatch;
 
+		const testNot = {
+			WHERE: {
+				NOT: {
+					LT: {
+						courses_avg: 90,
+					},
+				},
+			},
+
+			OPTIONS: {
+				COLUMNS: ["courses_id"],
+			},
+		};
+
+		const testNestedNot = {
+			WHERE: {
+				NOT: {
+					NOT: {
+						LT: {
+							courses_avg: 90,
+						},
+					},
+				},
+			},
+
+			OPTIONS: {
+				COLUMNS: ["courses_id"],
+			},
+		};
+
+		const testNestedNotAnd = {
+			WHERE: {
+				NOT: {
+					NOT: {
+						AND: [
+							{
+								LT: {
+									courses_avg: 90,
+								},
+							},
+							{
+								IS: {
+									courses_dept: "cpsc",
+								},
+							},
+						],
+					},
+				},
+			},
+
+			OPTIONS: {
+				COLUMNS: ["courses_id"],
+			},
+		};
+
+		const testNestedNotAndAnd = {
+			WHERE: {
+				NOT: {
+					NOT: {
+						AND: [
+							{
+								LT: {
+									courses_avg: 90,
+								},
+							},
+							{
+								AND: [
+									{
+										IS: {
+											courses_dept: "cpsc",
+										},
+									},
+								],
+							},
+						],
+					},
+				},
+			},
+
+			OPTIONS: {
+				COLUMNS: ["courses_id"],
+			},
+		};
+
+		const testObj0 = {
+			WHERE: {
+				AND: [
+					{
+						NOT: {
+							LT: {
+								courses_avg: 90,
+							},
+						},
+					},
+					{
+						IS: {
+							courses_dept: "cpsc",
+						},
+					},
+				],
+			},
+			OPTIONS: {
+				COLUMNS: ["courses_id"],
+			},
+		};
+		const testObj1 = {
+			WHERE: {
+				OR: [
+					{
+						AND: [
+							{
+								LT: {
+									courses_avg: 90,
+								},
+							},
+							{
+								IS: {
+									courses_dept: "cpsc",
+								},
+							},
+						],
+					},
+					{
+						EQ: {
+							courses_year: 2012,
+						},
+					},
+				],
+			},
+			OPTIONS: {
+				COLUMNS: ["courses_avg", "courses_dept"],
+				ORDER: "courses_avg",
+			},
+		};
+		const testObj2 = {
+			WHERE: {
+				OR: [
+					{
+						AND: [
+							{
+								GT: {
+									courses_fail: 10,
+								},
+							},
+							{
+								LT: {
+									courses_avg: 90,
+								},
+							},
+							{
+								EQ: {
+									courses_year: 2012,
+								},
+							},
+							{
+								IS: {
+									courses_dept: "cpsc",
+								},
+							},
+						],
+					},
+					{
+						AND: [
+							{
+								IS: {
+									courses_instructor: "Gregor Kiczales",
+								},
+							},
+						],
+					},
+				],
+			},
+			OPTIONS: {
+				COLUMNS: ["courses_dept", "courses_id", "courses_avg"],
+				ORDER: "courses_avg",
+			},
+		};
+
 		describe("buildQueryDispatch", function () {
+			let where: QueryFilter;
+			let or: QueryFilter;
+			let and: QueryFilter;
+			let not: QueryFilter;
+			let gt: DatasetSearch;
+			let lt: DatasetSearch;
+			let eq: DatasetSearch;
+			let is: DatasetSearch;
+
 			before(function () {
 				clearDisk();
 				facade = new InsightFacade();
+				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+			});
+
+			beforeEach(function () {
+				where = new QueryFilter(null, "WHERE", [], []);
+				or = new QueryFilter(null, "OR", [], []);
+				and = new QueryFilter(null, "AND", [], []);
+				not = new QueryFilter(null, "NOT", [], []);
+				gt = new DatasetSearch("gt", "fail", 10);
+				lt = new DatasetSearch("lt", "avg", 90);
+				eq = new DatasetSearch("eq", "year", 2012);
+				is = new DatasetSearch("is", "dept", "cpsc");
+			});
+
+			it("should work with complex nested", function () {
+				where.children.push(or);
+				or.parent = where;
+				or.children.push(and);
+				or.searches.push(eq);
+				and.parent = or;
+				and.searches.push(lt, is);
+
+				queryDispatchObj = new QueryDispatch(false, [], "");
+				queryDispatchObj.buildQueryDispatch(testObj1);
+
+				expect(queryDispatchObj.query).to.deep.equal(where);
+			});
+
+			it("should work with complex nested2", function () {
+				where.children.push(or);
+				or.parent = where;
+				or.children.push(and);
+				and.parent = or;
+				and.searches.push(gt, lt, eq, is);
+				let and2: QueryFilter = new QueryFilter(or, "AND", [], []);
+				let is2: DatasetSearch = new DatasetSearch("is", "instructor", "Gregor Kiczales");
+				or.children.push(and2);
+				and2.searches.push(is2);
+
+				queryDispatchObj = new QueryDispatch(false, [], "");
+				queryDispatchObj.buildQueryDispatch(testObj2);
+
+				expect(queryDispatchObj.query).to.deep.equal(where);
+			});
+
+			it("should work with single not", function () {
+				where.children.push(not);
+				not.parent = where;
+				not.searches.push(lt);
+
+				queryDispatchObj = new QueryDispatch(false, [], "");
+				queryDispatchObj.buildQueryDispatch(testNot);
+
+				expect(queryDispatchObj.query).to.deep.equal(where);
+			});
+
+			it("should work with nested nots", function () {
+				where.children.push(not);
+				not.parent = where;
+				let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
+				not.children.push(not1);
+				not1.parent = not;
+				not1.searches.push(lt);
+
+				queryDispatchObj = new QueryDispatch(false, [], "");
+				queryDispatchObj.buildQueryDispatch(testNestedNot);
+
+				expect(queryDispatchObj.query).to.deep.equal(where);
+			});
+
+			it("should work with nested not with and", function () {
+				where.children.push(not);
+				not.parent = where;
+				let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
+				not.children.push(not1);
+				not1.parent = not;
+				not1.children.push(and);
+				and.parent = not1;
+				and.searches.push(lt, is);
+
+				queryDispatchObj = new QueryDispatch(false, [], "");
+				queryDispatchObj.buildQueryDispatch(testNestedNotAnd);
+
+				expect(queryDispatchObj.query).to.deep.equal(where);
+			});
+
+			it("should work with nested not with and and", function () {
+				where.children.push(not);
+				not.parent = where;
+				let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
+				not.children.push(not1);
+				not1.parent = not;
+				not1.children.push(and);
+				and.parent = not1;
+				let and1: QueryFilter = new QueryFilter(null, "AND", [], []);
+				and.searches.push(lt);
+				and.children.push(and1);
+				and1.parent = and;
+				and1.searches.push(is);
+
+				queryDispatchObj = new QueryDispatch(false, [], "");
+				queryDispatchObj.buildQueryDispatch(testNestedNotAndAnd);
+
+				expect(queryDispatchObj.query).to.deep.equal(where);
 			});
 
 			it("should build a simple query filter tree", function () {
-				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses)
-					.then(() => {
-						const testObj =
-							{
-								WHERE:{
-									OR:[
-										{
-											AND:[
-												{
-													GT:{
-														courses_avg:90
-													}
-												},
-												{
-													IS:{
-														courses_dept:"adhe"
-													}
-												}
-											]
-										},
-										{
-											EQ:{
-												courses_avg:95
-											}
-										}
-									]
-								},
-								OPTIONS:{
-									COLUMNS:[
-										"courses_avg",
-										"courses_dept"
-									],
-									ORDER:"courses_avg"
-								}
-							};
-						const testObj2 = {
-							WHERE: {
-								OR: [
-									{
-										AND: [
-											{
-												GT: {
-													courses_fail: 10
-												}
-											},
-											{
-												LT: {
-													courses_pass: 400
-												}
-											},
-											{
-												EQ: {
-													courses_year: 2012
-												}
-											},
-											{
-												IS: {
-													courses_dept: "cpsc"
-												}
-											}
-										]
-									},
-									{
-										AND: [
-											{
-												IS: {
-													courses_instructor: "Gregor Kiczales"
-												}
-											}
-										]
-									}
-								]
-							},
-							OPTIONS: {
-								COLUMNS: [
-									"courses_dept",
-									"courses_id",
-									"courses_avg"
-								],
-								ORDER: "courses_avg"
-							}
-						};
+				where.children.push(and);
+				and.parent = where;
+				and.children.push(not);
+				not.parent = and;
+				not.searches.push(lt);
+				and.searches.push(is);
 
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.buildQueryDispatch(testObj);
+				queryDispatchObj = new QueryDispatch(false, [], "");
+				queryDispatchObj.buildQueryDispatch(testObj0);
 
-						expect(queryDispatchObj.query).to.not.be.null;
-					});
+				expect(queryDispatchObj.query).to.deep.equal(where);
 			});
 		});
 	});

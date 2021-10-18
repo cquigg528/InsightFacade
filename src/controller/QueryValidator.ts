@@ -8,7 +8,6 @@ const possibleKeys = logicKeys.concat(mCompareKeys).concat(sCompareKey).concat(n
 
 export class QueryValidator {
 	public query: any;
-	public datasetID: string;
 	public mkeys: string[];
 	public skeys: string[];
 	public validWhere: boolean;
@@ -17,7 +16,6 @@ export class QueryValidator {
 
 	constructor(query: any) {
 		this.query = query;
-		this.datasetID = "";
 		this.mkeys = [];
 		this.skeys = [];
 		this.validWhere = true;
@@ -25,10 +23,10 @@ export class QueryValidator {
 		this.order = "";
 	}
 
-	public setUpQueryValidation(datasetIds: string[], query: any): boolean {
+	public setUpQueryValidation(datasetIds: string[], query: any): string | null {
 		// We can assume query is valid json if query is an object, otherwise query is invalid
 		if (typeof query !== "object") {
-			return false;
+			return null;
 		}
 
 		let id: string;
@@ -38,27 +36,26 @@ export class QueryValidator {
 			// if queryKey can't be found or does not contain '_', reject
 			let queryKey = query.OPTIONS.COLUMNS[0];
 			if (typeof queryKey !== "string" || !queryKey.includes("_")) {
-				return false;
+				return null;
 			}
 
 			// If id is not in dataset, reject
 			id = queryKey.split("_")[0];
 			if (id.trim() === "" || !datasetIds.includes(id)) {
-				return false;
+				return null;
 			}
 		} catch (e) {
-			return false;
+			return null;
 		}
-		this.datasetID = id;
 		this.mkeys = [id + "_avg", id + "_pass", id + "_fail", id + "_audit", id + "_year"];
 		this.skeys = [id + "_dept", id + "_id", id + "_instructor", id + "_title", id + "_uuid"];
-		return true;
+		return id;
 	}
 
 	// performs query syntactic checks and accumulates search information by calling
 	// deconstructQuery
 	// returns QueryDispatch object or null if invalid query
-	public async validateAndParseQuery(): Promise<any> {
+	public async validateAndParseQuery(): Promise<QueryDispatch> {
 		let parsedQuery: QueryDispatch | null;
 
 		// Method: check structure from top down

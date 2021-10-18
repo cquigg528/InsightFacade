@@ -1,9 +1,17 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
+import {
+	IInsightFacade,
+	InsightDataset,
+	InsightDatasetKind,
+	InsightError,
+	NotFoundError,
+	ResultTooLargeError,
+} from "./IInsightFacade";
 import {QueryValidator} from "./QueryValidator";
 import QueryFilter from "./QueryFilter";
 import {Dataset} from "./Dataset";
 import JSZip from "jszip";
 import * as fs from "fs-extra";
+import QueryDispatch from "./QueryDispatch";
 
 export default class InsightFacade implements IInsightFacade {
 	private datasets: InsightDataset[];
@@ -12,6 +20,17 @@ export default class InsightFacade implements IInsightFacade {
 	constructor() {
 		this.datasets = [];
 		this.datasetIds = [];
+	}
+
+	// Requires id to be valid
+	public getDatasetById(id: string): any {
+		this.datasets.forEach((dataset) => {
+			if (dataset.id === id) {
+				return dataset;
+			}
+		});
+		console.assert("invalid id");
+		return null;
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -58,12 +77,13 @@ export default class InsightFacade implements IInsightFacade {
 	 * or an InsightError (for any other source of failure) describing the error.
 	 */
 	public async performQuery(query: any): Promise<any[]> {
-		let validQuery: QueryFilter | null;
-		let searchResults: any[];
+		let validQuery: QueryDispatch | null;
+		// let searchResults: any[];
 		let sortedSearchResults: any[];
 
 		let validator: QueryValidator = new QueryValidator(query);
-		if (!validator.setUpQueryValidation(this.datasetIds, query)) {
+		let validDatasetId = validator.setUpQueryValidation(this.datasetIds, query);
+		if (validDatasetId === null) {
 			return Promise.reject(InsightError);
 		}
 
@@ -74,7 +94,13 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(InsightError);
 		}
 
-		// searchResults = await performDatasetSearch(validQuery);
+		// get dataset
+		let dataset: Dataset = this.getDatasetById(validDatasetId);
+
+		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
+		if (searchResults.length > 5000) {
+			return Promise.reject(ResultTooLargeError);
+		}
 
 		// sortedSearchResults = await sortResults(searchResults);
 

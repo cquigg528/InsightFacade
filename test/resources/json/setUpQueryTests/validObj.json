@@ -15,5 +15,5 @@
 		}
 	},
 	"errorExpected": false,
-	"with": true
+	"with": "courses"
 }

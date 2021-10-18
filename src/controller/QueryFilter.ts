@@ -48,22 +48,12 @@ export default class QueryFilter {
 	public children: QueryFilter[];
 	public searches: DatasetSearch[];
 
-
 	constructor(parent: QueryFilter | null, self: string, children: QueryFilter[], searches: DatasetSearch[]) {
 		this.parent = parent;
 		this.self = self;
 		this.children = children;
 		this.searches = searches;
 	}
-
-	public addParent(parent: QueryFilter): void {
-		this.parent = parent;
-	}
-
-	public addChildren(children: QueryFilter[]): void {
-		this.children = children;
-	}
-
 }
 
 // Not using this but keeping it commented out for now in case we want to use it in the future

@@ -1,6 +1,4 @@
-
-
-export type Comparator = "lt" | "gt" | "eq" | "is";
+export type Comparator = "lt" | "gt" | "eq" | "is" | "isnot" | "neq";
 type Field = "avg" | "pass" | "fail" | "audit" | "year" | "dept" | "id" | "instructor" | "title" | "uuid";
 
 export default class DatasetSearch {
