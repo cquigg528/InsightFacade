@@ -24,7 +24,6 @@ export default class QueryDispatch {
 		this.query = this.traverseQuery(head, filterObj);
 	}
 
-	// eslint-disable-next-line max-lines-per-function
 	public traverseQuery(node: QueryFilter, filterObj: any): QueryFilter {
 		Object.keys(filterObj).forEach((key: string) => {
 			if (key === "WHERE") {
