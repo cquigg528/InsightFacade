@@ -7,7 +7,6 @@ import {getValueByTranslation, isEquivalent} from "../../test/QueryUtil";
 const searchKeys: string[] = ["lt", "gt", "eq", "is"];
 export default class QueryDispatch {
 	public query: QueryFilter | null;
-	// indicates whether any filters are present.  True means no filters, return all results
 	public emptyWhere: boolean;
 	public columns: string[];
 	public order: string;
