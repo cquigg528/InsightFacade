@@ -15,5 +15,7 @@
 			"ORDER":"courses_avg"
 		}
 	},
-	"with": true
+
+	"errorExpected":true,
+	"with": "InsightError"
 }

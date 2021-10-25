@@ -1,29 +1,24 @@
 {
-	"title": "invalid skey: should be string not number",
+	"title": "invalid mkey: should be number not string",
 	"input":
 	{
 		"WHERE":{
-			"OR":[
+			"OR":
 				{
 					"AND":[
 						{
 							"GT":{
-								"courses_avg":90
+								"courses_avg":"hi"
 							}
 						},
 						{
 							"IS":{
-								"courses_dept":90
+								"courses_dept":"adhe"
 							}
 						}
 					]
-				},
-				{
-					"EQ":{
-						"courses_avg":95
-					}
 				}
-			]
+
 		},
 		"OPTIONS":{
 			"COLUMNS":[
@@ -34,5 +29,6 @@
 		}
 
 	} ,
-	"with": false
+	"errorExpected":true,
+	"with": "InsightError"
 }

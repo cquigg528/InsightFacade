@@ -1,5 +1,5 @@
 {
-	"title": "inner key is FILTER 2",
+	"title": "invalid dataset id",
 	"input":
 	{
 		"WHERE":{
@@ -8,12 +8,12 @@
 					"AND":[
 						{
 							"GT":{
-								"courses_avg":90
+								"couses_avg":90
 							}
 						},
 						{
 							"IS":{
-								"AND":"adhe"
+								"courses_dept":"adhe"
 							}
 						}
 					]
@@ -34,5 +34,7 @@
 		}
 
 	} ,
-	"with": false
+
+	"errorExpected":true,
+	"with": "InsightError"
 }

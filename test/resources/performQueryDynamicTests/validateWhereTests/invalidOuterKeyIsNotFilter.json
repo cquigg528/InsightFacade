@@ -1,14 +1,14 @@
 {
-	"title": "invalid mkey: should be number not string",
+	"title": "outer key is not FILTER 1",
 	"input":
 	{
 		"WHERE":{
 			"OR":[
 				{
-					"AND":[
+					"courses_avg":[
 						{
 							"GT":{
-								"courses_avg":"hi"
+								"courses_avg":90
 							}
 						},
 						{
@@ -34,5 +34,7 @@
 		}
 
 	} ,
-	"with": false
+
+	"errorExpected":true,
+	"with": "InsightError"
 }

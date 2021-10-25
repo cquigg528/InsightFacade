@@ -1,5 +1,5 @@
 {
-	"title": "inner key is FILTER 1",
+	"title": "complex should be valid",
 	"input":
 	{
 		"WHERE":{
@@ -13,7 +13,7 @@
 						},
 						{
 							"IS":{
-								"EQ":"adhe"
+								"courses_dept":"adhe"
 							}
 						}
 					]
@@ -33,6 +33,8 @@
 			"ORDER":"courses_avg"
 		}
 
-	} ,
-	"with": false
+	},
+
+	"errorExpected":true,
+	"with": "InsightError"
 }

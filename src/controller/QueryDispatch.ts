@@ -1,6 +1,8 @@
 import QueryFilter from "./QueryFilter";
 import DatasetSearch from "./DatasetSearch";
 import {Dataset} from "./Dataset";
+import {InsightError} from "./IInsightFacade";
+import {getValueByTranslation, isEquivalent} from "../../test/QueryUtil";
 
 const searchKeys: string[] = ["lt", "gt", "eq", "is"];
 export default class QueryDispatch {
@@ -22,6 +24,7 @@ export default class QueryDispatch {
 		this.query = this.traverseQuery(head, filterObj);
 	}
 
+	// eslint-disable-next-line max-lines-per-function
 	public traverseQuery(node: QueryFilter, filterObj: any): QueryFilter {
 		Object.keys(filterObj).forEach((key: string) => {
 			if (key === "WHERE") {
@@ -109,12 +112,6 @@ export default class QueryDispatch {
 		}
 	}
 
-	public traverseArray(arr: any): void {
-		arr.forEach((key: any) => {
-			this.traverseArray(key);
-		});
-	}
-
 	public async performDatasetSearch(dataset: Dataset): Promise<any[]> {
 		if (this.emptyWhere) {
 			let sections = await dataset.getAllCourses();
@@ -122,7 +119,8 @@ export default class QueryDispatch {
 		} else {
 			this.findAndProcessNot(this.query);
 			let rawResult: any[] = await this.filterCourses(this.query, dataset);
-			let result: any[] = this.applyColumnsAndTranslate(rawResult, dataset.id);
+			let prunedResult = [... new Set(rawResult)];
+			let result: any[] = this.applyColumnsAndTranslate(prunedResult, dataset.id);
 			return Promise.resolve(result);
 		}
 	}
@@ -132,96 +130,88 @@ export default class QueryDispatch {
 		sections.forEach((sectionObj) => {
 			let newObject: any = {};
 			this.columns.forEach((queryKey) => {
-				newObject[queryKey] = this.getValueByTranslation(sectionObj, queryKey);
+				newObject[queryKey] = getValueByTranslation(sectionObj, queryKey);
 			});
 			result.push(newObject);
 		});
 		return result;
 	}
 
-	public getValueByTranslation(section: any, queryKey: string): number | string {
-		let searchKey: string = "";
-		let propKey = queryKey.split("_")[1];
-		switch (propKey) {
-		case "avg":
-			searchKey = "Avg";
-			break;
-		case "pass":
-			searchKey = "Pass";
-			break;
-		case "fail":
-			searchKey = "Fail";
-			break;
-		case "audit":
-			searchKey = "Audit";
-			break;
-		case "year":
-			searchKey = "Year";
-			break;
-		case "instructor":
-			searchKey = "Professor";
-			break;
-		case "dept":
-			searchKey = "Subject";
-			break;
-		case "id":
-			searchKey = "Course";
-			break;
-		case "uuid":
-			searchKey = "Section";
-			break;
-		case "title":
-			searchKey = "Title";
-			break;
-		default:
-			console.log("Invalid key in COLUMNS??");
-		} return section[searchKey];
-	}
-
 	public async filterCourses(query: QueryFilter | null, dataset: Dataset): Promise<any[]> {
 		let sections: any[] = [];
-		if (query === null) {
-			console.assert("QueryDispatch query field in filterCourses is null???");
+		if (query === null || (query.children.length === 0 && query.searches.length === 0)) {
+			return Promise.reject(new InsightError("QueryDispatch query field should have a non empty array."));
 		} else {
 			if (query.children.length === 0 && query.searches.length === 1) {
-				sections = await this.handleSearch(query.searches[0], dataset, false, []);
-			}
-			if (query.self === "OR") {
+				sections = sections.concat(await this.handleSearch(query.searches[0], dataset, false, []));
+			} if (query.self === "OR") {
 				if (query.searches.length > 0) {
 					for (const search of query.searches) {
-						sections.concat(await this.handleSearch(search, dataset, false, []));
+						sections = sections.concat(await this.handleSearch(search, dataset, false, []));
 					}
-				}
-				if (query.children.length > 0) {
+				} if (query.children.length > 0) {
 					for (const child of query.children) {
-						sections.concat(await this.filterCourses(child, dataset));
+						sections = sections.concat(await this.filterCourses(child, dataset));
 					}
 				}
 			} else if (query.self === "AND") {
-				if (query.searches.length > 0) {
-					let accumulator1: any[] = [];
-					let accumulator2: any[] = [];
-					for (const search of query.searches) {
-						const index = query.searches.indexOf(search);
-						if (index === 0) {
-							accumulator1 = await this.handleSearch(search, dataset, false, []);
-						} else {
-							accumulator1 = await this.handleSearch(search, dataset, true, accumulator2);
-						}
-						accumulator2 = accumulator1;
-					}
-				}
-				if (query.children.length > 0) {
+				if (query.children.length === 1) {
 					for (const child of query.children) {
-						sections.concat(await this.filterCourses(child, dataset));
+						sections = sections.concat(await this.filterCourses(child, dataset));
 					}
-				}
+				} else if (query.children.length > 1) {
+					let accum: any, accum1: any = [];
+					for (const child of query.children) {
+						const index = query.children.indexOf(child);
+						if (index === 0) {
+							accum = await this.filterCourses(child, dataset);
+							accum1 = accum;
+						} else {
+							accum = await this.filterCourses(child, dataset);
+							accum1.forEach((section: any) => {
+								accum.forEach((accSection: any) => {
+									if(isEquivalent(section, accSection)){
+										accum1 = accum1.concat(section);
+									}
+								});
+							});
+						}
+					} sections = sections.concat(accum);
+				} sections = await this.handleAndContents(query, dataset, sections);
 			} else {
 				if (query.children.length > 0) {
 					for (const child of query.children) {
-						sections.concat(await this.filterCourses(child, dataset));
+						sections = sections.concat(await this.filterCourses(child, dataset));
 					}
 				}
+			}
+		} return sections;
+	}
+
+	public async handleAndContents(query: any, dataset: Dataset, sections: any[]): Promise<any[]> {
+		if (query.searches.length > 0) {
+			let accumulator1: any[] = [];
+			let accumulator2: any[] = [];
+			for (const search of query.searches) {
+				const index = query.searches.indexOf(search);
+				if (index === 0) {
+					accumulator1 = await this.handleSearch(search, dataset, false, []);
+				} else {
+					accumulator1 = await this.handleSearch(search, dataset, true, accumulator2);
+				}
+				accumulator2 = accumulator1;
+			} if (query.children.length > 0) {
+				let retval: any = [];
+				sections.forEach((section) => {
+					accumulator2.forEach((accSection) => {
+						if(isEquivalent(section, accSection)){
+							retval.push(section);
+						}
+					});
+				});
+				sections = retval;
+			} else {
+				sections = sections.concat(accumulator2);
 			}
 		} return sections;
 	}
@@ -252,7 +242,14 @@ export default class QueryDispatch {
 			console.assert("QueryDispatch query field is null???");
 		} else {
 			if (query.self === "NOT") {
-				this.negateSubTree(query);
+				query.children.forEach((child) => {
+					this.negateSubTree(child);
+				});
+				if (query.searches.length > 0) {
+					this.negateSearches(query.searches);
+				}
+
+
 			} else if (query.children.length !== 0) {
 				query.children.forEach((child) => {
 					this.findAndProcessNot(child);

@@ -7,9 +7,7 @@ import {
 	ResultTooLargeError,
 } from "./IInsightFacade";
 import {QueryValidator} from "./QueryValidator";
-import QueryFilter from "./QueryFilter";
 import {Dataset} from "./Dataset";
-import JSZip from "jszip";
 import * as fs from "fs-extra";
 import QueryDispatch from "./QueryDispatch";
 
@@ -23,12 +21,12 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	// Requires id to be valid
-	public getDatasetById(id: string): any {
-		this.datasets.forEach((dataset) => {
+	public getDatasetById(id: string): Dataset | null {
+		for (let dataset of this.datasets) {
 			if (dataset.id === id) {
-				return dataset;
+				return dataset as Dataset;
 			}
-		});
+		}
 		console.assert("invalid id");
 		return null;
 	}
@@ -78,34 +76,38 @@ export default class InsightFacade implements IInsightFacade {
 	 */
 	public async performQuery(query: any): Promise<any[]> {
 		let validQuery: QueryDispatch | null;
-		// let searchResults: any[];
-		let sortedSearchResults: any[];
+		// let sortedSearchResults: any[];
 
 		let validator: QueryValidator = new QueryValidator(query);
 		let validDatasetId = validator.setUpQueryValidation(this.datasetIds, query);
 		if (validDatasetId === null) {
-			return Promise.reject(InsightError);
+			return Promise.reject(new InsightError("invalid datasetId"));
 		}
 
 		validQuery = await validator.validateAndParseQuery();
 
 		if (validQuery === null) {
 			// query found to be invalid
-			return Promise.reject(InsightError);
+			return Promise.reject(new InsightError("query failed validation"));
 		}
 
 		// get dataset
-		let dataset: Dataset = this.getDatasetById(validDatasetId);
+		let dataset: any = this.getDatasetById(validDatasetId);
 
 		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
 		if (searchResults.length > 5000) {
-			return Promise.reject(ResultTooLargeError);
+			return Promise.reject(new ResultTooLargeError("too many results"));
 		}
 
-		// sortedSearchResults = await sortResults(searchResults);
+		let order: string = validQuery.order;
+		if (order === "") {
+			return Promise.resolve(searchResults);
+		}
+
+		searchResults.sort((a, b) => a.order > b.order ? -1 : ((b.order > a.order ? 1 : 0)));
 
 		// stub
-		return Promise.reject(null);
+		return Promise.resolve(searchResults);
 	}
 
 	/**

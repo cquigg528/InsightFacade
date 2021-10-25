@@ -1,4 +1,5 @@
 import QueryDispatch from "./QueryDispatch";
+import {InsightError} from "./IInsightFacade";
 
 const logicKeys = ["AND", "OR"];
 const mCompareKeys = ["LT", "GT", "EQ"];
@@ -41,7 +42,7 @@ export class QueryValidator {
 
 			// If id is not in dataset, reject
 			id = queryKey.split("_")[0];
-			if (id.trim() === "" || !datasetIds.includes(id)) {
+			if (id.trim() === "" || !datasetIds.includes(id)  || id.includes("_")) {
 				return null;
 			}
 		} catch (e) {
@@ -62,16 +63,29 @@ export class QueryValidator {
 		const outerKeysExpected: string[] = ["WHERE", "OPTIONS"];
 		let outerKeys = Object.keys(this.query);
 
+		let invalid = false;
 		outerKeys.forEach(function (key, index) {
 			if (key !== outerKeysExpected[index]) {
-				return Promise.reject(null);
+				invalid = true;
 			}
 		});
+
+		if (invalid) {
+			return Promise.reject(new InsightError("invalid WHERE or OPTIONS key"));
+		}
+
+		// let index = 0;
+		// for (let key of outerKeys) {
+		// 	if (key !== outerKeysExpected[index]) {
+		// 		return Promise.reject(null);
+		// 	}
+		// 	index += 1;
+		// }
 
 		parsedQuery = await this.deconstructQuery();
 
 		if (parsedQuery === null) {
-			return Promise.reject(null);
+			return Promise.reject(new InsightError("invalid query"));
 		} else {
 			return Promise.resolve(parsedQuery);
 		}
@@ -87,7 +101,7 @@ export class QueryValidator {
 		const columns: string[] = this.validateAndParseOptions();
 
 		if (!this.validWhere || !this.validOptions) {
-			return Promise.reject(null);
+			return Promise.reject(new InsightError("invalid where or options block"));
 		}
 
 		// first check if we even have any filters
@@ -123,7 +137,6 @@ export class QueryValidator {
 		}
 	}
 
-	// !!!!! recursion stuff
 	public checkWhere(obj: any): void {
 		if (this.validWhere) {
 			if (this.isArray(obj)) {
@@ -148,6 +161,12 @@ export class QueryValidator {
 				// AND, OR
 				if (!this.isArray(obj[key]) || obj[key].length < 1) {
 					this.validWhere = false;
+				} else {
+					obj[key].forEach((logicObj: any) => {
+						if (Object.keys(logicObj).length !== 1) {
+							this.validWhere = false;
+						}
+					});
 				}
 			} else if (mCompareKeys.includes(key)) {
 				// LT, GT, EQ
@@ -174,7 +193,10 @@ export class QueryValidator {
 		const onlyOneMkey: boolean = mkeyList.length === 1;
 		const onlyOneVal: boolean = valueList.length === 1;
 		const validMkey: boolean = this.mkeys.includes(mkeyList[0]);
-		const mfield = mkeyList[0].split("_")[1];
+		let mfield = "";
+		if (typeof (mkeyList[0]) !==  "undefined"){
+			mfield = mkeyList[0].split("_")[1];
+		}
 		let expectedValueType: string;
 		if (["dept", "id", "instructor", "title", "uuid"].includes(mfield)) {
 			expectedValueType = "string";
@@ -194,7 +216,10 @@ export class QueryValidator {
 		const onlyOneSkey: boolean = skeyList.length === 1;
 		const onlyOneInputstring: boolean = inputstringList.length === 1;
 		const validSkey: boolean = this.skeys.includes(skeyList[0]);
-		const sfield = skeyList[0].split("_")[1];
+		let sfield = "";
+		if (typeof (skeyList[0]) !==  "undefined"){
+			sfield = skeyList[0].split("_")[1];
+		}
 		let expectedValueType: string;
 		if (["dept", "id", "instructor", "title", "uuid"].includes(sfield)) {
 			expectedValueType = "string";
@@ -227,7 +252,6 @@ export class QueryValidator {
 		} else if (keys.length > 2 || keys.length === 0) {
 			this.validOptions = false;
 		}
-
 		keys.forEach((key, index) => {
 			if (key !== expectedKeys[index]) {
 				this.validOptions = false;
@@ -253,7 +277,6 @@ export class QueryValidator {
 				}
 			}
 		});
-
 		if (this.validOptions) {
 			this.order = obj.ORDER;
 			return obj.COLUMNS;
@@ -261,14 +284,12 @@ export class QueryValidator {
 			return [];
 		}
 	}
-
 	public traverseArray(arr: any): void {
 		arr.forEach((obj: any) => {
 			this.checkWhere(obj);
 		});
 	}
-	// code based off of example found at
-	// https://davidwells.io/snippets/traverse-object-unknown-size-javascript
+	// code based off of example found at https://davidwells.io/snippets/traverse-object-unknown-size-javascript
 	public isArray(arr: any): boolean {
 		return Object.prototype.toString.call(arr) === "[object Array]";
 	}

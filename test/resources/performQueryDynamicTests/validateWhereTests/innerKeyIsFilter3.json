@@ -1,14 +1,14 @@
 {
-	"title": "outer key is not FILTER 1",
+	"title": "inner key is FILTER 3",
 	"input":
 	{
 		"WHERE":{
 			"OR":[
 				{
-					"courses_avg":[
+					"AND":[
 						{
 							"GT":{
-								"courses_avg":90
+								"OR":90
 							}
 						},
 						{
@@ -34,5 +34,7 @@
 		}
 
 	} ,
-	"with": false
+
+	"errorExpected":true,
+	"with": "InsightError"
 }

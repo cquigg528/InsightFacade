@@ -34,5 +34,7 @@
 		}
 
 	} ,
-	"with": false
+
+	"errorExpected":true,
+	"with": "InsightError"
 }

@@ -3,7 +3,7 @@
 	"input":
 	{
 		"WHERE":{
-			"OR":
+			"OR":[
 				{
 					"AND":[
 						{
@@ -17,8 +17,13 @@
 							}
 						}
 					]
+				},
+				{
+					"EQ":{
+						"courses_avg":95
+					}
 				}
-
+			]
 		},
 		"OPTIONS":{
 			"COLUMNS":[
@@ -29,5 +34,7 @@
 		}
 
 	} ,
-	"with": false
+
+	"errorExpected":true,
+	"with": "InsightError"
 }
