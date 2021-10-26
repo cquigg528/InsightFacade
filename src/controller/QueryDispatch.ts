@@ -2,7 +2,7 @@ import QueryFilter from "./QueryFilter";
 import DatasetSearch from "./DatasetSearch";
 import {Dataset} from "./Dataset";
 import {InsightError} from "./IInsightFacade";
-import {getValueByTranslation, isEquivalent} from "../../test/QueryUtil";
+import {getValueByTranslation, isEquivalent} from "./QueryUtil";
 
 const searchKeys: string[] = ["lt", "gt", "eq", "is"];
 export default class QueryDispatch {
