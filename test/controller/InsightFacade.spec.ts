@@ -368,1639 +368,1639 @@ describe("InsightFacade", function () {
 		);
 	});
 
-	describe("QueryValidator Dynamic Tests", function () {
-		let facade: InsightFacade;
-		let validator: QueryValidator;
-
-		describe("setUpQueryValidation", function () {
-			before(function () {
-				clearDisk();
-				facade = new InsightFacade();
-				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
-			});
-
-			testFolder<Input, SetUpQueryValidationOutput, Error>(
-				"Dynamic setUpQueryValidation testing",
-				(input): SetUpQueryValidationOutput => {
-					validator = new QueryValidator(input);
-					return validator.setUpQueryValidation(facade.datasetIds, input);
-				},
-				"./test/resources/performQueryDynamicTests/setUpQueryTests",
-				{
-					errorValidator: (error): error is Error =>
-						error === "InsightError" || error === "ResultTooLargeError",
-
-					assertOnError: (expected, actual) => {
-						if (expected === "InsightError") {
-							expect(actual).to.be.instanceof(InsightError);
-						} else if (expected === "ResultTooLargeError") {
-							expect(actual).to.be.instanceof(ResultTooLargeError);
-						} else {
-							// this should be unreachable
-							expect.fail("UNEXPECTED ERROR");
-						}
-					},
-
-					assertOnResult: (expected, actual) => {
-						expect(actual).to.equal(expected);
-					},
-				}
-			);
-		});
-
-		describe("validateWhere", function () {
-			before(function () {
-				clearDisk();
-				facade = new InsightFacade();
-				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
-			});
-
-			testFolder<Input, ValidateWhereOutput, Error>(
-				"Dynamic validateWhere testing",
-				(input): ValidateWhereOutput => {
-					validator = new QueryValidator(input);
-					validator.mkeys = [
-						"courses" + "_avg",
-						"courses" + "_pass",
-						"courses" + "_fail",
-						"courses" + "_audit",
-						"courses" + "_year",
-					];
-					validator.skeys = [
-						"courses" + "_dept",
-						"courses" + "_id",
-						"courses" + "_instructor",
-						"courses" + "_title",
-						"courses" + "_uuid",
-					];
-					validator.validateWhere();
-					return validator.validWhere;
-				},
-				"./test/resources/performQueryDynamicTests/validateWhereTests",
-				{
-					errorValidator: (error): error is Error =>
-						error === "InsightError" || error === "ResultTooLargeError",
-
-					assertOnError: (expected, actual) => {
-						if (expected === "InsightError") {
-							expect(actual).to.be.instanceof(InsightError);
-						} else if (expected === "ResultTooLargeError") {
-							expect(actual).to.be.instanceof(ResultTooLargeError);
-						} else {
-							// this should be unreachable
-							expect.fail("UNEXPECTED ERROR");
-						}
-					},
-
-					assertOnResult: (expected, actual) => {
-						expect(actual).to.equal(expected);
-					},
-				}
-			);
-		});
-
-		describe("validateAndParseOptions", function () {
-			before(function () {
-				clearDisk();
-				facade = new InsightFacade();
-				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
-			});
-
-			testFolder<Input, ValidateParseOptionsOutput, Error>(
-				"Dynamic validateWhere testing",
-				(input): ValidateParseOptionsOutput => {
-					validator = new QueryValidator(input);
-					validator.mkeys = [
-						"courses" + "_avg",
-						"courses" + "_pass",
-						"courses" + "_fail",
-						"courses" + "_audit",
-						"courses" + "_year",
-					];
-					validator.skeys = [
-						"courses" + "_dept",
-						"courses" + "_id",
-						"courses" + "_instructor",
-						"courses" + "_title",
-						"courses" + "_uuid",
-					];
-					return validator.validateAndParseOptions();
-				},
-				"./test/resources/performQueryDynamicTests/validateAndParseOptions",
-				{
-					errorValidator: (error): error is Error =>
-						error === "InsightError" || error === "ResultTooLargeError",
-
-					assertOnError: (expected, actual) => {
-						if (expected === "InsightError") {
-							expect(actual).to.be.instanceof(InsightError);
-						} else if (expected === "ResultTooLargeError") {
-							expect(actual).to.be.instanceof(ResultTooLargeError);
-						} else {
-							// this should be unreachable
-							expect.fail("UNEXPECTED ERROR");
-						}
-					},
-
-					assertOnResult: (expected, actual) => {
-						expect(actual).to.deep.equal(expected);
-						if (isDeepStrictEqual(expected, [])) {
-							expect(validator.validOptions).to.be.false;
-							expect(validator.order).to.deep.equal("");
-						} else {
-							expect(validator.validOptions).to.be.true;
-							if (Object.prototype.hasOwnProperty.call(validator.query.OPTIONS, "ORDER")) {
-								expect(validator.order).to.not.deep.equal("");
-								expect(validator.query.OPTIONS.COLUMNS).to.include(validator.order);
-							} else {
-								expect(validator.order).to.deep.equal("");
-							}
-						}
-					},
-				}
-			);
-		});
-	});
-
-	describe("Query Dispatch Tests", function () {
-		let facade: InsightFacade;
-		let queryDispatchObj: QueryDispatch;
-
-		const testNot = {
-			WHERE: {
-				NOT: {
-					LT: {
-						courses_avg: 90,
-					},
-				},
-			},
-
-			OPTIONS: {
-				COLUMNS: ["courses_id"],
-			},
-		};
-
-		const oneAsteriskInputStr = {
-			WHERE: {
-				AND: [
-					{
-						AND: [
-							{
-								IS: {
-									courses_dept: "math"
-								}
-							},
-							{
-								EQ: {
-									courses_avg: 90
-								}
-							}
-						]
-					},
-					{
-						IS: {
-							courses_id: "*"
-						}
-					}
-				]
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_id",
-					"courses_avg"
-				],
-				ORDER: "courses_avg"
-			}
-		};
-
-		const testNestedNot = {
-			WHERE: {
-				NOT: {
-					NOT: {
-						LT: {
-							courses_avg: 90,
-						},
-					},
-				},
-			},
-
-			OPTIONS: {
-				COLUMNS: ["courses_id"],
-			},
-		};
-
-		const testNestedNotAnd = {
-			WHERE: {
-				NOT: {
-					NOT: {
-						AND: [
-							{
-								LT: {
-									courses_avg: 90,
-								},
-							},
-							{
-								IS: {
-									courses_dept: "cpsc",
-								},
-							},
-						],
-					},
-				},
-			},
-
-			OPTIONS: {
-				COLUMNS: ["courses_id"],
-			},
-		};
-
-		const testNestedNotAndAnd = {
-			WHERE: {
-				NOT: {
-					NOT: {
-						AND: [
-							{
-								LT: {
-									courses_avg: 90,
-								},
-							},
-							{
-								AND: [
-									{
-										IS: {
-											courses_dept: "cpsc",
-										},
-									},
-								],
-							},
-						],
-					},
-				},
-			},
-
-			OPTIONS: {
-				COLUMNS: ["courses_id"],
-			},
-		};
-
-		const testObj0 = {
-			WHERE: {
-				AND: [
-					{
-						NOT: {
-							LT: {
-								courses_avg: 90,
-							},
-						},
-					},
-					{
-						IS: {
-							courses_dept: "cpsc",
-						},
-					},
-				],
-			},
-			OPTIONS: {
-				COLUMNS: ["courses_id"],
-			},
-		};
-		const testObj1 = {
-			WHERE: {
-				OR: [
-					{
-						AND: [
-							{
-								LT: {
-									courses_avg: 90,
-								},
-							},
-							{
-								IS: {
-									courses_dept: "cpsc",
-								},
-							},
-						],
-					},
-					{
-						EQ: {
-							courses_year: 2012,
-						},
-					},
-				],
-			},
-			OPTIONS: {
-				COLUMNS: ["courses_avg", "courses_dept"],
-				ORDER: "courses_avg",
-			},
-		};
-		const testObj2 = {
-			WHERE: {
-				OR: [
-					{
-						AND: [
-							{
-								GT: {
-									courses_fail: 10,
-								},
-							},
-							{
-								LT: {
-									courses_avg: 90,
-								},
-							},
-							{
-								EQ: {
-									courses_year: 2012,
-								},
-							},
-							{
-								IS: {
-									courses_dept: "cpsc",
-								},
-							},
-						],
-					},
-					{
-						AND: [
-							{
-								IS: {
-									courses_instructor: "Gregor Kiczales",
-								},
-							},
-						],
-					},
-				],
-			},
-			OPTIONS: {
-				COLUMNS: ["courses_dept", "courses_id", "courses_avg"],
-				ORDER: "courses_avg",
-			},
-		};
-
-		const nestedAndQuery = {
-			WHERE: {
-				AND: [
-					{
-						GT: {
-							courses_avg: 90
-						}
-					},
-					{
-						IS: {
-							courses_dept: "adhe"
-						}
-					}
-				]
-
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_id"
-				]
-			}
-		};
-
-		const singleSearchQuery = {
-			WHERE: {
-				GT: {
-					courses_avg: 99
-				}
-
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_avg"
-
-				]
-			}
-		};
-
-		const complexQuery2 = {
-			WHERE: {
-				AND: [
-					{
-						OR: [
-							{
-								LT: {
-									courses_avg: 10
-								}
-							},
-							{
-								IS: {
-									courses_dept: "adhe"
-								}
-							}
-						]
-					},
-					{
-						EQ: {
-							courses_avg: 95
-						}
-					}
-				]
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_id",
-					"courses_avg",
-					"courses_instructor",
-					"courses_title",
-					"courses_pass",
-					"courses_fail",
-					"courses_audit",
-					"courses_uuid",
-					"courses_year"
-				],
-				ORDER: "courses_dept"
-			}
-		};
-
-		const nestedAndWithNot = {
-			WHERE: {
-				AND: [
-					{
-						NOT: {
-							IS: {
-								courses_dept: "cpsc"
-							}
-						}
-					},
-					{
-						IS: {
-							courses_dept: "cpsc"
-						}
-					}
-				]
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_title",
-					"courses_avg",
-					"courses_pass",
-					"courses_fail"
-				],
-				ORDER: "courses_avg"
-			}
-		};
-
-		const validWildCard1 = {
-			WHERE: {
-				AND: [
-					{
-						NOT: {
-							IS: {
-								courses_dept: "*c"
-							}
-						}
-					},
-					{
-						AND: [
-							{
-								LT: {
-									courses_year: 2010
-								}
-							},
-							{
-								EQ: {
-									courses_avg: 90
-								}
-							}
-						]
-					}
-				]
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_title",
-					"courses_avg",
-					"courses_pass",
-					"courses_fail",
-					"courses_year"
-				],
-				ORDER: "courses_year"
-			}
-		};
-
-		const swapWhereOptions = {
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_avg"
-				],
-				ORDER: "courses_avg"
-			},
-			WHERE: {
-				GT: {
-					courses_avg: 97
-				}
-			}
-		};
-
-		describe("buildQueryDispatch / performDatasetSearch", function () {
-			let where: QueryFilter;
-			let or: QueryFilter;
-			let and: QueryFilter;
-			let not: QueryFilter;
-			let gt: DatasetSearch;
-			let lt: DatasetSearch;
-			let eq: DatasetSearch;
-			let is: DatasetSearch;
-
-			describe("performDatasetSearch", function () {
-				before(async function () {
-					clearDisk();
-					facade = new InsightFacade();
-					await facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses);
-				});
-
-				describe("findAndProcessNot", function () {
-					beforeEach(function () {
-						where = new QueryFilter(null, "WHERE", [], []);
-						or = new QueryFilter(null, "OR", [], []);
-						and = new QueryFilter(null, "AND", [], []);
-						not = new QueryFilter(null, "NOT", [], []);
-						gt = new DatasetSearch("gt", "fail", 10);
-						lt = new DatasetSearch("lt", "avg", 90);
-						eq = new DatasetSearch("eq", "year", 2012);
-						is = new DatasetSearch("is", "dept", "cpsc");
-					});
-
-					it("should not touch a simple tree with no nots", function () {
-						where.children.push(or);
-						or.parent = where;
-						or.searches.push(lt, eq, is);
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.query = Object.create(where);
-
-						queryDispatchObj.findAndProcessNot(where);
-
-						expect(where).to.deep.equal(queryDispatchObj.query);
-
-					});
-
-					it("should touch a simple tree with one not", function () {
-						where.children.push(not);
-						not.parent = where;
-						not.children.push(or);
-						or.parent = not;
-						or.searches.push(lt, eq, is);
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.query = Object.create(where);
-
-						queryDispatchObj.findAndProcessNot(where);
-
-						expect(where).to.deep.equal(queryDispatchObj.query);
-
-					});
-				});
-
-				describe("query dispatch", function (){
-					it("should work with wildcards", async function () {
-						let expected = [
-							{
-								courses_dept: "thtr",
-								courses_title: "bibliog & resrch",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "sts",
-								courses_title: "sts mstrs colloq",
-								courses_avg: 90,
-								courses_pass: 5,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "sowk",
-								courses_title: "soc work doc sem",
-								courses_avg: 90,
-								courses_pass: 7,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "sans",
-								courses_title: "intro sanskrit",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "port",
-								courses_title: "elementary port",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "phys",
-								courses_title: "quantum mech ii",
-								courses_avg: 90,
-								courses_pass: 12,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "phar",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "phar",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "phar",
-								courses_title: "peer teaching 2",
-								courses_avg: 90,
-								courses_pass: 25,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "pcth",
-								courses_title: "ms thesis",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "pcth",
-								courses_title: "ms thesis",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "pcth",
-								courses_title: "ms thesis",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "pcth",
-								courses_title: "ms thesis",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "path",
-								courses_title: "msc thesis",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "path",
-								courses_title: "msc thesis",
-								courses_avg: 90,
-								courses_pass: 3,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "path",
-								courses_title: "clk in lab medic",
-								courses_avg: 90,
-								courses_pass: 12,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "nurs",
-								courses_title: "cl pro prim care",
-								courses_avg: 90,
-								courses_pass: 14,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "mine",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "mine",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "midw",
-								courses_title: "comp thry&prctc",
-								courses_avg: 90,
-								courses_pass: 10,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "medi",
-								courses_title: "m.sc. thesis",
-								courses_avg: 90,
-								courses_pass: 6,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "mech",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 7,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "mech",
-								courses_title: "mch tool str&vib",
-								courses_avg: 90,
-								courses_pass: 8,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "math",
-								courses_title: "algb geometry i",
-								courses_avg: 90,
-								courses_pass: 9,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "math",
-								courses_title: "combinatorial op",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "math",
-								courses_title: "prt diff equa i",
-								courses_avg: 90,
-								courses_pass: 5,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "math",
-								courses_title: "discrete math",
-								courses_avg: 90,
-								courses_pass: 5,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "math",
-								courses_title: "tpcs algebra",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "ling",
-								courses_title: "fld mthd ling ii",
-								courses_avg: 90,
-								courses_pass: 7,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "libr",
-								courses_title: "research collbrt",
-								courses_avg: 90,
-								courses_pass: 3,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "kin",
-								courses_title: "bioenrgtc ph act",
-								courses_avg: 90,
-								courses_pass: 15,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "ital",
-								courses_title: "advanced ital i",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "hgse",
-								courses_title: "frst ntns rsorcs",
-								courses_avg: 90,
-								courses_pass: 21,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "grsj",
-								courses_title: "gndr sex crt rce",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "germ",
-								courses_title: "conv german ii",
-								courses_avg: 90,
-								courses_pass: 7,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "frst",
-								courses_title: "tec comm skls ii",
-								courses_avg: 90,
-								courses_pass: 15,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "frst",
-								courses_title: "plnt molec biol",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "epse",
-								courses_title: "tech for vis imp",
-								courses_avg: 90,
-								courses_pass: 11,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "eece",
-								courses_title: "eng report",
-								courses_avg: 90,
-								courses_pass: 3,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "eece",
-								courses_title: "nanophoton fab",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "edst",
-								courses_title: "tcher union educ",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "edst",
-								courses_title: "ldrshp educ org",
-								courses_avg: 90,
-								courses_pass: 39,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "edst",
-								courses_title: "adu edu pro",
-								courses_avg: 90,
-								courses_pass: 15,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "econ",
-								courses_title: "ph d resrch sem",
-								courses_avg: 90,
-								courses_pass: 27,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "econ",
-								courses_title: "ph d resrch sem",
-								courses_avg: 90,
-								courses_pass: 13,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "econ",
-								courses_title: "soc & econ measu",
-								courses_avg: 90,
-								courses_pass: 14,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "econ",
-								courses_title: "hist mod europe",
-								courses_avg: 90,
-								courses_pass: 5,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "dent",
-								courses_title: "clin endo yr 3",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "dent",
-								courses_title: "masters thesis",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "dent",
-								courses_title: "m.sc. thesis",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "dent",
-								courses_title: "biomec cr-fac i",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "dent",
-								courses_title: "oral pathology",
-								courses_avg: 90,
-								courses_pass: 23,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "dent",
-								courses_title: "prs pln&outc i",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "dent",
-								courses_title: "prosth lit rv i",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "cnps",
-								courses_title: "family counsl ii",
-								courses_avg: 90,
-								courses_pass: 6,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "civl",
-								courses_title: "adv coastal eng",
-								courses_avg: 90,
-								courses_pass: 10,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "civl",
-								courses_title: "dynam struct 2",
-								courses_avg: 90,
-								courses_pass: 5,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "chil",
-								courses_title: "child's lit",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "chem",
-								courses_title: "stat'l mech chem",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "cell",
-								courses_title: "tpc cytosk&cl mo",
-								courses_avg: 90,
-								courses_pass: 10,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "audi",
-								courses_title: "hearing sci ii",
-								courses_avg: 90,
-								courses_pass: 12,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "arth",
-								courses_title: "master's thesis",
-								courses_avg: 90,
-								courses_pass: 3,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "arth",
-								courses_title: "master's thesis",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "arth",
-								courses_title: "master's thesis",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "arst",
-								courses_title: "arch rsrch&schlr",
-								courses_avg: 90,
-								courses_pass: 6,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "arch",
-								courses_title: "masa thesis",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 1900
-							},
-							{
-								courses_dept: "phys",
-								courses_title: "quantum mech ii",
-								courses_avg: 90,
-								courses_pass: 12,
-								courses_fail: 0,
-								courses_year: 2007
-							},
-							{
-								courses_dept: "phar",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 2007
-							},
-							{
-								courses_dept: "path",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 2007
-							},
-							{
-								courses_dept: "mech",
-								courses_title: "seminar",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 2007
-							},
-							{
-								courses_dept: "mech",
-								courses_title: "research seminar",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 2007
-							},
-							{
-								courses_dept: "math",
-								courses_title: "prt diff equa i",
-								courses_avg: 90,
-								courses_pass: 5,
-								courses_fail: 0,
-								courses_year: 2007
-							},
-							{
-								courses_dept: "frst",
-								courses_title: "plnt molec biol",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 2007
-							},
-							{
-								courses_dept: "nurs",
-								courses_title: "cl pro prim care",
-								courses_avg: 90,
-								courses_pass: 14,
-								courses_fail: 0,
-								courses_year: 2008
-							},
-							{
-								courses_dept: "math",
-								courses_title: "combinatorial op",
-								courses_avg: 90,
-								courses_pass: 4,
-								courses_fail: 0,
-								courses_year: 2008
-							},
-							{
-								courses_dept: "libr",
-								courses_title: "research collbrt",
-								courses_avg: 90,
-								courses_pass: 2,
-								courses_fail: 0,
-								courses_year: 2008
-							},
-							{
-								courses_dept: "econ",
-								courses_title: "ph d resrch sem",
-								courses_avg: 90,
-								courses_pass: 13,
-								courses_fail: 0,
-								courses_year: 2008
-							},
-							{
-								courses_dept: "econ",
-								courses_title: "soc & econ measu",
-								courses_avg: 90,
-								courses_pass: 14,
-								courses_fail: 0,
-								courses_year: 2008
-							},
-							{
-								courses_dept: "cnps",
-								courses_title: "family counsl ii",
-								courses_avg: 90,
-								courses_pass: 6,
-								courses_fail: 0,
-								courses_year: 2008
-							},
-							{
-								courses_dept: "arst",
-								courses_title: "arch rsrch&schlr",
-								courses_avg: 90,
-								courses_pass: 6,
-								courses_fail: 0,
-								courses_year: 2008
-							},
-							{
-								courses_dept: "path",
-								courses_title: "msc thesis",
-								courses_avg: 90,
-								courses_pass: 1,
-								courses_fail: 0,
-								courses_year: 2009
-							},
-							{
-								courses_dept: "audi",
-								courses_title: "hearing sci ii",
-								courses_avg: 90,
-								courses_pass: 12,
-								courses_fail: 0,
-								courses_year: 2009
-							}
-						];
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.buildQueryDispatch(validWildCard1);
-						queryDispatchObj.columns.push("courses_dept", "courses_avg");
-						let dataset = facade.getDatasetById("courses");
-						if (dataset === null) {
-							expect.fail("getDatasetById returned null");
-						} else {
-							let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
-							expect(courses).to.deep.equal(expected);
-						}
-					});
-
-					it("should work with WHERE and OPTIONS swapped", async  function () {
-						let validator = new QueryValidator(swapWhereOptions);
-						let courses = validator.validateAndParseQuery();
-						expect(courses).to.eventually.be.rejectedWith(InsightError);
-					});
-
-					it("should search with single AND query, one column, no order", async function () {
-						let expected = [
-							{
-								courses_dept: "adhe",
-								courses_avg: 93.33
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.02
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 96.11
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 92.54
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.82
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 91.29
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 91.48
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.85
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.17
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.5
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 91.33
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 91.33
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.72
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.16
-							},
-							{
-								courses_dept: "adhe",
-								courses_avg: 90.18
-							}
-						];
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.buildQueryDispatch(nestedAndQuery);
-						queryDispatchObj.columns.push("courses_dept", "courses_avg");
-						let dataset = facade.getDatasetById("courses");
-						if (dataset === null) {
-							expect.fail("getDatasetById returned null");
-						} else {
-							let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
-							expect(courses).to.deep.equal(expected);
-						}
-					});
-
-					it("should work with nested not that returns empty list", async function () {
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.buildQueryDispatch(nestedAndWithNot);
-						queryDispatchObj.columns.push("courses_dept", "courses_avg");
-						let dataset = facade.getDatasetById("courses");
-						if (dataset === null) {
-							expect.fail("getDatasetById returned null");
-						} else {
-							let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
-							expect(courses).to.deep.equal([]);
-						}
-					});
-
-					it("should search only with one search", async function () {
-						let expected = [
-							{
-								courses_dept: "cnps",
-								courses_avg: 99.19
-							},
-							{
-								courses_dept: "math",
-								courses_avg: 99.78
-							},
-							{
-								courses_dept: "math",
-								courses_avg: 99.78
-							}
-						];
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.buildQueryDispatch(singleSearchQuery);
-						queryDispatchObj.columns.push("courses_dept", "courses_avg");
-						let dataset = facade.getDatasetById("courses");
-						if (dataset === null) {
-							expect.fail("getDatasetById returned null");
-						} else {
-							let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
-							expect(courses).to.deep.equal(expected);
-						}
-
-					});
-
-					it("should succeed with complexQuery2", async function () {
-						let expected: any = [];
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.buildQueryDispatch(complexQuery2);
-						queryDispatchObj.columns.push("courses_dept", "courses_avg");
-						let dataset = facade.getDatasetById("courses");
-						if (dataset === null) {
-							expect.fail("getDatasetById returned null");
-						} else {
-							let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
-							expect(courses).to.deep.equal(expected);
-						}
-
-					});
-
-					it("should succeed with only one asterisk", async function () {
-						let expected: any = [
-							{
-								courses_dept: "math",
-								courses_id: "589",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "532",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "532",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "523",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "523",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "516",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "516",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "503",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "503",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "423",
-								courses_avg: 90
-							},
-							{
-								courses_dept: "math",
-								courses_id: "423",
-								courses_avg: 90
-							}
-						];
-
-						queryDispatchObj = new QueryDispatch(false, [], "");
-						queryDispatchObj.buildQueryDispatch(oneAsteriskInputStr);
-						queryDispatchObj.columns.push("courses_dept", "courses_avg");
-						let dataset = facade.getDatasetById("courses");
-						if (dataset === null) {
-							expect.fail("getDatasetById returned null");
-						} else {
-							let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
-							expect(courses).to.deep.equal(expected);
-						}
-
-					});
-				});
-			});
-
-
-			describe("buildQueryDispatch", function () {
-
-				before(function () {
-					clearDisk();
-					facade = new InsightFacade();
-					return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
-				});
-
-				beforeEach(function () {
-					where = new QueryFilter(null, "WHERE", [], []);
-					or = new QueryFilter(null, "OR", [], []);
-					and = new QueryFilter(null, "AND", [], []);
-					not = new QueryFilter(null, "NOT", [], []);
-					gt = new DatasetSearch("gt", "fail", 10);
-					lt = new DatasetSearch("lt", "avg", 90);
-					eq = new DatasetSearch("eq", "year", 2012);
-					is = new DatasetSearch("is", "dept", "cpsc");
-				});
-
-				it("should work with complex nested", function () {
-					where.children.push(or);
-					or.parent = where;
-					or.children.push(and);
-					or.searches.push(eq);
-					and.parent = or;
-					and.searches.push(lt, is);
-
-					queryDispatchObj = new QueryDispatch(false, [], "");
-					queryDispatchObj.buildQueryDispatch(testObj1);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-				});
-
-				it("should work with complex nested2", function () {
-					where.children.push(or);
-					or.parent = where;
-					or.children.push(and);
-					and.parent = or;
-					and.searches.push(gt, lt, eq, is);
-					let and2: QueryFilter = new QueryFilter(or, "AND", [], []);
-					let is2: DatasetSearch = new DatasetSearch("is", "instructor", "Gregor Kiczales");
-					or.children.push(and2);
-					and2.searches.push(is2);
-
-					queryDispatchObj = new QueryDispatch(false, [], "");
-					queryDispatchObj.buildQueryDispatch(testObj2);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-				});
-
-				it("should work with single not", function () {
-					where.children.push(not);
-					not.parent = where;
-					not.searches.push(lt);
-
-					queryDispatchObj = new QueryDispatch(false, [], "");
-					queryDispatchObj.buildQueryDispatch(testNot);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-				});
-
-				it("should work with nested nots", function () {
-					where.children.push(not);
-					not.parent = where;
-					let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
-					not.children.push(not1);
-					not1.parent = not;
-					not1.searches.push(lt);
-
-					queryDispatchObj = new QueryDispatch(false, [], "");
-					queryDispatchObj.buildQueryDispatch(testNestedNot);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-				});
-
-				it("should work with nested not with and", function () {
-					where.children.push(not);
-					not.parent = where;
-					let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
-					not.children.push(not1);
-					not1.parent = not;
-					not1.children.push(and);
-					and.parent = not1;
-					and.searches.push(lt, is);
-
-					queryDispatchObj = new QueryDispatch(false, [], "");
-					queryDispatchObj.buildQueryDispatch(testNestedNotAnd);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-				});
-
-				it("should work with nested not with and and", function () {
-					where.children.push(not);
-					not.parent = where;
-					let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
-					not.children.push(not1);
-					not1.parent = not;
-					not1.children.push(and);
-					and.parent = not1;
-					let and1: QueryFilter = new QueryFilter(null, "AND", [], []);
-					and.searches.push(lt);
-					and.children.push(and1);
-					and1.parent = and;
-					and1.searches.push(is);
-
-					queryDispatchObj = new QueryDispatch(false, [], "");
-					queryDispatchObj.buildQueryDispatch(testNestedNotAndAnd);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-				});
-
-				it("should build a simple query filter tree", function () {
-					where.children.push(and);
-					and.parent = where;
-					and.children.push(not);
-					not.parent = and;
-					not.searches.push(lt);
-					and.searches.push(is);
-
-					queryDispatchObj = new QueryDispatch(false, [], "");
-					queryDispatchObj.buildQueryDispatch(testObj0);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-				});
-
-				it ("should work", function () {
-					where.children.push(or);
-					or.parent = where;
-					or.children.push(and);
-					and.parent = or;
-					gt = new DatasetSearch("gt", "fail", 40);
-					lt = new DatasetSearch("lt", "pass", 400);
-					eq = new DatasetSearch("eq", "year", 2012);
-					is = new DatasetSearch("is", "instructor", "*greg*");
-					and.searches.push(gt, lt, eq);
-					let and2: QueryFilter = new QueryFilter(or, "AND", [], []);
-					let eq2: DatasetSearch = new DatasetSearch("eq", "year", 2015);
-					or.children.push(and2);
-					and2.searches.push(is);
-					and2.searches.push(eq2);
-
-					queryDispatchObj = new QueryDispatch(false, ["dept", "id", "avg", "instructor"], "dept");
-					queryDispatchObj.buildQueryDispatch(testObj2);
-
-					expect(queryDispatchObj.query).to.deep.equal(where);
-
-				});
-			});
-
-		});
-	});
+	// describe("QueryValidator Dynamic Tests", function () {
+	// 	let facade: InsightFacade;
+	// 	let validator: QueryValidator;
+	//
+	// 	describe("setUpQueryValidation", function () {
+	// 		before(function () {
+	// 			clearDisk();
+	// 			facade = new InsightFacade();
+	// 			return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+	// 		});
+	//
+	// 		testFolder<Input, SetUpQueryValidationOutput, Error>(
+	// 			"Dynamic setUpQueryValidation testing",
+	// 			(input): SetUpQueryValidationOutput => {
+	// 				validator = new QueryValidator(input);
+	// 				return validator.setUpQueryValidation(facade.datasetIds, input);
+	// 			},
+	// 			"./test/resources/performQueryDynamicTests/setUpQueryTests",
+	// 			{
+	// 				errorValidator: (error): error is Error =>
+	// 					error === "InsightError" || error === "ResultTooLargeError",
+	//
+	// 				assertOnError: (expected, actual) => {
+	// 					if (expected === "InsightError") {
+	// 						expect(actual).to.be.instanceof(InsightError);
+	// 					} else if (expected === "ResultTooLargeError") {
+	// 						expect(actual).to.be.instanceof(ResultTooLargeError);
+	// 					} else {
+	// 						// this should be unreachable
+	// 						expect.fail("UNEXPECTED ERROR");
+	// 					}
+	// 				},
+	//
+	// 				assertOnResult: (expected, actual) => {
+	// 					expect(actual).to.equal(expected);
+	// 				},
+	// 			}
+	// 		);
+	// 	});
+	//
+	// 	describe("validateWhere", function () {
+	// 		before(function () {
+	// 			clearDisk();
+	// 			facade = new InsightFacade();
+	// 			return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+	// 		});
+	//
+	// 		testFolder<Input, ValidateWhereOutput, Error>(
+	// 			"Dynamic validateWhere testing",
+	// 			(input): ValidateWhereOutput => {
+	// 				validator = new QueryValidator(input);
+	// 				validator.mkeys = [
+	// 					"courses" + "_avg",
+	// 					"courses" + "_pass",
+	// 					"courses" + "_fail",
+	// 					"courses" + "_audit",
+	// 					"courses" + "_year",
+	// 				];
+	// 				validator.skeys = [
+	// 					"courses" + "_dept",
+	// 					"courses" + "_id",
+	// 					"courses" + "_instructor",
+	// 					"courses" + "_title",
+	// 					"courses" + "_uuid",
+	// 				];
+	// 				validator.validateWhere();
+	// 				return validator.validWhere;
+	// 			},
+	// 			"./test/resources/performQueryDynamicTests/validateWhereTests",
+	// 			{
+	// 				errorValidator: (error): error is Error =>
+	// 					error === "InsightError" || error === "ResultTooLargeError",
+	//
+	// 				assertOnError: (expected, actual) => {
+	// 					if (expected === "InsightError") {
+	// 						expect(actual).to.be.instanceof(InsightError);
+	// 					} else if (expected === "ResultTooLargeError") {
+	// 						expect(actual).to.be.instanceof(ResultTooLargeError);
+	// 					} else {
+	// 						// this should be unreachable
+	// 						expect.fail("UNEXPECTED ERROR");
+	// 					}
+	// 				},
+	//
+	// 				assertOnResult: (expected, actual) => {
+	// 					expect(actual).to.equal(expected);
+	// 				},
+	// 			}
+	// 		);
+	// 	});
+	//
+	// 	describe("validateAndParseOptions", function () {
+	// 		before(function () {
+	// 			clearDisk();
+	// 			facade = new InsightFacade();
+	// 			return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+	// 		});
+	//
+	// 		testFolder<Input, ValidateParseOptionsOutput, Error>(
+	// 			"Dynamic validateWhere testing",
+	// 			(input): ValidateParseOptionsOutput => {
+	// 				validator = new QueryValidator(input);
+	// 				validator.mkeys = [
+	// 					"courses" + "_avg",
+	// 					"courses" + "_pass",
+	// 					"courses" + "_fail",
+	// 					"courses" + "_audit",
+	// 					"courses" + "_year",
+	// 				];
+	// 				validator.skeys = [
+	// 					"courses" + "_dept",
+	// 					"courses" + "_id",
+	// 					"courses" + "_instructor",
+	// 					"courses" + "_title",
+	// 					"courses" + "_uuid",
+	// 				];
+	// 				return validator.validateAndParseOptions();
+	// 			},
+	// 			"./test/resources/performQueryDynamicTests/validateAndParseOptions",
+	// 			{
+	// 				errorValidator: (error): error is Error =>
+	// 					error === "InsightError" || error === "ResultTooLargeError",
+	//
+	// 				assertOnError: (expected, actual) => {
+	// 					if (expected === "InsightError") {
+	// 						expect(actual).to.be.instanceof(InsightError);
+	// 					} else if (expected === "ResultTooLargeError") {
+	// 						expect(actual).to.be.instanceof(ResultTooLargeError);
+	// 					} else {
+	// 						// this should be unreachable
+	// 						expect.fail("UNEXPECTED ERROR");
+	// 					}
+	// 				},
+	//
+	// 				assertOnResult: (expected, actual) => {
+	// 					expect(actual).to.deep.equal(expected);
+	// 					if (isDeepStrictEqual(expected, [])) {
+	// 						expect(validator.validOptions).to.be.false;
+	// 						expect(validator.order).to.deep.equal("");
+	// 					} else {
+	// 						expect(validator.validOptions).to.be.true;
+	// 						if (Object.prototype.hasOwnProperty.call(validator.query.OPTIONS, "ORDER")) {
+	// 							expect(validator.order).to.not.deep.equal("");
+	// 							expect(validator.query.OPTIONS.COLUMNS).to.include(validator.order);
+	// 						} else {
+	// 							expect(validator.order).to.deep.equal("");
+	// 						}
+	// 					}
+	// 				},
+	// 			}
+	// 		);
+	// 	});
+	// });
+	//
+	// describe("Query Dispatch Tests", function () {
+	// 	let facade: InsightFacade;
+	// 	let queryDispatchObj: QueryDispatch;
+	//
+	// 	const testNot = {
+	// 		WHERE: {
+	// 			NOT: {
+	// 				LT: {
+	// 					courses_avg: 90,
+	// 				},
+	// 			},
+	// 		},
+	//
+	// 		OPTIONS: {
+	// 			COLUMNS: ["courses_id"],
+	// 		},
+	// 	};
+	//
+	// 	const oneAsteriskInputStr = {
+	// 		WHERE: {
+	// 			AND: [
+	// 				{
+	// 					AND: [
+	// 						{
+	// 							IS: {
+	// 								courses_dept: "math"
+	// 							}
+	// 						},
+	// 						{
+	// 							EQ: {
+	// 								courses_avg: 90
+	// 							}
+	// 						}
+	// 					]
+	// 				},
+	// 				{
+	// 					IS: {
+	// 						courses_id: "*"
+	// 					}
+	// 				}
+	// 			]
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_id",
+	// 				"courses_avg"
+	// 			],
+	// 			ORDER: "courses_avg"
+	// 		}
+	// 	};
+	//
+	// 	const testNestedNot = {
+	// 		WHERE: {
+	// 			NOT: {
+	// 				NOT: {
+	// 					LT: {
+	// 						courses_avg: 90,
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	//
+	// 		OPTIONS: {
+	// 			COLUMNS: ["courses_id"],
+	// 		},
+	// 	};
+	//
+	// 	const testNestedNotAnd = {
+	// 		WHERE: {
+	// 			NOT: {
+	// 				NOT: {
+	// 					AND: [
+	// 						{
+	// 							LT: {
+	// 								courses_avg: 90,
+	// 							},
+	// 						},
+	// 						{
+	// 							IS: {
+	// 								courses_dept: "cpsc",
+	// 							},
+	// 						},
+	// 					],
+	// 				},
+	// 			},
+	// 		},
+	//
+	// 		OPTIONS: {
+	// 			COLUMNS: ["courses_id"],
+	// 		},
+	// 	};
+	//
+	// 	const testNestedNotAndAnd = {
+	// 		WHERE: {
+	// 			NOT: {
+	// 				NOT: {
+	// 					AND: [
+	// 						{
+	// 							LT: {
+	// 								courses_avg: 90,
+	// 							},
+	// 						},
+	// 						{
+	// 							AND: [
+	// 								{
+	// 									IS: {
+	// 										courses_dept: "cpsc",
+	// 									},
+	// 								},
+	// 							],
+	// 						},
+	// 					],
+	// 				},
+	// 			},
+	// 		},
+	//
+	// 		OPTIONS: {
+	// 			COLUMNS: ["courses_id"],
+	// 		},
+	// 	};
+	//
+	// 	const testObj0 = {
+	// 		WHERE: {
+	// 			AND: [
+	// 				{
+	// 					NOT: {
+	// 						LT: {
+	// 							courses_avg: 90,
+	// 						},
+	// 					},
+	// 				},
+	// 				{
+	// 					IS: {
+	// 						courses_dept: "cpsc",
+	// 					},
+	// 				},
+	// 			],
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: ["courses_id"],
+	// 		},
+	// 	};
+	// 	const testObj1 = {
+	// 		WHERE: {
+	// 			OR: [
+	// 				{
+	// 					AND: [
+	// 						{
+	// 							LT: {
+	// 								courses_avg: 90,
+	// 							},
+	// 						},
+	// 						{
+	// 							IS: {
+	// 								courses_dept: "cpsc",
+	// 							},
+	// 						},
+	// 					],
+	// 				},
+	// 				{
+	// 					EQ: {
+	// 						courses_year: 2012,
+	// 					},
+	// 				},
+	// 			],
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: ["courses_avg", "courses_dept"],
+	// 			ORDER: "courses_avg",
+	// 		},
+	// 	};
+	// 	const testObj2 = {
+	// 		WHERE: {
+	// 			OR: [
+	// 				{
+	// 					AND: [
+	// 						{
+	// 							GT: {
+	// 								courses_fail: 10,
+	// 							},
+	// 						},
+	// 						{
+	// 							LT: {
+	// 								courses_avg: 90,
+	// 							},
+	// 						},
+	// 						{
+	// 							EQ: {
+	// 								courses_year: 2012,
+	// 							},
+	// 						},
+	// 						{
+	// 							IS: {
+	// 								courses_dept: "cpsc",
+	// 							},
+	// 						},
+	// 					],
+	// 				},
+	// 				{
+	// 					AND: [
+	// 						{
+	// 							IS: {
+	// 								courses_instructor: "Gregor Kiczales",
+	// 							},
+	// 						},
+	// 					],
+	// 				},
+	// 			],
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: ["courses_dept", "courses_id", "courses_avg"],
+	// 			ORDER: "courses_avg",
+	// 		},
+	// 	};
+	//
+	// 	const nestedAndQuery = {
+	// 		WHERE: {
+	// 			AND: [
+	// 				{
+	// 					GT: {
+	// 						courses_avg: 90
+	// 					}
+	// 				},
+	// 				{
+	// 					IS: {
+	// 						courses_dept: "adhe"
+	// 					}
+	// 				}
+	// 			]
+	//
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_id"
+	// 			]
+	// 		}
+	// 	};
+	//
+	// 	const singleSearchQuery = {
+	// 		WHERE: {
+	// 			GT: {
+	// 				courses_avg: 99
+	// 			}
+	//
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_avg"
+	//
+	// 			]
+	// 		}
+	// 	};
+	//
+	// 	const complexQuery2 = {
+	// 		WHERE: {
+	// 			AND: [
+	// 				{
+	// 					OR: [
+	// 						{
+	// 							LT: {
+	// 								courses_avg: 10
+	// 							}
+	// 						},
+	// 						{
+	// 							IS: {
+	// 								courses_dept: "adhe"
+	// 							}
+	// 						}
+	// 					]
+	// 				},
+	// 				{
+	// 					EQ: {
+	// 						courses_avg: 95
+	// 					}
+	// 				}
+	// 			]
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_id",
+	// 				"courses_avg",
+	// 				"courses_instructor",
+	// 				"courses_title",
+	// 				"courses_pass",
+	// 				"courses_fail",
+	// 				"courses_audit",
+	// 				"courses_uuid",
+	// 				"courses_year"
+	// 			],
+	// 			ORDER: "courses_dept"
+	// 		}
+	// 	};
+	//
+	// 	const nestedAndWithNot = {
+	// 		WHERE: {
+	// 			AND: [
+	// 				{
+	// 					NOT: {
+	// 						IS: {
+	// 							courses_dept: "cpsc"
+	// 						}
+	// 					}
+	// 				},
+	// 				{
+	// 					IS: {
+	// 						courses_dept: "cpsc"
+	// 					}
+	// 				}
+	// 			]
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_title",
+	// 				"courses_avg",
+	// 				"courses_pass",
+	// 				"courses_fail"
+	// 			],
+	// 			ORDER: "courses_avg"
+	// 		}
+	// 	};
+	//
+	// 	const validWildCard1 = {
+	// 		WHERE: {
+	// 			AND: [
+	// 				{
+	// 					NOT: {
+	// 						IS: {
+	// 							courses_dept: "*c"
+	// 						}
+	// 					}
+	// 				},
+	// 				{
+	// 					AND: [
+	// 						{
+	// 							LT: {
+	// 								courses_year: 2010
+	// 							}
+	// 						},
+	// 						{
+	// 							EQ: {
+	// 								courses_avg: 90
+	// 							}
+	// 						}
+	// 					]
+	// 				}
+	// 			]
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_title",
+	// 				"courses_avg",
+	// 				"courses_pass",
+	// 				"courses_fail",
+	// 				"courses_year"
+	// 			],
+	// 			ORDER: "courses_year"
+	// 		}
+	// 	};
+	//
+	// 	const swapWhereOptions = {
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_avg"
+	// 			],
+	// 			ORDER: "courses_avg"
+	// 		},
+	// 		WHERE: {
+	// 			GT: {
+	// 				courses_avg: 97
+	// 			}
+	// 		}
+	// 	};
+	//
+	// 	describe("buildQueryDispatch / performDatasetSearch", function () {
+	// 		let where: QueryFilter;
+	// 		let or: QueryFilter;
+	// 		let and: QueryFilter;
+	// 		let not: QueryFilter;
+	// 		let gt: DatasetSearch;
+	// 		let lt: DatasetSearch;
+	// 		let eq: DatasetSearch;
+	// 		let is: DatasetSearch;
+	//
+	// 		describe("performDatasetSearch", function () {
+	// 			before(async function () {
+	// 				clearDisk();
+	// 				facade = new InsightFacade();
+	// 				await facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses);
+	// 			});
+	//
+	// 			describe("findAndProcessNot", function () {
+	// 				beforeEach(function () {
+	// 					where = new QueryFilter(null, "WHERE", [], []);
+	// 					or = new QueryFilter(null, "OR", [], []);
+	// 					and = new QueryFilter(null, "AND", [], []);
+	// 					not = new QueryFilter(null, "NOT", [], []);
+	// 					gt = new DatasetSearch("gt", "fail", 10);
+	// 					lt = new DatasetSearch("lt", "avg", 90);
+	// 					eq = new DatasetSearch("eq", "year", 2012);
+	// 					is = new DatasetSearch("is", "dept", "cpsc");
+	// 				});
+	//
+	// 				it("should not touch a simple tree with no nots", function () {
+	// 					where.children.push(or);
+	// 					or.parent = where;
+	// 					or.searches.push(lt, eq, is);
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.query = Object.create(where);
+	//
+	// 					queryDispatchObj.findAndProcessNot(where);
+	//
+	// 					expect(where).to.deep.equal(queryDispatchObj.query);
+	//
+	// 				});
+	//
+	// 				it("should touch a simple tree with one not", function () {
+	// 					where.children.push(not);
+	// 					not.parent = where;
+	// 					not.children.push(or);
+	// 					or.parent = not;
+	// 					or.searches.push(lt, eq, is);
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.query = Object.create(where);
+	//
+	// 					queryDispatchObj.findAndProcessNot(where);
+	//
+	// 					expect(where).to.deep.equal(queryDispatchObj.query);
+	//
+	// 				});
+	// 			});
+	//
+	// 			describe("query dispatch", function (){
+	// 				it("should work with wildcards", async function () {
+	// 					let expected = [
+	// 						{
+	// 							courses_dept: "thtr",
+	// 							courses_title: "bibliog & resrch",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "sts",
+	// 							courses_title: "sts mstrs colloq",
+	// 							courses_avg: 90,
+	// 							courses_pass: 5,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "sowk",
+	// 							courses_title: "soc work doc sem",
+	// 							courses_avg: 90,
+	// 							courses_pass: 7,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "sans",
+	// 							courses_title: "intro sanskrit",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "port",
+	// 							courses_title: "elementary port",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "phys",
+	// 							courses_title: "quantum mech ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 12,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "phar",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "phar",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "phar",
+	// 							courses_title: "peer teaching 2",
+	// 							courses_avg: 90,
+	// 							courses_pass: 25,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "pcth",
+	// 							courses_title: "ms thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "pcth",
+	// 							courses_title: "ms thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "pcth",
+	// 							courses_title: "ms thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "pcth",
+	// 							courses_title: "ms thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "path",
+	// 							courses_title: "msc thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "path",
+	// 							courses_title: "msc thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 3,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "path",
+	// 							courses_title: "clk in lab medic",
+	// 							courses_avg: 90,
+	// 							courses_pass: 12,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "nurs",
+	// 							courses_title: "cl pro prim care",
+	// 							courses_avg: 90,
+	// 							courses_pass: 14,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "mine",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "mine",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "midw",
+	// 							courses_title: "comp thry&prctc",
+	// 							courses_avg: 90,
+	// 							courses_pass: 10,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "medi",
+	// 							courses_title: "m.sc. thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 6,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "mech",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 7,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "mech",
+	// 							courses_title: "mch tool str&vib",
+	// 							courses_avg: 90,
+	// 							courses_pass: 8,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_title: "algb geometry i",
+	// 							courses_avg: 90,
+	// 							courses_pass: 9,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_title: "combinatorial op",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_title: "prt diff equa i",
+	// 							courses_avg: 90,
+	// 							courses_pass: 5,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_title: "discrete math",
+	// 							courses_avg: 90,
+	// 							courses_pass: 5,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_title: "tpcs algebra",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "ling",
+	// 							courses_title: "fld mthd ling ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 7,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "libr",
+	// 							courses_title: "research collbrt",
+	// 							courses_avg: 90,
+	// 							courses_pass: 3,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "kin",
+	// 							courses_title: "bioenrgtc ph act",
+	// 							courses_avg: 90,
+	// 							courses_pass: 15,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "ital",
+	// 							courses_title: "advanced ital i",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "hgse",
+	// 							courses_title: "frst ntns rsorcs",
+	// 							courses_avg: 90,
+	// 							courses_pass: 21,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "grsj",
+	// 							courses_title: "gndr sex crt rce",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "germ",
+	// 							courses_title: "conv german ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 7,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "frst",
+	// 							courses_title: "tec comm skls ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 15,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "frst",
+	// 							courses_title: "plnt molec biol",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "epse",
+	// 							courses_title: "tech for vis imp",
+	// 							courses_avg: 90,
+	// 							courses_pass: 11,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "eece",
+	// 							courses_title: "eng report",
+	// 							courses_avg: 90,
+	// 							courses_pass: 3,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "eece",
+	// 							courses_title: "nanophoton fab",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "edst",
+	// 							courses_title: "tcher union educ",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "edst",
+	// 							courses_title: "ldrshp educ org",
+	// 							courses_avg: 90,
+	// 							courses_pass: 39,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "edst",
+	// 							courses_title: "adu edu pro",
+	// 							courses_avg: 90,
+	// 							courses_pass: 15,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "econ",
+	// 							courses_title: "ph d resrch sem",
+	// 							courses_avg: 90,
+	// 							courses_pass: 27,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "econ",
+	// 							courses_title: "ph d resrch sem",
+	// 							courses_avg: 90,
+	// 							courses_pass: 13,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "econ",
+	// 							courses_title: "soc & econ measu",
+	// 							courses_avg: 90,
+	// 							courses_pass: 14,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "econ",
+	// 							courses_title: "hist mod europe",
+	// 							courses_avg: 90,
+	// 							courses_pass: 5,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "dent",
+	// 							courses_title: "clin endo yr 3",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "dent",
+	// 							courses_title: "masters thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "dent",
+	// 							courses_title: "m.sc. thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "dent",
+	// 							courses_title: "biomec cr-fac i",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "dent",
+	// 							courses_title: "oral pathology",
+	// 							courses_avg: 90,
+	// 							courses_pass: 23,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "dent",
+	// 							courses_title: "prs pln&outc i",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "dent",
+	// 							courses_title: "prosth lit rv i",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "cnps",
+	// 							courses_title: "family counsl ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 6,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "civl",
+	// 							courses_title: "adv coastal eng",
+	// 							courses_avg: 90,
+	// 							courses_pass: 10,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "civl",
+	// 							courses_title: "dynam struct 2",
+	// 							courses_avg: 90,
+	// 							courses_pass: 5,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "chil",
+	// 							courses_title: "child's lit",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "chem",
+	// 							courses_title: "stat'l mech chem",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "cell",
+	// 							courses_title: "tpc cytosk&cl mo",
+	// 							courses_avg: 90,
+	// 							courses_pass: 10,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "audi",
+	// 							courses_title: "hearing sci ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 12,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "arth",
+	// 							courses_title: "master's thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 3,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "arth",
+	// 							courses_title: "master's thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "arth",
+	// 							courses_title: "master's thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "arst",
+	// 							courses_title: "arch rsrch&schlr",
+	// 							courses_avg: 90,
+	// 							courses_pass: 6,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "arch",
+	// 							courses_title: "masa thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 1900
+	// 						},
+	// 						{
+	// 							courses_dept: "phys",
+	// 							courses_title: "quantum mech ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 12,
+	// 							courses_fail: 0,
+	// 							courses_year: 2007
+	// 						},
+	// 						{
+	// 							courses_dept: "phar",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 2007
+	// 						},
+	// 						{
+	// 							courses_dept: "path",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 2007
+	// 						},
+	// 						{
+	// 							courses_dept: "mech",
+	// 							courses_title: "seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 2007
+	// 						},
+	// 						{
+	// 							courses_dept: "mech",
+	// 							courses_title: "research seminar",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 2007
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_title: "prt diff equa i",
+	// 							courses_avg: 90,
+	// 							courses_pass: 5,
+	// 							courses_fail: 0,
+	// 							courses_year: 2007
+	// 						},
+	// 						{
+	// 							courses_dept: "frst",
+	// 							courses_title: "plnt molec biol",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 2007
+	// 						},
+	// 						{
+	// 							courses_dept: "nurs",
+	// 							courses_title: "cl pro prim care",
+	// 							courses_avg: 90,
+	// 							courses_pass: 14,
+	// 							courses_fail: 0,
+	// 							courses_year: 2008
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_title: "combinatorial op",
+	// 							courses_avg: 90,
+	// 							courses_pass: 4,
+	// 							courses_fail: 0,
+	// 							courses_year: 2008
+	// 						},
+	// 						{
+	// 							courses_dept: "libr",
+	// 							courses_title: "research collbrt",
+	// 							courses_avg: 90,
+	// 							courses_pass: 2,
+	// 							courses_fail: 0,
+	// 							courses_year: 2008
+	// 						},
+	// 						{
+	// 							courses_dept: "econ",
+	// 							courses_title: "ph d resrch sem",
+	// 							courses_avg: 90,
+	// 							courses_pass: 13,
+	// 							courses_fail: 0,
+	// 							courses_year: 2008
+	// 						},
+	// 						{
+	// 							courses_dept: "econ",
+	// 							courses_title: "soc & econ measu",
+	// 							courses_avg: 90,
+	// 							courses_pass: 14,
+	// 							courses_fail: 0,
+	// 							courses_year: 2008
+	// 						},
+	// 						{
+	// 							courses_dept: "cnps",
+	// 							courses_title: "family counsl ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 6,
+	// 							courses_fail: 0,
+	// 							courses_year: 2008
+	// 						},
+	// 						{
+	// 							courses_dept: "arst",
+	// 							courses_title: "arch rsrch&schlr",
+	// 							courses_avg: 90,
+	// 							courses_pass: 6,
+	// 							courses_fail: 0,
+	// 							courses_year: 2008
+	// 						},
+	// 						{
+	// 							courses_dept: "path",
+	// 							courses_title: "msc thesis",
+	// 							courses_avg: 90,
+	// 							courses_pass: 1,
+	// 							courses_fail: 0,
+	// 							courses_year: 2009
+	// 						},
+	// 						{
+	// 							courses_dept: "audi",
+	// 							courses_title: "hearing sci ii",
+	// 							courses_avg: 90,
+	// 							courses_pass: 12,
+	// 							courses_fail: 0,
+	// 							courses_year: 2009
+	// 						}
+	// 					];
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.buildQueryDispatch(validWildCard1);
+	// 					queryDispatchObj.columns.push("courses_dept", "courses_avg");
+	// 					let dataset = facade.getDatasetById("courses");
+	// 					if (dataset === null) {
+	// 						expect.fail("getDatasetById returned null");
+	// 					} else {
+	// 						let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
+	// 						expect(courses).to.deep.equal(expected);
+	// 					}
+	// 				});
+	//
+	// 				it("should work with WHERE and OPTIONS swapped", async  function () {
+	// 					let validator = new QueryValidator(swapWhereOptions);
+	// 					let courses = validator.validateAndParseQuery();
+	// 					expect(courses).to.eventually.be.rejectedWith(InsightError);
+	// 				});
+	//
+	// 				it("should search with single AND query, one column, no order", async function () {
+	// 					let expected = [
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 93.33
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.02
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 96.11
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 92.54
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.82
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 91.29
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 91.48
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.85
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.17
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.5
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 91.33
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 91.33
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.72
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.16
+	// 						},
+	// 						{
+	// 							courses_dept: "adhe",
+	// 							courses_avg: 90.18
+	// 						}
+	// 					];
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.buildQueryDispatch(nestedAndQuery);
+	// 					queryDispatchObj.columns.push("courses_dept", "courses_avg");
+	// 					let dataset = facade.getDatasetById("courses");
+	// 					if (dataset === null) {
+	// 						expect.fail("getDatasetById returned null");
+	// 					} else {
+	// 						let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
+	// 						expect(courses).to.deep.equal(expected);
+	// 					}
+	// 				});
+	//
+	// 				it("should work with nested not that returns empty list", async function () {
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.buildQueryDispatch(nestedAndWithNot);
+	// 					queryDispatchObj.columns.push("courses_dept", "courses_avg");
+	// 					let dataset = facade.getDatasetById("courses");
+	// 					if (dataset === null) {
+	// 						expect.fail("getDatasetById returned null");
+	// 					} else {
+	// 						let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
+	// 						expect(courses).to.deep.equal([]);
+	// 					}
+	// 				});
+	//
+	// 				it("should search only with one search", async function () {
+	// 					let expected = [
+	// 						{
+	// 							courses_dept: "cnps",
+	// 							courses_avg: 99.19
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_avg: 99.78
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_avg: 99.78
+	// 						}
+	// 					];
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.buildQueryDispatch(singleSearchQuery);
+	// 					queryDispatchObj.columns.push("courses_dept", "courses_avg");
+	// 					let dataset = facade.getDatasetById("courses");
+	// 					if (dataset === null) {
+	// 						expect.fail("getDatasetById returned null");
+	// 					} else {
+	// 						let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
+	// 						expect(courses).to.deep.equal(expected);
+	// 					}
+	//
+	// 				});
+	//
+	// 				it("should succeed with complexQuery2", async function () {
+	// 					let expected: any = [];
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.buildQueryDispatch(complexQuery2);
+	// 					queryDispatchObj.columns.push("courses_dept", "courses_avg");
+	// 					let dataset = facade.getDatasetById("courses");
+	// 					if (dataset === null) {
+	// 						expect.fail("getDatasetById returned null");
+	// 					} else {
+	// 						let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
+	// 						expect(courses).to.deep.equal(expected);
+	// 					}
+	//
+	// 				});
+	//
+	// 				it("should succeed with only one asterisk", async function () {
+	// 					let expected: any = [
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "589",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "532",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "532",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "523",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "523",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "516",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "516",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "503",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "503",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "423",
+	// 							courses_avg: 90
+	// 						},
+	// 						{
+	// 							courses_dept: "math",
+	// 							courses_id: "423",
+	// 							courses_avg: 90
+	// 						}
+	// 					];
+	//
+	// 					queryDispatchObj = new QueryDispatch(false, [], "");
+	// 					queryDispatchObj.buildQueryDispatch(oneAsteriskInputStr);
+	// 					queryDispatchObj.columns.push("courses_dept", "courses_avg");
+	// 					let dataset = facade.getDatasetById("courses");
+	// 					if (dataset === null) {
+	// 						expect.fail("getDatasetById returned null");
+	// 					} else {
+	// 						let courses: any[] = await queryDispatchObj.performDatasetSearch(dataset);
+	// 						expect(courses).to.deep.equal(expected);
+	// 					}
+	//
+	// 				});
+	// 			});
+	// 		});
+	//
+	//
+	// 		describe("buildQueryDispatch", function () {
+	//
+	// 			before(function () {
+	// 				clearDisk();
+	// 				facade = new InsightFacade();
+	// 				return facade.addDataset("courses", smallerTestStr, InsightDatasetKind.Courses);
+	// 			});
+	//
+	// 			beforeEach(function () {
+	// 				where = new QueryFilter(null, "WHERE", [], []);
+	// 				or = new QueryFilter(null, "OR", [], []);
+	// 				and = new QueryFilter(null, "AND", [], []);
+	// 				not = new QueryFilter(null, "NOT", [], []);
+	// 				gt = new DatasetSearch("gt", "fail", 10);
+	// 				lt = new DatasetSearch("lt", "avg", 90);
+	// 				eq = new DatasetSearch("eq", "year", 2012);
+	// 				is = new DatasetSearch("is", "dept", "cpsc");
+	// 			});
+	//
+	// 			it("should work with complex nested", function () {
+	// 				where.children.push(or);
+	// 				or.parent = where;
+	// 				or.children.push(and);
+	// 				or.searches.push(eq);
+	// 				and.parent = or;
+	// 				and.searches.push(lt, is);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, [], "");
+	// 				queryDispatchObj.buildQueryDispatch(testObj1);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	// 			});
+	//
+	// 			it("should work with complex nested2", function () {
+	// 				where.children.push(or);
+	// 				or.parent = where;
+	// 				or.children.push(and);
+	// 				and.parent = or;
+	// 				and.searches.push(gt, lt, eq, is);
+	// 				let and2: QueryFilter = new QueryFilter(or, "AND", [], []);
+	// 				let is2: DatasetSearch = new DatasetSearch("is", "instructor", "Gregor Kiczales");
+	// 				or.children.push(and2);
+	// 				and2.searches.push(is2);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, [], "");
+	// 				queryDispatchObj.buildQueryDispatch(testObj2);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	// 			});
+	//
+	// 			it("should work with single not", function () {
+	// 				where.children.push(not);
+	// 				not.parent = where;
+	// 				not.searches.push(lt);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, [], "");
+	// 				queryDispatchObj.buildQueryDispatch(testNot);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	// 			});
+	//
+	// 			it("should work with nested nots", function () {
+	// 				where.children.push(not);
+	// 				not.parent = where;
+	// 				let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
+	// 				not.children.push(not1);
+	// 				not1.parent = not;
+	// 				not1.searches.push(lt);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, [], "");
+	// 				queryDispatchObj.buildQueryDispatch(testNestedNot);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	// 			});
+	//
+	// 			it("should work with nested not with and", function () {
+	// 				where.children.push(not);
+	// 				not.parent = where;
+	// 				let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
+	// 				not.children.push(not1);
+	// 				not1.parent = not;
+	// 				not1.children.push(and);
+	// 				and.parent = not1;
+	// 				and.searches.push(lt, is);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, [], "");
+	// 				queryDispatchObj.buildQueryDispatch(testNestedNotAnd);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	// 			});
+	//
+	// 			it("should work with nested not with and and", function () {
+	// 				where.children.push(not);
+	// 				not.parent = where;
+	// 				let not1: QueryFilter = new QueryFilter(null, "NOT", [], []);
+	// 				not.children.push(not1);
+	// 				not1.parent = not;
+	// 				not1.children.push(and);
+	// 				and.parent = not1;
+	// 				let and1: QueryFilter = new QueryFilter(null, "AND", [], []);
+	// 				and.searches.push(lt);
+	// 				and.children.push(and1);
+	// 				and1.parent = and;
+	// 				and1.searches.push(is);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, [], "");
+	// 				queryDispatchObj.buildQueryDispatch(testNestedNotAndAnd);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	// 			});
+	//
+	// 			it("should build a simple query filter tree", function () {
+	// 				where.children.push(and);
+	// 				and.parent = where;
+	// 				and.children.push(not);
+	// 				not.parent = and;
+	// 				not.searches.push(lt);
+	// 				and.searches.push(is);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, [], "");
+	// 				queryDispatchObj.buildQueryDispatch(testObj0);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	// 			});
+	//
+	// 			it ("should work", function () {
+	// 				where.children.push(or);
+	// 				or.parent = where;
+	// 				or.children.push(and);
+	// 				and.parent = or;
+	// 				gt = new DatasetSearch("gt", "fail", 40);
+	// 				lt = new DatasetSearch("lt", "pass", 400);
+	// 				eq = new DatasetSearch("eq", "year", 2012);
+	// 				is = new DatasetSearch("is", "instructor", "*greg*");
+	// 				and.searches.push(gt, lt, eq);
+	// 				let and2: QueryFilter = new QueryFilter(or, "AND", [], []);
+	// 				let eq2: DatasetSearch = new DatasetSearch("eq", "year", 2015);
+	// 				or.children.push(and2);
+	// 				and2.searches.push(is);
+	// 				and2.searches.push(eq2);
+	//
+	// 				queryDispatchObj = new QueryDispatch(false, ["dept", "id", "avg", "instructor"], "dept");
+	// 				queryDispatchObj.buildQueryDispatch(testObj2);
+	//
+	// 				expect(queryDispatchObj.query).to.deep.equal(where);
+	//
+	// 			});
+	// 		});
+	//
+	// 	});
+	// });
 
 	describe("Add Dataset", function () {
 		let coursesWithInvalidJson: string;
