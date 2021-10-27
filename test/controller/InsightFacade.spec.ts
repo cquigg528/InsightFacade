@@ -22,12 +22,14 @@ type Error = "InsightError" | "ResultTooLargeError";
 // Can use nested describes, and attach before handles to different describes
 describe("InsightFacade", function () {
 	let coursesContentStr: string;
+	let rooms: string;
 
 	// If getContentFromArchives throws exception, whole test suite crashes.  Use
 	// the before() construct for more specific error messages.  Runs before any of the
 	// tests - runs before it's describe
 	before(function () {
 		coursesContentStr = getContentFromArchives("courses.zip");
+		rooms = getContentFromArchives("rooms.zip");
 	});
 
 	describe("List Datasets", function () {
@@ -355,7 +357,62 @@ describe("InsightFacade", function () {
 		);
 	});
 
-	describe("Add Dataset", function () {
+	describe("Add Rooms Dataset", function () {
+		let facade: IInsightFacade;
+		let roomsNoBuildingsLinkedFromIndex: string;
+		let roomsNoIndex: string;
+		let roomsNoRoomsFolder: string;
+		let roomsNoValidHTMLBuildings: string;
+
+		before(function () {
+			roomsNoBuildingsLinkedFromIndex = getContentFromArchives("roomsNoBuildingsLinkedFromIndex.zip");
+			roomsNoIndex = getContentFromArchives("roomsNoIndex.zip");
+			roomsNoRoomsFolder = getContentFromArchives("roomsNoRoomsFolder.zip");
+			roomsNoValidHTMLBuildings = getContentFromArchives("roomsNoValidHTMLBuildings.zip");
+		});
+
+		beforeEach(function () {
+			clearDisk();
+			facade = new InsightFacade();
+		});
+
+		it("should be able to add a rooms dataset that is valid", function () {
+			return facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms).then((addedIDs) =>
+				expect(addedIDs).to.deep.equal(["rooms"]));
+		});
+
+		it("should fail to add a rooms dataset because no index.htm file in root", function () {
+			return expect(facade.addDataset("roomsNoIndex", roomsNoIndex, InsightDatasetKind.Rooms))
+				.eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should fail to add because no rooms are under rooms folder", function () {
+			return expect(facade.addDataset("roomsNoRoomsFolder", roomsNoRoomsFolder, InsightDatasetKind.Rooms))
+				.eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should fail because there are no valid rooms linked in index.htm", function () {
+			return expect(facade.addDataset("roomsNoBuildingsLinkedFromIndex", roomsNoBuildingsLinkedFromIndex,
+				InsightDatasetKind.Rooms)).eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should fail because buildings are not in HTML format", function () {
+			return expect(facade.addDataset("roomsNoValidHTMLBuildings", roomsNoValidHTMLBuildings,
+				InsightDatasetKind.Rooms)).eventually.to.be.rejectedWith(InsightError);
+		});
+
+		it("should successfully add two rooms datasets", function () {
+			return facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms)
+				.then(() => facade.addDataset("rooms2", rooms, InsightDatasetKind.Rooms))
+				.then((idList) => {
+					expect(idList).to.have.deep.members(["rooms", "rooms2"]);
+					expect(idList).to.be.an.instanceof(Array);
+					expect(idList).to.have.length(2);
+				});
+		});
+	});
+
+	describe("Add Courses Dataset", function () {
 		let coursesWithInvalidJson: string;
 
 		let facade: IInsightFacade;
