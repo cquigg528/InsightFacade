@@ -1,0 +1,40 @@
+{
+	"title": "invalid skey: should be string not number",
+	"input":
+	{
+		"WHERE":{
+			"OR":[
+				{
+					"AND":[
+						{
+							"GT":{
+								"courses_avg":90
+							}
+						},
+						{
+							"IS":{
+								"courses_dept":90
+							}
+						}
+					]
+				},
+				{
+					"EQ":{
+						"courses_avg":95
+					}
+				}
+			]
+		},
+		"OPTIONS":{
+			"COLUMNS":[
+				"courses_avg",
+				"courses_dept"
+			],
+			"ORDER":"courses_avg"
+		}
+
+	} ,
+
+	"errorExpected":true,
+	"with": "InsightError"
+}

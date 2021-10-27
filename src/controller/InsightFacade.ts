@@ -1,13 +1,21 @@
-import {IInsightFacade, InsightDataset, InsightDatasetKind, InsightError, NotFoundError} from "./IInsightFacade";
-import * as fs from "fs-extra";
-import JSZip from "jszip";
+import {
+	IInsightFacade,
+	InsightDataset,
+	InsightDatasetKind,
+	InsightError,
+	NotFoundError,
+	ResultTooLargeError,
+} from "./IInsightFacade";
+import {QueryValidator} from "./QueryValidator";
 import {Dataset} from "./Dataset";
 import {RoomsDataset} from "./RoomsDataset";
 import {CoursesDataset} from "./CoursesDataset";
+import * as fs from "fs-extra";
+import QueryDispatch from "./QueryDispatch";
 
 export default class InsightFacade implements IInsightFacade {
 	private coursesDatasets: InsightDataset[];
-	private coursesDatasetIds: string[];
+	public coursesDatasetIds: string[];
 	private roomsDatasets: InsightDataset[];
 	private roomsDatasetIds: string[];
 
@@ -16,6 +24,17 @@ export default class InsightFacade implements IInsightFacade {
 		this.coursesDatasetIds = [];
 		this.roomsDatasets = [];
 		this.roomsDatasetIds = [];
+	}
+
+	// Requires id to be valid
+	public getDatasetById(id: string): Dataset | null {
+		for (let dataset of this.coursesDatasets) {
+			if (dataset.id === id) {
+				return dataset as Dataset;
+			}
+		}
+		console.assert("invalid id");
+		return null;
 	}
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
@@ -56,9 +75,54 @@ export default class InsightFacade implements IInsightFacade {
 		return Promise.resolve(this.coursesDatasets);
 	}
 
-	public performQuery(query: any): Promise<any[]> {
-		// TODO: implement performQuery
-		return Promise.resolve([]);
+	/**
+	 * Perform a query on insightUBC.
+	 *
+	 * @param query  The query to be performed.
+	 *
+	 * If a query is incorrectly formatted, references a dataset not added (in memory or on disk),
+	 * or references multiple datasets, it should be rejected.
+	 *
+	 * @return Promise <any[]>
+	 *
+	 * The promise should fulfill with an array of results.
+	 * The promise should reject with a ResultTooLargeError (if the query returns too many results)
+	 * or an InsightError (for any other source of failure) describing the error.
+	 */
+	public async performQuery(query: any): Promise<any[]> {
+		let validQuery: QueryDispatch | null;
+		// let sortedSearchResults: any[];
+
+		let validator: QueryValidator = new QueryValidator(query);
+		let validDatasetId = validator.setUpQueryValidation(this.coursesDatasetIds, query);
+		if (validDatasetId === null) {
+			return Promise.reject(new InsightError("invalid datasetId"));
+		}
+
+		validQuery = await validator.validateAndParseQuery();
+
+		if (validQuery === null) {
+			// query found to be invalid
+			return Promise.reject(new InsightError("query failed validation"));
+		}
+
+		// get dataset
+		let dataset: any = this.getDatasetById(validDatasetId);
+
+		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
+		if (searchResults.length > 5000) {
+			return Promise.reject(new ResultTooLargeError("too many results"));
+		}
+
+		let order: string = validQuery.order;
+		if (order === "") {
+			return Promise.resolve(searchResults);
+		}
+
+		searchResults.sort((a, b) => a.order > b.order ? -1 : ((b.order > a.order ? 1 : 0)));
+
+		// stub
+		return Promise.resolve(searchResults);
 	}
 
 	/**
