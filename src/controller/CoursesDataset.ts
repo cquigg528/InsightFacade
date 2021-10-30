@@ -121,8 +121,7 @@ export class CoursesDataset extends Dataset {
 			break;
 		default:
 			return Promise.reject("Invalid mcomparator!");
-		}
-		let searchKey: string = this.switchOnSearchKey(mkey);
+		} let searchKey: string = this.switchOnSearchKey(mkey);
 		if (searchKey === "") {
 			return Promise.reject("Invalid mkey!");
 		}
@@ -131,8 +130,7 @@ export class CoursesDataset extends Dataset {
 				if (item["Section"] === "overall") {
 					item[searchKey] = 1900;
 				}
-			}
-			return comparator(parseFloat(item[searchKey]), number);
+			} return comparator(parseFloat(item[searchKey]), number);
 		});
 	}
 
