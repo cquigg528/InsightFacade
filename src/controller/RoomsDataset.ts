@@ -2,6 +2,7 @@ import {InsightDataset, InsightDatasetKind, InsightError} from "./IInsightFacade
 import * as fs from "fs-extra";
 import {Dataset} from "./Dataset";
 import JSZip from "jszip";
+// import parse5 from "parse5";
 
 export class RoomsDataset extends Dataset {
 	constructor(id: string, kind: InsightDatasetKind) {
@@ -24,19 +25,45 @@ export class RoomsDataset extends Dataset {
 		const parse5 = require("parse5");
 		let fileData = await zip.file("rooms/index.htm")?.async("string");
 		let document = parse5.parse(fileData);
-		let tables: any[] = [];
-		function getChildNodes(tree: any[], selectedKey: string) {
+		function getChildNodes(tree: any[], selectedKey: string, nodes: any[]) {
 			for (let item in tree) {
 				if (tree[item].nodeName === selectedKey) {
-					tables.push(tree[item]);
+					nodes.push(tree[item]);
 				}
 				if (tree[item].childNodes) {
-					getChildNodes(tree[item].childNodes, selectedKey);
+					getChildNodes(tree[item].childNodes, selectedKey, nodes);
 				}
 			}
+			return nodes;
 		}
-		getChildNodes(document.childNodes, "table");
-		JSON.stringify(tables[0]);
+		let tables: any[] = getChildNodes(document.childNodes, "td", []);
+		let hrefs: any[] = getChildNodes(tables, "a", []).map((elem) => {
+			return elem.attrs.map((element: { name: string; value: any; }) => {
+				if (element.name === "href") {
+					return element.value;
+				}
+			});
+		});
+		hrefs = [...new Set(hrefs.flat(1).filter((item) => (!(item === undefined ))))];
+		for (let href of hrefs) {
+			let path: string = "rooms" + href.substring(1);
+			let buildingFileData = await zip.file(path)?.async("string");
+			let buildingDocument = parse5.parse(buildingFileData);
+			let buildingTables = getChildNodes(buildingDocument, "table", []);
+			console.log(buildingTables);
+		}
+		console.log(hrefs.flat(1));
+		// Need to get:
+		// Full building name
+		// short building name
+		// room number (string)
+		// room name: short building name + room number
+		// room address (building address)
+		// latitude & longitude (from building address)
+		// seats
+		// type (e.g. "Small Group")
+		// furniture (e.g. "Classroom - Movable Tables and Chairs")
+		// rooms href - link to full details
 		return Promise.resolve(tables);
 	}
 }

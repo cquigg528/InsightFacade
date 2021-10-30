@@ -15,17 +15,19 @@ export abstract class Dataset implements InsightDataset {
 
 	public abstract loadDataset(content: string): Promise<void[]>;
 
-	protected async addJSONObjectToDataset(jsonObject: any, filename: string): Promise<void> {
+	protected async addJSONObjectToDataset(jsonObject: any, filename: string): Promise<Promise<any[]> | undefined> {
 		// ignore empty results
 		if (!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0) {
 			return;
 		}
 		// add all the sections one by one to the datasetObj
-		for (let section of jsonObject.result) {
+		let retval: any[] = [];
+		for (let [index, section] of jsonObject.result.entries()) {
 			if (this.validateObject(section)) {
 				this.addObject();
+				retval.push(jsonObject.result[index]);
 			} else {
-				delete jsonObject.result[section];
+				delete jsonObject.result[index];
 			}
 		}
 		// write the course to ./data/ folder
@@ -35,7 +37,8 @@ export abstract class Dataset implements InsightDataset {
 		let str = filename;
 		let n = str.lastIndexOf("/");
 		let result = str.substring(n + 1);
-		return await fs.writeJSON(`${path}${result}`, jsonObject.result);
+		await fs.writeJSON(`${path}${result}`, jsonObject.result);
+		return Promise.resolve(retval);
 	}
 
 	protected validateObject(val: any): boolean {

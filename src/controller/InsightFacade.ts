@@ -14,23 +14,19 @@ import * as fs from "fs-extra";
 import QueryDispatch from "./QueryDispatch";
 
 export default class InsightFacade implements IInsightFacade {
-	private coursesDatasets: InsightDataset[];
-	public coursesDatasetIds: string[];
-	private roomsDatasets: InsightDataset[];
-	private roomsDatasetIds: string[];
+	private datasets: Dataset[];
+	public datasetIds: string[];
 
 	constructor() {
-		this.coursesDatasets = [];
-		this.coursesDatasetIds = [];
-		this.roomsDatasets = [];
-		this.roomsDatasetIds = [];
+		this.datasets = [];
+		this.datasetIds = [];
 	}
 
 	// Requires id to be valid
 	public getDatasetById(id: string): Dataset | null {
-		for (let dataset of this.coursesDatasets) {
+		for (let dataset of this.datasets) {
 			if (dataset.id === id) {
-				return dataset as Dataset;
+				return dataset;
 			}
 		}
 		console.assert("invalid id");
@@ -45,7 +41,7 @@ export default class InsightFacade implements IInsightFacade {
 		if (id.trim() === "") {
 			return Promise.reject(new InsightError("Invalid ID: Contains only whitespace."));
 		}
-		if (this.coursesDatasetIds.includes(id)) {
+		if (this.datasetIds.includes(id)) {
 			return Promise.reject(new InsightError("Dataset already contains this ID."));
 		}
 		if (kind !== InsightDatasetKind.Courses && kind !== InsightDatasetKind.Rooms) {
@@ -61,18 +57,18 @@ export default class InsightFacade implements IInsightFacade {
 		if (datasetObj.numRows === 0) {
 			return Promise.reject(new InsightError("Dataset contains no valid sections!"));
 		}
-		if (kind === InsightDatasetKind.Rooms) {
-			this.roomsDatasets.push(datasetObj);
-			this.coursesDatasetIds.push(datasetObj.id);
-		} else {
-			this.coursesDatasets.push(datasetObj);
-			this.coursesDatasetIds.push(datasetObj.id);
-		}
-		return Promise.resolve(this.coursesDatasetIds);
+		this.datasets.push(datasetObj);
+		this.datasetIds.push(datasetObj.id);
+		return Promise.resolve(this.datasetIds);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
-		return Promise.resolve(this.coursesDatasets);
+		return Promise.resolve(this.datasets.map((dataset) => {
+			if (dataset.kind === InsightDatasetKind.Courses) {
+				(dataset as CoursesDataset).deleteDataset();
+			}
+			return dataset;
+		}));
 	}
 
 	/**
@@ -94,7 +90,7 @@ export default class InsightFacade implements IInsightFacade {
 		// let sortedSearchResults: any[];
 
 		let validator: QueryValidator = new QueryValidator(query);
-		let validDatasetId = validator.setUpQueryValidation(this.coursesDatasetIds, query);
+		let validDatasetId = validator.setUpQueryValidation(this.datasetIds, query);
 		if (validDatasetId === null) {
 			return Promise.reject(new InsightError("invalid datasetId"));
 		}
@@ -151,7 +147,7 @@ export default class InsightFacade implements IInsightFacade {
 		if (!id.match(validIdRegex) || id.trim() === "") {
 			return Promise.reject(new InsightError("Invalid ID!"));
 		}
-		if (this.coursesDatasetIds.includes(id)) {
+		if (this.datasetIds.includes(id)) {
 			let path = `./data/${id}/`;
 			try {
 				await fs.rmdir(path, {recursive: true});
@@ -162,12 +158,12 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new NotFoundError("Could not find that ID!"));
 		}
 		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-		this.coursesDatasets.forEach( (dataset, index) => {
+		this.datasets.forEach( (dataset, index) => {
 			if (dataset.id === id) {
 				// datasets should only be added in addDataset and removed in removeDataset, and both methods
 				// add/remove from both datasets and datasetIds, so it's safe to to remove both here.
-				this.coursesDatasets.splice(index, 1);
-				this.coursesDatasetIds.splice(index, 1);
+				this.datasets.splice(index, 1);
+				this.datasetIds.splice(index, 1);
 			}
 		});
 		return Promise.resolve(id);

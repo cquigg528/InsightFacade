@@ -5,8 +5,11 @@ import {Dataset} from "./Dataset";
 
 export class CoursesDataset extends Dataset {
 
+	public dataset: string[] | undefined;
+
 	constructor(id: string, kind: InsightDatasetKind) {
 		super(id, kind);
+		this.dataset = undefined;
 	}
 
 	public async loadDataset (content: string) {
@@ -45,7 +48,14 @@ export class CoursesDataset extends Dataset {
 			// add json object to dataset
 			promises.push(this.addJSONObjectToDataset(jsonObject, filename));
 		}
-		return await Promise.all(promises);
+		let twoDSections: any[] = await Promise.all(promises);
+		let sections: any[] = twoDSections.flat(1).filter((item) => (!(item === undefined )));
+		this.dataset = sections;
+		return sections;
+	}
+
+	public deleteDataset(): void {
+		delete this.dataset;
 	}
 
 	// In this class we can add different methods to search for a course from disk
@@ -53,28 +63,42 @@ export class CoursesDataset extends Dataset {
 	// Then call the appropriate getter that's here in Dataset
 
 	protected async setUpSearch(): Promise<any[]> {
-		let path = `./data/${this.id}/`;
-		let files = await fs.readdir(path);
-		let promises = [];
-		let listOfCourses = [];
-		for (let file of files) {
-			promises.push(await fs.readFile(`${path}${file}`));
+		if (!(this.dataset === undefined)) {
+			return this.dataset;
+		} else {
+			let path = `./data/${this.id}/`;
+			let files = await fs.readdir(path);
+			let promises = [];
+			let listOfCourses = [];
+			for (let file of files) {
+				promises.push(await fs.readFile(`${path}${file}`));
+			}
+			await Promise.all(promises);
+			for (let buf of promises) {
+				listOfCourses.push(JSON.parse(buf.toString()));
+			}
+			this.dataset = listOfCourses;
+			return listOfCourses;
 		}
-		await Promise.all(promises);
-		for (let buf of promises) {
-			listOfCourses.push(JSON.parse(buf.toString()));
-		}
-		return listOfCourses;
 	}
 
-	public async findCoursesByMComparator(mcomparator: string, mkey: string, number: number): Promise<any[]> {
-		// mcomparator is one of lt, gt, eq
-		// mkey is one of avg, pass, fail, audit, year
-		// number is a number
-		let courses = await this.setUpSearch();
+	public async findCoursesByMComparator(mcomparator: string, mkey: string, number: number, customCourses: boolean,
+		ccourses: any[]): Promise<any[]> {
+		// mcomparator is one of lt, gt, eq, mkey is one of avg, pass, fail, audit, year
+		let courses: any[] = customCourses ? ccourses : await this.setUpSearch();
 		let listOfCourses = courses.flat(1);
 		let comparator: any;
 		switch (mcomparator) {
+		case "nlt":
+			comparator = function (x: number, y: number) {
+				return x >= y;
+			};
+			break;
+		case "ngt":
+			comparator = function (x: number, y: number) {
+				return x <= y;
+			};
+			break;
 		case "lt":
 			comparator = function (x: number, y: number) {
 				return x < y;
@@ -90,9 +114,29 @@ export class CoursesDataset extends Dataset {
 				return x === y;
 			};
 			break;
+		case "neq":
+			comparator = function (x: number, y: number) {
+				return x !== y;
+			};
+			break;
 		default:
 			return Promise.reject("Invalid mcomparator!");
 		}
+		let searchKey: string = this.switchOnSearchKey(mkey);
+		if (searchKey === "") {
+			return Promise.reject("Invalid mkey!");
+		}
+		return listOfCourses.filter(function (item) {
+			if (searchKey === "Year") {
+				if (item["Section"] === "overall") {
+					item[searchKey] = 1900;
+				}
+			}
+			return comparator(parseFloat(item[searchKey]), number);
+		});
+	}
+
+	public switchOnSearchKey(mkey: string): string {
 		let searchKey: string;
 		switch (mkey) {
 		case "avg":
@@ -110,28 +154,31 @@ export class CoursesDataset extends Dataset {
 		case "year":
 			searchKey = "Year";
 			break;
-		default:
-			return Promise.reject("Invalid mkey!");
+		default: searchKey = "";
 		}
-		return listOfCourses.filter(function (item) {
-			return comparator(parseInt(item[searchKey], 10), number);
-		});
+		return searchKey;
 	}
 
-	public async findCoursesBySComparator(skey: string, inputstring: string): Promise<any[]> {
-		// skey is one of dept, id, instructor, title, uuid
-		// inputstring is anything
+	public async findCoursesBySComparator(comparator: string,
+		skey: string,
+		inptstr: string,
+		customCourses: boolean,
+		ccourses: any[]): Promise<any[]> {
+		// skey is one of dept, id, instructor, title, uuid inptstr is anything
+		let courses: any[];
+		courses = customCourses ? ccourses : await this.setUpSearch();
 		let regex: RegExp;
-		let courses = await this.setUpSearch();
 		let listOfCourses = courses.flat(1);
-		if ((inputstring.charAt(0) === "*") && (inputstring.charAt(inputstring.length - 1) === "*")) {
-			regex = new RegExp(".*" + inputstring.substring(1, inputstring.length - 1) + ".*", "i");
-		} else if (inputstring.charAt(0) === "*") {
-			regex = new RegExp(".*" + inputstring.substring(1), "i");
-		} else if (inputstring.charAt(inputstring.length - 1) === "*") {
-			regex = new RegExp(inputstring.substring(0, inputstring.length - 1) + ".*", "i");
+		if (inptstr === "*") {
+			regex = new RegExp(".*");
+		} else if (inptstr.charAt(0) === "*" && inptstr.charAt(inptstr.length - 1) === "*") {
+			regex = new RegExp(".*" + inptstr.substring(1, inptstr.length - 1) + ".*", "i");
+		} else if (inptstr.charAt(0) === "*") {
+			regex = new RegExp(".*" + inptstr.substring(1) + "$", "i");
+		} else if (inptstr.charAt(inptstr.length - 1) === "*") {
+			regex = new RegExp("^" + inptstr.substring(0, inptstr.length - 1) + ".*", "i");
 		} else {
-			regex = new RegExp(inputstring, "i");
+			regex = new RegExp("^" + inptstr + "$", "i");
 		}
 		let searchKey: string;
 		switch (skey) {
@@ -145,7 +192,7 @@ export class CoursesDataset extends Dataset {
 			searchKey = "Course";
 			break;
 		case "uuid":
-			searchKey = "Section";
+			searchKey = "id";
 			break;
 		case "title":
 			searchKey = "Title";
@@ -154,8 +201,13 @@ export class CoursesDataset extends Dataset {
 			return Promise.reject(new InsightError("Invalid ID!"));
 		}
 		return listOfCourses.filter(function (item) {
-			// We test each element of the object to see if one string matches the regexp.
-			return (regex.test(item[searchKey]));
+			if (comparator === "is") {
+				return regex.test(item[searchKey]);
+			} else if (comparator === "isnot") {
+				return !regex.test(item[searchKey]);
+			} else {
+				return Promise.reject(new InsightError("invalid comparator in findCoursesBySComparator"));
+			}
 		});
 	}
 

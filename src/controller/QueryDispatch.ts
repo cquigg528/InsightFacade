@@ -1,8 +1,8 @@
 import QueryFilter from "./QueryFilter";
 import DatasetSearch from "./DatasetSearch";
-import {Dataset} from "./Dataset";
 import {InsightError} from "./IInsightFacade";
 import {getValueByTranslation, isEquivalent} from "./QueryUtil";
+import {CoursesDataset} from "./CoursesDataset";
 
 const searchKeys: string[] = ["lt", "gt", "eq", "is"];
 export default class QueryDispatch {
@@ -110,7 +110,7 @@ export default class QueryDispatch {
 		}
 	}
 
-	public async performDatasetSearch(dataset: Dataset): Promise<any[]> {
+	public async performDatasetSearch(dataset: CoursesDataset): Promise<any[]> {
 		if (this.emptyWhere) {
 			let sections = await dataset.getAllCourses();
 			return Promise.resolve(sections);
@@ -135,8 +135,11 @@ export default class QueryDispatch {
 		return result;
 	}
 
-	public async filterCourses(query: QueryFilter | null, dataset: Dataset): Promise<any[]> {
+	public async filterCourses(query: QueryFilter | null, dataset: CoursesDataset): Promise<any[]> {
 		let sections: any[] = [];
+		function onlyNonUnique(value: any, ind: any, self: any) {
+			return !(self.indexOf(value) === ind);
+		}
 		if (query === null || (query.children.length === 0 && query.searches.length === 0)) {
 			return Promise.reject(new InsightError("QueryDispatch query field should have a non empty array."));
 		} else {
@@ -166,15 +169,9 @@ export default class QueryDispatch {
 							accum1 = accum;
 						} else {
 							accum = await this.filterCourses(child, dataset);
-							accum1.forEach((section: any) => {
-								accum.forEach((accSection: any) => {
-									if(isEquivalent(section, accSection)){
-										accum1 = accum1.concat(section);
-									}
-								});
-							});
+							accum1 = accum.concat(accum1).filter(onlyNonUnique);
 						}
-					} sections = sections.concat(accum);
+					} sections = sections.concat(accum1);
 				} sections = await this.handleAndContents(query, dataset, sections);
 			} else {
 				if (query.children.length > 0) {
@@ -186,7 +183,7 @@ export default class QueryDispatch {
 		} return sections;
 	}
 
-	public async handleAndContents(query: any, dataset: Dataset, sections: any[]): Promise<any[]> {
+	public async handleAndContents(query: any, dataset: CoursesDataset, sections: any[]): Promise<any[]> {
 		if (query.searches.length > 0) {
 			let accumulator1: any[] = [];
 			let accumulator2: any[] = [];
@@ -214,7 +211,7 @@ export default class QueryDispatch {
 		} return sections;
 	}
 
-	public async handleSearch(search: DatasetSearch, dataset: Dataset, searchInSubset: boolean,
+	public async handleSearch(search: DatasetSearch, dataset: CoursesDataset, searchInSubset: boolean,
 		subset: any[]): Promise<any[]> {
 		if (search.comparator === "is" || search.comparator === "isnot") {
 			if (searchInSubset) {
@@ -278,9 +275,9 @@ export default class QueryDispatch {
 	public negateSearches(searches: DatasetSearch[]): void {
 		searches.forEach((search) => {
 			if (search.comparator === "lt") {
-				search.comparator = "gt";
+				search.comparator = "nlt";
 			} else if (search.comparator === "gt") {
-				search.comparator = "lt";
+				search.comparator = "ngt";
 			} else if (search.comparator === "eq") {
 				search.comparator = "neq";
 			} else if (search.comparator === "neq") {

@@ -3,6 +3,7 @@ import {expect, use} from "chai";
 import chaiAsPromised from "chai-as-promised";
 import {clearDisk, getContentFromArchives} from "../TestUtil";
 import {InsightDatasetKind} from "../../src/controller/IInsightFacade";
+import {CoursesDataset} from "../../src/controller/CoursesDataset";
 
 use(chaiAsPromised);
 
@@ -14,11 +15,11 @@ describe("Dataset", function () {
 	});
 
 	describe("findCoursesByMComparator", function () {
-		let dataset: Dataset;
+		let dataset: CoursesDataset;
 
 		beforeEach(function () {
 			clearDisk();
-			dataset = new Dataset("courses", InsightDatasetKind.Courses);
+			dataset = new CoursesDataset("courses", InsightDatasetKind.Courses);
 		});
 
 		it("should search for all courses with avg > a number", function () {
@@ -1841,11 +1842,11 @@ describe("Dataset", function () {
 	});
 
 	describe("findCoursesBySComparator", function () {
-		let dataset: Dataset;
+		let dataset: CoursesDataset;
 
 		beforeEach(function () {
 			clearDisk();
-			dataset = new Dataset("courses", InsightDatasetKind.Courses);
+			dataset = new CoursesDataset("courses", InsightDatasetKind.Courses);
 		});
 
 		it("should search with skey = instructor", function () {
@@ -3091,11 +3092,11 @@ describe("Dataset", function () {
 	});
 
 	describe("getAllCourses", function () {
-		let dataset: Dataset;
+		let dataset: CoursesDataset;
 
 		beforeEach(function () {
 			clearDisk();
-			dataset = new Dataset("courses", InsightDatasetKind.Courses);
+			dataset = new CoursesDataset("courses", InsightDatasetKind.Courses);
 		});
 
 		it("should return all courses", function () {
