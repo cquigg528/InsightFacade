@@ -87,7 +87,6 @@ export default class InsightFacade implements IInsightFacade {
 	 */
 	public async performQuery(query: any): Promise<any[]> {
 		let validQuery: QueryDispatch | null;
-		// let sortedSearchResults: any[];
 
 		let validator: QueryValidator = new QueryValidator(query);
 		let validDatasetId = validator.setUpQueryValidation(this.datasetIds, query);
@@ -110,14 +109,11 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new ResultTooLargeError("too many results"));
 		}
 
-		let order: string = validQuery.order;
-		if (order === "") {
+		if (validQuery.order === "") {
 			return Promise.resolve(searchResults);
 		}
 
 		searchResults.sort((a, b) => a.order > b.order ? -1 : ((b.order > a.order ? 1 : 0)));
-
-		// stub
 		return Promise.resolve(searchResults);
 	}
 

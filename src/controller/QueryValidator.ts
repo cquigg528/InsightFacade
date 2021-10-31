@@ -106,13 +106,12 @@ export class QueryValidator {
 
 		// first check if we even have any filters
 		if (Object.entries(this.query.WHERE).length === 0) {
-			queryDispatchObj = new QueryDispatch(true, [], "");
+			queryDispatchObj = new QueryDispatch(true, columns, "");
 		} else {
-			queryDispatchObj = new QueryDispatch(false, [], "");
+			queryDispatchObj = new QueryDispatch(false, columns, "");
 		}
 
-		// set columns, order in queryDispatchObj
-		queryDispatchObj.columns = columns;
+		// set order in queryDispatchObj
 		if (this.order !== "") {
 			queryDispatchObj.order = this.order;
 		}
@@ -226,9 +225,7 @@ export class QueryValidator {
 		} else {
 			expectedValueType = "number";
 		}
-
 		const validInputType: boolean = typeof inputstringList[0] === expectedValueType;
-
 		if (validInputType && expectedValueType === "string") {
 			const validInputAsterisks: boolean = !inputstringList[0]?.slice(1, -1).includes("*");
 			return onlyOneSkey && onlyOneInputstring && validSkey && validInputAsterisks;
@@ -284,11 +281,13 @@ export class QueryValidator {
 			return [];
 		}
 	}
+
 	public traverseArray(arr: any): void {
 		arr.forEach((obj: any) => {
 			this.checkWhere(obj);
 		});
 	}
+
 	// code based off of example found at https://davidwells.io/snippets/traverse-object-unknown-size-javascript
 	public isArray(arr: any): boolean {
 		return Object.prototype.toString.call(arr) === "[object Array]";

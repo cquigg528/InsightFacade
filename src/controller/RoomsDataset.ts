@@ -92,28 +92,28 @@ export class RoomsDataset extends Dataset {
 				let as;
 				let texts;
 				switch (field) {
-				case "views-field views-field-field-room-number":
-					as = this.getChildNodes(entry.childNodes, "a", []);
-					room.roomHref = as[0].attrs[0].value;
-					texts = this.getChildNodes(entry.childNodes, "#text", []);
-					for (let text of texts) {
-						if (text.value !== "\n") {
-							room.roomNumber = text.value;
+					case "views-field views-field-field-room-number":
+						as = this.getChildNodes(entry.childNodes, "a", []);
+						room.roomHref = as[0].attrs[0].value;
+						texts = this.getChildNodes(entry.childNodes, "#text", []);
+						for (let text of texts) {
+							if (text.value !== "\n") {
+								room.roomNumber = text.value;
+							}
 						}
-					}
-					break;
-				case "views-field views-field-field-room-capacity":
-					texts = this.getChildNodes(entry.childNodes, "#text", []);
-					room.roomSeats = texts[0].value;
-					break;
-				case "views-field views-field-field-room-furniture":
-					texts = this.getChildNodes(entry.childNodes, "#text", []);
-					room.roomFurniture = texts[0].value;
-					break;
-				case "views-field views-field-field-room-type":
-					texts = this.getChildNodes(entry.childNodes, "#text", []);
-					room.roomType = texts[0].value;
-					break;
+						break;
+					case "views-field views-field-field-room-capacity":
+						texts = this.getChildNodes(entry.childNodes, "#text", []);
+						room.roomSeats = texts[0].value;
+						break;
+					case "views-field views-field-field-room-furniture":
+						texts = this.getChildNodes(entry.childNodes, "#text", []);
+						room.roomFurniture = texts[0].value;
+						break;
+					case "views-field views-field-field-room-type":
+						texts = this.getChildNodes(entry.childNodes, "#text", []);
+						room.roomType = texts[0].value;
+						break;
 				}
 			}
 		}

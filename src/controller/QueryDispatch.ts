@@ -1,9 +1,8 @@
 import QueryFilter from "./QueryFilter";
 import DatasetSearch from "./DatasetSearch";
 import {InsightError} from "./IInsightFacade";
-import {getValueByTranslation, isEquivalent} from "./QueryUtil";
+import {getValueByTranslation, isEquivalent, onlyNonUnique} from "./QueryUtil";
 import {CoursesDataset} from "./CoursesDataset";
-
 const searchKeys: string[] = ["lt", "gt", "eq", "is"];
 export default class QueryDispatch {
 	public query: QueryFilter | null;
@@ -24,7 +23,7 @@ export default class QueryDispatch {
 	}
 
 	public traverseQuery(node: QueryFilter, filterObj: any): QueryFilter {
-		Object.keys(filterObj).forEach((key: string) => {
+		for (let key of Object.keys(filterObj)) {
 			if (key === "WHERE") {
 				this.traverseQuery(node, filterObj[key]);
 			} else if (key === "AND" || key === "OR") {
@@ -71,16 +70,17 @@ export default class QueryDispatch {
 				// assign to filter
 				node.searches.push(datasetSearch);
 			} else {
-				return;
+				continue;
 			}
-		}); return node;
+		}
+		return node;
 	}
 
 	public handleNestedArrays(newNode: QueryFilter, innerObj: any): void {
 		const numChildren: number = innerObj.length;
 		for (let i = 0; i < numChildren; i++) {
 			// only add children for nested AND, OR, or NOT
-			Object.keys(innerObj[i]).forEach((nestedObjKey) => {
+			for (let nestedObjKey of Object.keys(innerObj[i])) {
 				if (nestedObjKey === "AND" || nestedObjKey === "OR") {
 					let newNodeChild: QueryFilter = new QueryFilter(newNode, nestedObjKey, [], []);
 					Object.values(innerObj[i][nestedObjKey]).forEach((obj, index) => {
@@ -106,7 +106,7 @@ export default class QueryDispatch {
 					// next item is a Dataset filter, simply pass current node in recursion
 					this.traverseQuery(newNode, innerObj[i]);
 				}
-			});
+			}
 		}
 	}
 
@@ -137,20 +137,19 @@ export default class QueryDispatch {
 
 	public async filterCourses(query: QueryFilter | null, dataset: CoursesDataset): Promise<any[]> {
 		let sections: any[] = [];
-		function onlyNonUnique(value: any, ind: any, self: any) {
-			return !(self.indexOf(value) === ind);
-		}
 		if (query === null || (query.children.length === 0 && query.searches.length === 0)) {
 			return Promise.reject(new InsightError("QueryDispatch query field should have a non empty array."));
 		} else {
 			if (query.children.length === 0 && query.searches.length === 1) {
 				sections = sections.concat(await this.handleSearch(query.searches[0], dataset, false, []));
-			} if (query.self === "OR") {
+			}
+			if (query.self === "OR") {
 				if (query.searches.length > 0) {
 					for (const search of query.searches) {
 						sections = sections.concat(await this.handleSearch(search, dataset, false, []));
 					}
-				} if (query.children.length > 0) {
+				}
+				if (query.children.length > 0) {
 					for (const child of query.children) {
 						sections = sections.concat(await this.filterCourses(child, dataset));
 					}
@@ -171,8 +170,10 @@ export default class QueryDispatch {
 							accum = await this.filterCourses(child, dataset);
 							accum1 = accum.concat(accum1).filter(onlyNonUnique);
 						}
-					} sections = sections.concat(accum1);
-				} sections = await this.handleAndContents(query, dataset, sections);
+					}
+					sections = sections.concat(accum1);
+				}
+				sections = await this.handleAndContents(query, dataset, sections);
 			} else {
 				if (query.children.length > 0) {
 					for (const child of query.children) {
@@ -180,7 +181,8 @@ export default class QueryDispatch {
 					}
 				}
 			}
-		} return sections;
+		}
+		return sections;
 	}
 
 	public async handleAndContents(query: any, dataset: CoursesDataset, sections: any[]): Promise<any[]> {
@@ -195,7 +197,8 @@ export default class QueryDispatch {
 					accumulator1 = await this.handleSearch(search, dataset, true, accumulator2);
 				}
 				accumulator2 = accumulator1;
-			} if (query.children.length > 0) {
+			}
+			if (query.children.length > 0) {
 				let retval: any = [];
 				sections.forEach((section) => {
 					accumulator2.forEach((accSection) => {
@@ -208,7 +211,8 @@ export default class QueryDispatch {
 			} else {
 				sections = sections.concat(accumulator2);
 			}
-		} return sections;
+		}
+		return sections;
 	}
 
 	public async handleSearch(search: DatasetSearch, dataset: CoursesDataset, searchInSubset: boolean,
@@ -272,6 +276,7 @@ export default class QueryDispatch {
 			});
 		}
 	}
+
 	public negateSearches(searches: DatasetSearch[]): void {
 		searches.forEach((search) => {
 			if (search.comparator === "lt") {
