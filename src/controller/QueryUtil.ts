@@ -18,37 +18,37 @@ function getValueByTranslation(section: any, queryKey: string): number | string 
 	let searchKey: string = "";
 	let propKey = queryKey.split("_")[1];
 	switch (propKey) {
-	case "avg":
-		searchKey = "Avg";
-		break;
-	case "pass":
-		searchKey = "Pass";
-		break;
-	case "fail":
-		searchKey = "Fail";
-		break;
-	case "audit":
-		searchKey = "Audit";
-		break;
-	case "year":
-		searchKey = "Year";
-		break;
-	case "instructor":
-		searchKey = "Professor";
-		break;
-	case "dept":
-		searchKey = "Subject";
-		break;
-	case "id":
-		searchKey = "Course";
-		break;
-	case "uuid":
-		searchKey = "id";
-		break;
-	case "title":
-		searchKey = "Title";
-		break;
-	default:
+		case "avg":
+			searchKey = "Avg";
+			break;
+		case "pass":
+			searchKey = "Pass";
+			break;
+		case "fail":
+			searchKey = "Fail";
+			break;
+		case "audit":
+			searchKey = "Audit";
+			break;
+		case "year":
+			searchKey = "Year";
+			break;
+		case "instructor":
+			searchKey = "Professor";
+			break;
+		case "dept":
+			searchKey = "Subject";
+			break;
+		case "id":
+			searchKey = "Course";
+			break;
+		case "uuid":
+			searchKey = "id";
+			break;
+		case "title":
+			searchKey = "Title";
+			break;
+		default:
 	}
 	if(searchKey === "Year") {
 		if(section["Section"] === "overall"){
@@ -62,4 +62,8 @@ function getValueByTranslation(section: any, queryKey: string): number | string 
 	return section[searchKey];
 }
 
-export{isEquivalent, getValueByTranslation};
+function onlyNonUnique(value: any, ind: any, self: any) {
+	return !(self.indexOf(value) === ind);
+}
+
+export{isEquivalent, getValueByTranslation, onlyNonUnique};

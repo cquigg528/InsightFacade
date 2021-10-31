@@ -87,42 +87,12 @@ export class CoursesDataset extends Dataset {
 		// mcomparator is one of lt, gt, eq, mkey is one of avg, pass, fail, audit, year
 		let courses: any[] = customCourses ? ccourses : await this.setUpSearch();
 		let listOfCourses = courses.flat(1);
-		let comparator: any;
-		switch (mcomparator) {
-		case "nlt":
-			comparator = function (x: number, y: number) {
-				return x >= y;
-			};
-			break;
-		case "ngt":
-			comparator = function (x: number, y: number) {
-				return x <= y;
-			};
-			break;
-		case "lt":
-			comparator = function (x: number, y: number) {
-				return x < y;
-			};
-			break;
-		case "gt":
-			comparator = function (x: number, y: number) {
-				return x > y;
-			};
-			break;
-		case "eq":
-			comparator = function (x: number, y: number) {
-				return x === y;
-			};
-			break;
-		case "neq":
-			comparator = function (x: number, y: number) {
-				return x !== y;
-			};
-			break;
-		default:
+		let comparator = this.switchOnMComparator(mcomparator);
+		if (comparator === null) {
 			return Promise.reject("Invalid mcomparator!");
-		} let searchKey: string = this.switchOnSearchKey(mkey);
-		if (searchKey === "") {
+		}
+		let searchKey: string = this.switchOnSearchKey(mkey);
+		if (this.switchOnSearchKey(mkey) === "") {
 			return Promise.reject("Invalid mkey!");
 		}
 		return listOfCourses.filter(function (item) {
@@ -130,29 +100,69 @@ export class CoursesDataset extends Dataset {
 				if (item["Section"] === "overall") {
 					item[searchKey] = 1900;
 				}
-			} return comparator(parseFloat(item[searchKey]), number);
+			}
+			return comparator(parseFloat(item[searchKey]), number);
 		});
+	}
+
+	public switchOnMComparator(mcomparator: string): any {
+		let comparator: any;
+		switch (mcomparator) {
+			case "nlt":
+				comparator = function (x: number, y: number) {
+					return x >= y;
+				};
+				break;
+			case "ngt":
+				comparator = function (x: number, y: number) {
+					return x <= y;
+				};
+				break;
+			case "lt":
+				comparator = function (x: number, y: number) {
+					return x < y;
+				};
+				break;
+			case "gt":
+				comparator = function (x: number, y: number) {
+					return x > y;
+				};
+				break;
+			case "eq":
+				comparator = function (x: number, y: number) {
+					return x === y;
+				};
+				break;
+			case "neq":
+				comparator = function (x: number, y: number) {
+					return x !== y;
+				};
+				break;
+			default:
+				return null;
+		}
+		return comparator;
 	}
 
 	public switchOnSearchKey(mkey: string): string {
 		let searchKey: string;
 		switch (mkey) {
-		case "avg":
-			searchKey = "Avg";
-			break;
-		case "pass":
-			searchKey = "Pass";
-			break;
-		case "fail":
-			searchKey = "Fail";
-			break;
-		case "audit":
-			searchKey = "Audit";
-			break;
-		case "year":
-			searchKey = "Year";
-			break;
-		default: searchKey = "";
+			case "avg":
+				searchKey = "Avg";
+				break;
+			case "pass":
+				searchKey = "Pass";
+				break;
+			case "fail":
+				searchKey = "Fail";
+				break;
+			case "audit":
+				searchKey = "Audit";
+				break;
+			case "year":
+				searchKey = "Year";
+				break;
+			default: searchKey = "";
 		}
 		return searchKey;
 	}
@@ -180,23 +190,23 @@ export class CoursesDataset extends Dataset {
 		}
 		let searchKey: string;
 		switch (skey) {
-		case "instructor":
-			searchKey = "Professor";
-			break;
-		case "dept":
-			searchKey = "Subject";
-			break;
-		case "id":
-			searchKey = "Course";
-			break;
-		case "uuid":
-			searchKey = "id";
-			break;
-		case "title":
-			searchKey = "Title";
-			break;
-		default:
-			return Promise.reject(new InsightError("Invalid ID!"));
+			case "instructor":
+				searchKey = "Professor";
+				break;
+			case "dept":
+				searchKey = "Subject";
+				break;
+			case "id":
+				searchKey = "Course";
+				break;
+			case "uuid":
+				searchKey = "id";
+				break;
+			case "title":
+				searchKey = "Title";
+				break;
+			default:
+				return Promise.reject(new InsightError("Invalid ID!"));
 		}
 		return listOfCourses.filter(function (item) {
 			if (comparator === "is") {
