@@ -1,0 +1,38 @@
+{
+	"title": "COLUMNS contains !mkey or !skey",
+	"input":
+	{
+		"WHERE":{
+			"OR":[
+				{
+					"AND":[
+						{
+							"GT":{
+								"courses_avg":90
+							}
+						},
+						{
+							"IS":{
+								"courses_dept":"adhe"
+							}
+						}
+					]
+				},
+				{
+					"EQ":{
+						"courses_avg":95
+					}
+				}
+			]
+		},
+		"OPTIONS":{
+			"COLMNS":[
+				"courses_averag",
+				"courses_dept"
+			],
+			"ORDER":"courses_averag"
+		}
+
+	},
+	"with": []
+}
