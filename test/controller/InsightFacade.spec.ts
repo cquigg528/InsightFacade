@@ -395,41 +395,6 @@ describe("InsightFacade", function () {
 		);
 	});
 
-	describe("Perform Query c2 courses Dynamic Tests", function () {
-		let facade: InsightFacade;
-
-		before(function () {
-			clearDisk();
-			facade = new InsightFacade();
-			facade.addDataset("rooms", rooms, InsightDatasetKind.Courses);
-		});
-
-		testFolder<Input, Output, Error>(
-			"Dynamic query testing",
-			(input): Promise<Output> => {
-				return facade.performQuery(input);
-			},
-			"./test/resources/c2_courses",
-			{
-				errorValidator: (error): error is Error => error === "InsightError" || error === "ResultTooLargeError",
-
-				assertOnError: (expected, actual) => {
-					if (expected === "InsightError") {
-						expect(actual).to.be.instanceof(InsightError);
-					} else if (expected === "ResultTooLargeError") {
-						expect(actual).to.be.instanceof(ResultTooLargeError);
-					} else {
-						// this should be unreachable
-						expect.fail("UNEXPECTED ERROR");
-					}
-				},
-
-				assertOnResult: (expected, actual) => {
-					expect(actual).to.have.deep.members(expected);
-				},
-			}
-		);
-	});
 
 	describe("Add Dataset", function () {
 		let coursesWithInvalidJson: string;
