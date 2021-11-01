@@ -5,11 +5,8 @@ import {Dataset} from "./Dataset";
 
 export class CoursesDataset extends Dataset {
 
-	public dataset: string[] | undefined;
-
 	constructor(id: string, kind: InsightDatasetKind) {
 		super(id, kind);
-		this.dataset = undefined;
 	}
 
 	public async loadDataset (content: string) {
@@ -84,10 +81,6 @@ export class CoursesDataset extends Dataset {
 		let neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
 			"Audit", "Section", "Year"];
 		return neededKeys.every((key) => Object.keys(val).includes(key));
-	}
-
-	public deleteDataset(): void {
-		delete this.dataset;
 	}
 
 	// In this class we can add different methods to search for a course from disk
