@@ -1,0 +1,36 @@
+{
+	"title": "empty order invalid",
+	"input": {
+		"WHERE": {
+		  "IS": {
+			"maxSeats": 60
+		  }
+		},
+		"OPTIONS": {
+		  "COLUMNS": [
+			"rooms_address"
+		  ],
+		  "ORDER": {
+			"dir": "UP",
+			"keys": [
+			  "rooms_address"
+			]
+		  }
+		},
+		"TRANSFORMATIONS": {
+		  "GROUP": ["courses_address"
+		  ],
+			"APPLY":[{
+
+				"maxSeats": {
+
+					"MAX": "rooms_seats"
+
+				 }
+
+			}]
+
+	  }},
+  "errorExpected": true,
+  "with": "InsightError"
+}

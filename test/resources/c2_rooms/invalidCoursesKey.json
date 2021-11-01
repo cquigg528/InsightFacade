@@ -1,0 +1,31 @@
+{
+    "title": "invalid courses key in rooms",
+    "input": {
+            "WHERE": {},
+
+            "OPTIONS": {
+
+                 "COLUMNS": ["courses_title", "rooms_seats", "overallAvg"]
+
+             },
+
+            "TRANSFORMATIONS": {
+
+                "GROUP": ["rooms_shortname"],
+
+                "APPLY": [{
+
+                    "overallAvg": {
+
+                         "AVG": "rooms_seats"
+
+                     }
+
+                 }]
+
+             }
+
+            },
+    "errorExpected": true,
+    "with": "InsightError"
+  }

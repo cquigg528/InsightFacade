@@ -1,0 +1,31 @@
+{
+	"title": "empty apply key",
+	"input": {
+	"WHERE": {
+	  "IS": {
+		"rooms_shortname": "*MG*"
+	  }
+	},
+	"OPTIONS": {
+	  "COLUMNS": [
+		"rooms_address"
+	  ],
+	  "ORDER": {
+		"dir": "UP",
+		"keys": [
+		  "rooms_address"
+		]
+	  }
+	},
+	"TRANSFORMATIONS": {
+	  "GROUP": [
+		"rooms_address"
+	  ],
+		"APPLY": [
+
+		]
+	}
+  },
+  "errorExpected": false,
+  "with": [{"rooms_address":"6081 University Blvd"}]
+}

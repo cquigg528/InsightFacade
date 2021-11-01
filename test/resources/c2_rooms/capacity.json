@@ -1,0 +1,75 @@
+{
+    "title": "equal to test",
+    "input": {   
+
+        "WHERE": {       
+       
+            "AND": [{           
+       
+               "GT": {               
+       
+                   "rooms_seats": 100      
+       
+                }   
+            },
+            {
+                "IS": {
+                    "rooms_shortname": "DMP"
+                }
+
+            }    
+       
+                
+       
+           ]   
+       
+         },   
+       
+         "OPTIONS": {       
+       
+             "COLUMNS": [           
+       
+                 "rooms_shortname",           
+       
+                 "maxSeats"       
+       
+             ],       
+       
+         "ORDER": {           
+       
+            "dir": "UP",           
+       
+            "keys": ["maxSeats"]       
+       
+         }   
+       
+         },   
+       
+         "TRANSFORMATIONS": {       
+       
+             "GROUP": ["rooms_shortname"],       
+       
+             "APPLY": [{           
+       
+                 "maxSeats": {               
+       
+                     "MAX": "rooms_seats"           
+       
+                  }       
+       
+             }]   
+       
+         }
+       
+       },
+    "errorExpected": false,
+    "with": [{       
+      
+             "rooms_shortname": "DMP",       
+      
+             "maxSeats": 160
+      
+        }]
+      
+      
+  }

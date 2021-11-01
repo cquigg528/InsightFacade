@@ -1,0 +1,36 @@
+{
+  "title": "not not not or not and is empty",
+  "input": {
+    "WHERE": {
+      "NOT": {
+        "NOT": {
+          "NOT": {
+            "OR": [
+              {
+                "NOT": {
+                  "AND": [
+                    {
+                      "IS": {
+                        "courses_dept": ""
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": []
+}

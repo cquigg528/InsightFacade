@@ -1,0 +1,30 @@
+{
+  "errorMsg": "ORDER key must be in COLUMNS",
+  "title": "idstring issues",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_dept": "epse"
+          }
+        },
+        {
+          "GT": {
+            "courses_fail": 1
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "course_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

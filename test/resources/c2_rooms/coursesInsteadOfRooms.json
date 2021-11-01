@@ -1,0 +1,30 @@
+{
+	"title": "courses as idstring",
+	"input": {
+	"WHERE": {
+	  "IS": {
+		"rooms_shortname": "*MG*"
+	  }
+	},
+	"OPTIONS": {
+	  "COLUMNS": [
+		"courses_address"
+	  ],
+	  "ORDER": {
+		"dir": "UP",
+		"keys": [
+		  "rooms_address"
+		]
+	  }
+	},
+	"TRANSFORMATIONS": {
+	  "GROUP": ["courses_address"
+	  ],
+		"APPLY": [
+
+		]
+	}
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

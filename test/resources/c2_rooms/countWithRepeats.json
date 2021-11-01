@@ -1,0 +1,68 @@
+{
+	"title": "countWithRepeats (ALRD has two 20 seats rooms)",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_shortname": "A*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"countSeats",
+				"countShortname"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"countSeats"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"countSeats": {
+						"COUNT": "rooms_seats"
+					}
+				},
+				{
+					"countShortname": {
+						"COUNT": "rooms_shortname"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"with": [
+		{
+			"rooms_shortname": "AERL",
+			"countSeats": 1,
+			"countShortname": 1
+		},
+		{
+			"rooms_shortname": "AUDX",
+			"countSeats": 2,
+			"countShortname": 1
+		},
+		{
+			"rooms_shortname": "ALRD",
+			"countSeats": 4,
+			"countShortname": 1
+		},
+		{
+			"rooms_shortname": "ANSO",
+			"countSeats": 4,
+			"countShortname": 1
+		},
+		{
+			"rooms_shortname": "ANGU",
+			"countSeats": 15,
+			"countShortname": 1
+		}
+	]
+}

@@ -1,0 +1,34 @@
+{
+  "errorMsg": "Invalid key courses in COLUMNS",
+  "title": "empty key with dataset",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "LT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_avg",
+        "courses"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

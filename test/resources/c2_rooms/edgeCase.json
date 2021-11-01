@@ -1,0 +1,85 @@
+{
+	"title": "equal to test",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"NOT": {
+						"LT": {
+							"rooms_seats": 80
+						}
+					}
+				},
+				{
+					"IS": {
+						"rooms_shortname": "*E*"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"minSeats"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"minSeats",
+					"rooms_shortname"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"minSeats": {
+						"MIN": "rooms_seats"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"with": [
+		{
+			"rooms_shortname": "ESB",
+			"minSeats": 80
+		},
+		{
+			"rooms_shortname": "CHEM",
+			"minSeats": 90
+		},
+		{
+			"rooms_shortname": "CHBE",
+			"minSeats": 94
+		},
+		{
+			"rooms_shortname": "CEME",
+			"minSeats": 100
+		},
+		{
+			"rooms_shortname": "GEOG",
+			"minSeats": 100
+		},
+		{
+			"rooms_shortname": "WESB",
+			"minSeats": 102
+		},
+		{
+			"rooms_shortname": "AERL",
+			"minSeats": 144
+		},
+		{
+			"rooms_shortname": "HENN",
+			"minSeats": 150
+		},
+		{
+			"rooms_shortname": "HEBB",
+			"minSeats": 375
+		}
+	]
+}

@@ -1,0 +1,30 @@
+{
+	"title": "empty order invalid",
+	"input": {
+	"WHERE": {
+	  "IS": {
+		"rooms_shortname": "*MG*"
+	  }
+	},
+	"OPTIONS": {
+	  "COLUMNS": [
+		"rooms_address"
+	  ],
+	  "ORDER": {
+		"dir": "UP",
+		"keys": [
+		  "rooms_address"
+		]
+	  }
+	},
+	"TRANSFORMATIONS": {
+	  "GROUP": [
+	  ],
+		"APPLY": [
+
+		]
+	}
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

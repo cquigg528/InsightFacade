@@ -1,0 +1,60 @@
+{
+	"title": "apply all for rooms",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_shortname": "B*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"countSeats",
+				"countShortname",
+				"minLong",
+				"maxLat",
+				"sumSeats"
+			],
+			"ORDER": {
+				"dir": "NONE",
+				"keys": [
+					"countSeats"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"countSeats": {
+						"COUNT": "rooms_seats"
+					}
+				},
+				{
+					"countShortname": {
+						"COUNT": "rooms_shortname"
+					}
+				},
+				{
+					"minLong": {
+						"MIN": "rooms_lon"
+					}
+				},
+				{
+					"maxLat": {
+						"MAX": "rooms_lat"
+					}
+				},
+				{
+					"sumSeats": {
+						"SUM": "rooms_seats"
+					}
+				}
+			]
+		},
+		"errorExpected": false,
+		"with": "InsightError"
+	}
+}
