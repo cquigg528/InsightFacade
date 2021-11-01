@@ -107,11 +107,20 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new ResultTooLargeError("too many results"));
 		}
 
-		if (validQuery.order === "") {
-			return Promise.resolve(searchResults);
+		// call Brie's function like
+		if (validator.hasTransforms) {
+			// TODO
+			// let aggregateResults = functionCall(searchResults, validQuery.group, validQuery.applyRules);
+
+			// sort
 		}
 
+		// TODO implement sorting
+		if (validator.order.length === 0) {
+			return Promise.resolve(searchResults);
+		}
 		searchResults.sort((a, b) => a.order > b.order ? -1 : ((b.order > a.order ? 1 : 0)));
+
 		return Promise.resolve(searchResults);
 	}
 

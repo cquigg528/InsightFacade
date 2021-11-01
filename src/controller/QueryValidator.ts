@@ -1,7 +1,6 @@
 import QueryDispatch from "./QueryDispatch";
 import {InsightDatasetKind, InsightError} from "./IInsightFacade";
-import {isArray, isObject} from "./QueryUtil";
-
+import {isArray, isObject, validateSort, validateTransform} from "./QueryUtil";
 const logicKeys = ["AND", "OR"];
 const mCompareKeys = ["LT", "GT", "EQ"];
 const sCompareKey = "IS";
@@ -14,19 +13,23 @@ export class QueryValidator {
 	public skeys: string[];
 	public validWhere: boolean;
 	public validOptions: boolean;
-	public order: string;
-
+	public order: string[];
+	public orderDir: string;
+	public hasTransforms: boolean;
+	public datasetType: string;
 	constructor(query: any) {
 		this.query = query;
 		this.mkeys = [];
 		this.skeys = [];
 		this.validWhere = true;
 		this.validOptions = true;
-		this.order = "";
+		this.order = [];
+		this.orderDir = "";
+		this.hasTransforms = false;
+		this.datasetType = "";
 	}
 
 	public setUpQueryValidation(datasetIds: string[], query: any): string | null {
-		// We can assume query is valid json if query is an object, otherwise query is invalid
 		if (typeof query !== "object") {
 			return null;
 		}
@@ -34,11 +37,8 @@ export class QueryValidator {
 		let validColumnKeysCourses, validColumnKeysRooms: boolean = false;
 		// If there is no query.COLUMNS.OPTIONS field, or if that field is an empty list, the query is invalid
 		try {
-			// if queryKey can't be found or does not contain '_', reject
 			let queryKeyList = query.OPTIONS.COLUMNS;
-			let queryKey = queryKeyList.find((key: string) => {
-				key.includes("_");
-			});
+			const queryKey = queryKeyList.find((key: string) => key.includes("_"));
 			if (typeof queryKey === "undefined" || typeof  queryKey !== "string") {
 				return null;
 			}
@@ -53,21 +53,15 @@ export class QueryValidator {
 			let roomFields = ["fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type",
 				"furniture", "href"];
 			if (courseFields.includes(field)) {
-				validColumnKeysCourses = queryKeyList.every((key: string) => {
-					if (key.includes("_")) {
-						courseFields.includes(key.split("_")[1]);
-					}
-				});
+				validColumnKeysCourses = queryKeyList.every((key: string) =>
+					key.includes("_") ? courseFields.includes(key.split("_")[1]) : false);
 				if (validColumnKeysCourses) {
 					this.mkeys = [id + "_avg", id + "_pass", id + "_fail", id + "_audit", id + "_year"];
 					this.skeys = [id + "_dept", id + "_id", id + "_instructor", id + "_title", id + "_uuid"];
 				}
 			} else if (roomFields.includes(field)) {
-				validColumnKeysRooms = queryKeyList.every((key: string) => {
-					if (key.includes("_")) {
-						roomFields.includes(key.split("_")[1]);
-					}
-				});
+				validColumnKeysRooms = queryKeyList.every((key: string) =>
+					key.includes("_") ? roomFields.includes(key.split("_")[1]) : false);
 				if (validColumnKeysRooms) {
 					this.mkeys = [id + "_lat", id + "_lon", id + "_seats"];
 					this.skeys = [id + "_fullname", id + "_shortname", id + "_number", id + "_name", id + "_address",
@@ -77,7 +71,7 @@ export class QueryValidator {
 		} catch (e) {
 			return null;
 		}
-		return validColumnKeysCourses || validColumnKeysRooms ? id : null;
+		return (validColumnKeysCourses || validColumnKeysRooms) ? id : null;
 	}
 
 	// performs query syntactic checks and accumulates search information by calling
@@ -85,15 +79,23 @@ export class QueryValidator {
 	// returns QueryDispatch object or null if invalid query
 	public async validateAndParseQuery(): Promise<QueryDispatch> {
 		let parsedQuery: QueryDispatch | null;
-
-		// Method: check structure from top down
-		const outerKeysExpected: string[] = ["WHERE", "OPTIONS"];
+		if (this.mkeys.length === 3) {
+			this.datasetType = "rooms";
+		} else {
+			this.datasetType = "courses";
+		}
+		const outerKeysExpected: string[] = ["WHERE", "OPTIONS", "TRANSFORMATIONS"];
 		let outerKeys = Object.keys(this.query);
-
+		if (outerKeys.length > 3) {
+			return Promise.reject(new InsightError("too many outer keys"));
+		}
 		let invalid = false;
-		outerKeys.forEach(function (key, index) {
+		outerKeys.forEach((key, index) => {
 			if (key !== outerKeysExpected[index]) {
 				invalid = true;
+			}
+			if (index === 2) {
+				this.hasTransforms = true;
 			}
 		});
 		if (invalid) {
@@ -102,6 +104,9 @@ export class QueryValidator {
 		parsedQuery = await this.deconstructQuery();
 		if (parsedQuery === null) {
 			return Promise.reject(new InsightError("invalid query"));
+		} else if (this.hasTransforms) {
+			return validateTransform(parsedQuery, this.query.TRANSFORMATIONS, this.mkeys, this.skeys) ?
+				Promise.resolve(parsedQuery) : Promise.reject(new InsightError("invalid transform"));
 		} else {
 			return Promise.resolve(parsedQuery);
 		}
@@ -119,13 +124,9 @@ export class QueryValidator {
 		}
 		// first check if we even have any filters
 		if (Object.entries(this.query.WHERE).length === 0) {
-			queryDispatchObj = new QueryDispatch(true, columns, "");
+			queryDispatchObj = new QueryDispatch(true, columns);
 		} else {
-			queryDispatchObj = new QueryDispatch(false, columns, "");
-		}
-		// set order in queryDispatchObj
-		if (this.order !== "") {
-			queryDispatchObj.order = this.order;
+			queryDispatchObj = new QueryDispatch(false, columns);
 		}
 		if (queryDispatchObj.emptyWhere) {
 			return Promise.resolve(queryDispatchObj);
@@ -196,6 +197,13 @@ export class QueryValidator {
 		const mkeyList = Object.keys(obj[key]);
 		const valueList = Object.values(obj[key]);
 
+		let expectedFields: string [] = [];
+		if (this.datasetType === "courses") {
+			expectedFields = ["avg", "pass", "fail", "audit", "year"];
+		} else if (this.datasetType === "rooms") {
+			expectedFields = ["lat", "lon", "seats"];
+		}
+
 		// require the following to be true
 		const onlyOneMkey: boolean = mkeyList.length === 1;
 		const onlyOneVal: boolean = valueList.length === 1;
@@ -204,10 +212,8 @@ export class QueryValidator {
 		if (typeof (mkeyList[0]) !==  "undefined"){
 			mfield = mkeyList[0].split("_")[1];
 		}
-		let expectedValueType: string;
-		if (["dept", "id", "instructor", "title", "uuid"].includes(mfield)) {
-			expectedValueType = "string";
-		} else {
+		let expectedValueType: string = "";
+		if (expectedFields.includes(mfield)) {
 			expectedValueType = "number";
 		}
 		const valIsCorrectType: boolean = typeof valueList[0] === expectedValueType;
@@ -219,6 +225,13 @@ export class QueryValidator {
 		const skeyList = Object.keys(obj[key]);
 		const inputstringList: string[] = Object.values(obj[key]);
 
+		let expectedFields: string [] = [];
+		if (this.datasetType === "courses") {
+			expectedFields = ["dept", "id", "instructor", "title", "uuid"];
+		} else if (this.datasetType === "rooms") {
+			expectedFields = ["fullname", "shortname", "number", "name", "address", "type", "furniture", "href"];
+		}
+
 		// require the following to be true
 		const onlyOneSkey: boolean = skeyList.length === 1;
 		const onlyOneInputstring: boolean = inputstringList.length === 1;
@@ -227,18 +240,15 @@ export class QueryValidator {
 		if (typeof (skeyList[0]) !==  "undefined"){
 			sfield = skeyList[0].split("_")[1];
 		}
-		let expectedValueType: string;
-		if (["dept", "id", "instructor", "title", "uuid"].includes(sfield)) {
+		let expectedValueType: string = "";
+		if (expectedFields.includes(sfield)) {
 			expectedValueType = "string";
-		} else {
-			expectedValueType = "number";
 		}
 		const validInputType: boolean = typeof inputstringList[0] === expectedValueType;
 		if (validInputType && expectedValueType === "string") {
 			const validInputAsterisks: boolean = !inputstringList[0]?.slice(1, -1).includes("*");
 			return onlyOneSkey && onlyOneInputstring && validSkey && validInputAsterisks;
 		}
-
 		return onlyOneSkey && onlyOneInputstring && validSkey && validInputType;
 	}
 
@@ -246,7 +256,7 @@ export class QueryValidator {
 		const obj = this.query.OPTIONS;
 		const expectedKeys = ["COLUMNS", "ORDER"];
 		const keys = Object.keys(obj);
-
+		let hasOrder = false;
 		if (!isObject(obj)) {
 			this.validOptions = false;
 		} else if (keys.length > 2 || keys.length === 0) {
@@ -270,19 +280,15 @@ export class QueryValidator {
 						});
 					}
 				} else if (index === 1 && isArray(obj.COLUMNS)) {
-					// ORDER
-					if (typeof obj[key] !== "string" || !obj.COLUMNS.includes(obj[key])) {
-						this.validOptions = false;
-					}
+					hasOrder = true;
+					validateSort(this, obj[key], obj.COLUMNS);
 				}
 			}
 		});
 		if (this.validOptions) {
-			this.order = obj.ORDER;
-			return obj.COLUMNS;
-		} else {
-			return [];
+			return obj.columns;
 		}
+		return [];
 	}
 
 	public traverseArray(arr: any): void {
