@@ -64,9 +64,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	public listDatasets(): Promise<InsightDataset[]> {
 		return Promise.resolve(this.datasets.map((dataset) => {
-			if (dataset.kind === InsightDatasetKind.Courses) {
-				(dataset as CoursesDataset).deleteDataset();
-			}
+			dataset.deleteDataset();
 			return dataset;
 		}));
 	}

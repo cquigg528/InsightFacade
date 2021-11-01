@@ -5,11 +5,17 @@ export abstract class Dataset implements InsightDataset {
 	public id: string;
 	public kind: InsightDatasetKind;
 	public numRows: number;
+	protected dataset: any[] | undefined;
 
-	constructor(id: string, kind: InsightDatasetKind) {
+	protected constructor(id: string, kind: InsightDatasetKind) {
 		this.id = id;
 		this.numRows = 0;
 		this.kind = kind;
+		this.dataset = undefined;
+	}
+
+	public deleteDataset(): void {
+		delete this.dataset;
 	}
 
 	public abstract loadDataset(content: string): Promise<void[]>;

@@ -67,10 +67,9 @@ class Room implements RoomInterface {
 }
 
 export class RoomsDataset extends Dataset {
-	private dataset: any[] | undefined;
+
 	constructor(id: string, kind: InsightDatasetKind) {
 		super(id, kind);
-		this.dataset = undefined;
 	}
 
 	private getChildNodes(tree: any[], selectedKey: string, nodes: any[] = []) {
