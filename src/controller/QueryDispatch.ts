@@ -112,7 +112,7 @@ export default class QueryDispatch {
 
 	public async performDatasetSearch(dataset: CoursesDataset): Promise<any[]> {
 		if (this.emptyWhere) {
-			let sections = await dataset.getAllCourses();
+			let sections = await dataset.getAllObjects();
 			return Promise.resolve(sections);
 		} else {
 			this.findAndProcessNot(this.query);
@@ -219,18 +219,18 @@ export default class QueryDispatch {
 		subset: any[]): Promise<any[]> {
 		if (search.comparator === "is" || search.comparator === "isnot") {
 			if (searchInSubset) {
-				return await dataset.findCoursesBySComparator(search.comparator, search.field, search.value as string,
+				return await dataset.findObjectsBySComparator(search.comparator, search.field, search.value as string,
 					searchInSubset, subset);
 			} else {
-				return await dataset.findCoursesBySComparator(search.comparator, search.field, search.value as string,
+				return await dataset.findObjectsBySComparator(search.comparator, search.field, search.value as string,
 					searchInSubset, []);
 			}
 		} else {
 			if (searchInSubset) {
-				return await dataset.findCoursesByMComparator(search.comparator, search.field, search.value as number,
+				return await dataset.findObjectsByMComparator(search.comparator, search.field, search.value as number,
 					searchInSubset, subset);
 			} else {
-				return await dataset.findCoursesByMComparator(search.comparator, search.field, search.value as number,
+				return await dataset.findObjectsByMComparator(search.comparator, search.field, search.value as number,
 					searchInSubset, []);
 			}
 		}
