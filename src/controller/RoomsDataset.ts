@@ -27,7 +27,7 @@ export class RoomsDataset extends Dataset {
 		let zip;
 		try {
 			zip = await jsZip.loadAsync(content, {base64: true});
-		} catch(error) {
+		} catch (error) {
 			return Promise.reject(new InsightError("Not a proper ZIP file!"));
 		}
 		// jsZip.folder() returns an array, so if its length is 0 then there is no folder named courses
@@ -40,13 +40,13 @@ export class RoomsDataset extends Dataset {
 
 		let tables: any[] = this.getChildNodes(document.childNodes, "td", []);
 		let hrefs: any[] = this.getChildNodes(tables, "a", []).map((elem) => {
-			return elem.attrs.map((element: { name: string; value: any; }) => {
+			return elem.attrs.map((element: {name: string; value: any}) => {
 				if (element.name === "href") {
 					return element.value;
 				}
 			});
 		});
-		hrefs = [...new Set(hrefs.flat(1).filter((item) => (!(item === undefined ))))];
+		hrefs = [...new Set(hrefs.flat(1).filter((item) => !(item === undefined)))];
 		let rooms: any[] = [];
 		for (let href of hrefs) {
 			let path: string = "rooms" + href.substring(1);

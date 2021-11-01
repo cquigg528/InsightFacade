@@ -17,7 +17,7 @@ export abstract class Dataset implements InsightDataset {
 
 	protected async addJSONObjectToDataset(jsonObject: any, filename: string): Promise<Promise<any[]> | undefined> {
 		// ignore empty results
-		if (!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0) {
+		if (!Object.keys(jsonObject).includes("result") || jsonObject.result.length === 0) {
 			return;
 		}
 		// add all the sections one by one to the datasetObj
@@ -44,8 +44,18 @@ export abstract class Dataset implements InsightDataset {
 	protected validateObject(val: any): boolean {
 		// code adapted from https://stackoverflow.com/questions/54881865/check-if-multiple-keys-exists-in-json-object
 		// Ensures that the section has all parameters that we will need
-		const neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
-			"Audit", "Section", "Year"];
+		const neededKeys = [
+			"Subject",
+			"Course",
+			"Avg",
+			"Professor",
+			"Title",
+			"Pass",
+			"Fail",
+			"Audit",
+			"Section",
+			"Year",
+		];
 		return neededKeys.every((key) => Object.keys(val).includes(key));
 	}
 

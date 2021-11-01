@@ -42,7 +42,7 @@ export class QueryValidator {
 
 			// If id is not in dataset, reject
 			id = queryKey.split("_")[0];
-			if (id.trim() === "" || !datasetIds.includes(id)  || id.includes("_")) {
+			if (id.trim() === "" || !datasetIds.includes(id) || id.includes("_")) {
 				return null;
 			}
 		} catch (e) {
@@ -193,7 +193,7 @@ export class QueryValidator {
 		const onlyOneVal: boolean = valueList.length === 1;
 		const validMkey: boolean = this.mkeys.includes(mkeyList[0]);
 		let mfield = "";
-		if (typeof (mkeyList[0]) !==  "undefined"){
+		if (typeof mkeyList[0] !== "undefined") {
 			mfield = mkeyList[0].split("_")[1];
 		}
 		let expectedValueType: string;
@@ -216,7 +216,7 @@ export class QueryValidator {
 		const onlyOneInputstring: boolean = inputstringList.length === 1;
 		const validSkey: boolean = this.skeys.includes(skeyList[0]);
 		let sfield = "";
-		if (typeof (skeyList[0]) !==  "undefined"){
+		if (typeof skeyList[0] !== "undefined") {
 			sfield = skeyList[0].split("_")[1];
 		}
 		let expectedValueType: string;
