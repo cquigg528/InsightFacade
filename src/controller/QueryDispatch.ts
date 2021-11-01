@@ -8,12 +8,14 @@ export default class QueryDispatch {
 	public query: QueryFilter | null;
 	public emptyWhere: boolean;
 	public columns: string[];
-	public order: string;
-	constructor(emptyWhere: boolean, columns: string[], order: string) {
+	public group: string[];
+	public applyRules: any[];
+	constructor(emptyWhere: boolean, columns: string[]) {
 		this.query = null;
 		this.emptyWhere = emptyWhere;
 		this.columns = columns;
-		this.order = order;
+		this.group = [];
+		this.applyRules = [];
 	}
 
 	public buildQueryDispatch(filterObj: any): void {
