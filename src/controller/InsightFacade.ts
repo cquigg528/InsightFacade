@@ -128,7 +128,6 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.resolve(searchResults);
 		}
 
-		// remove this:
 		return Promise.resolve(searchResults);
 	}
 
@@ -169,7 +168,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new NotFoundError("Could not find that ID!"));
 		}
 		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-		this.datasets.forEach( (dataset, index) => {
+		this.datasets.forEach((dataset, index) => {
 			if (dataset.id === id) {
 				// datasets should only be added in addDataset and removed in removeDataset, and both methods
 				// add/remove from both datasets and datasetIds, so it's safe to to remove both here.

@@ -9,13 +9,13 @@ export class CoursesDataset extends Dataset {
 		super(id, kind);
 	}
 
-	public async loadDataset (content: string) {
+	public async loadDataset(content: string) {
 		let jsZip = new JSZip();
 		let jsonObject;
 		let zip;
 		try {
 			zip = await jsZip.loadAsync(content, {base64: true});
-		} catch(error) {
+		} catch (error) {
 			return Promise.reject(new InsightError("Not a proper ZIP file!"));
 		}
 		// jsZip.folder() returns an array, so if its length is 0 then there is no folder named courses
@@ -32,14 +32,14 @@ export class CoursesDataset extends Dataset {
 			}
 			// check if the file is in the courses folder
 			const regex = new RegExp("courses/.*");
-			if (!(regex.test(zip.files[filename].name))) {
+			if (!regex.test(zip.files[filename].name)) {
 				continue;
 			}
 			// get file data and parse it so it will be a JSON object
 			let fileData = await zip.files[filename].async("string");
 			try {
 				jsonObject = JSON.parse(fileData);
-			} catch(e) {
+			} catch (e) {
 				continue;
 			}
 			// add json object to dataset
@@ -48,7 +48,7 @@ export class CoursesDataset extends Dataset {
 			}
 		}
 		let twoDSections: any[] = await Promise.all(promises);
-		let sections: any[] = twoDSections.flat(1).filter((item) => (!(item === undefined )));
+		let sections: any[] = twoDSections.flat(1).filter((item) => !(item === undefined));
 		this.dataset = sections;
 		return sections;
 	}
@@ -82,4 +82,20 @@ export class CoursesDataset extends Dataset {
 			"Audit", "Section", "Year"];
 		return neededKeys.every((key) => Object.keys(val).includes(key));
 	}
+}
+function filterResult(
+	listOfCourses: any[],
+	comparator: string,
+	regex: RegExp,
+	searchKey: string
+): any[] | PromiseLike<any[]> {
+	return listOfCourses.filter(function (item) {
+		if (comparator === "is") {
+			return regex.test(item[searchKey]);
+		} else if (comparator === "isnot") {
+			return !regex.test(item[searchKey]);
+		} else {
+			return Promise.reject(new InsightError("invalid comparator in findCoursesBySComparator"));
+		}
+	});
 }

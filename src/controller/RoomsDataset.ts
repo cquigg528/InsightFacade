@@ -83,7 +83,7 @@ export class RoomsDataset extends Dataset {
 		let zip;
 		try {
 			zip = await jsZip.loadAsync(content, {base64: true});
-		} catch(error) {
+		} catch (error) {
 			return Promise.reject(new InsightError("Not a proper ZIP file!"));
 		}
 		// jsZip.folder() returns an array, so if its length is 0 then there is no folder named courses

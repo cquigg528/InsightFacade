@@ -1,7 +1,14 @@
 import QueryFilter from "./QueryFilter";
 import DatasetSearch from "./DatasetSearch";
 import {InsightError} from "./IInsightFacade";
-import {getValueByTranslation, isEquivalent, onlyNonUnique} from "./QueryUtil";
+import {
+	getValueByTranslation,
+	isEquivalent,
+	onlyNonUnique,
+	computeAggregationResult,
+	negateSearches,
+	negateSubTree,
+} from "./QueryUtil";
 import {CoursesDataset} from "./CoursesDataset";
 const searchKeys: string[] = ["lt", "gt", "eq", "is"];
 export default class QueryDispatch {
@@ -119,7 +126,7 @@ export default class QueryDispatch {
 		} else {
 			this.findAndProcessNot(this.query);
 			let rawResult: any[] = await this.filterCourses(this.query, dataset);
-			let prunedResult = [... new Set(rawResult)];
+			let prunedResult = [...new Set(rawResult)];
 			let result: any[] = this.applyColumnsAndTranslate(prunedResult, dataset.id);
 			return Promise.resolve(result);
 		}
@@ -163,7 +170,8 @@ export default class QueryDispatch {
 						sections = sections.concat(await this.filterCourses(child, dataset));
 					}
 				} else if (query.children.length > 1) {
-					let accum: any, accum1: any = [];
+					let accum: any,
+						accum1: any = [];
 					for (const child of query.children) {
 						const index = query.children.indexOf(child);
 						if (index === 0) {
@@ -205,7 +213,7 @@ export default class QueryDispatch {
 				let retval: any = [];
 				sections.forEach((section) => {
 					accumulator2.forEach((accSection) => {
-						if(isEquivalent(section, accSection)){
+						if (isEquivalent(section, accSection)) {
 							retval.push(section);
 						}
 					});
@@ -218,8 +226,12 @@ export default class QueryDispatch {
 		return sections;
 	}
 
-	public async handleSearch(search: DatasetSearch, dataset: CoursesDataset, searchInSubset: boolean,
-		subset: any[]): Promise<any[]> {
+	public async handleSearch(
+		search: DatasetSearch,
+		dataset: CoursesDataset,
+		searchInSubset: boolean,
+		subset: any[]
+	): Promise<any[]> {
 		if (search.comparator === "is" || search.comparator === "isnot") {
 			if (searchInSubset) {
 				return await dataset.findObjectsBySComparator(search.comparator, search.field, search.value as string,
@@ -245,56 +257,16 @@ export default class QueryDispatch {
 		} else {
 			if (query.self === "NOT") {
 				query.children.forEach((child) => {
-					this.negateSubTree(child);
+					negateSubTree(child);
 				});
 				if (query.searches.length > 0) {
-					this.negateSearches(query.searches);
+					negateSearches(query.searches);
 				}
-
-
 			} else if (query.children.length !== 0) {
 				query.children.forEach((child) => {
 					this.findAndProcessNot(child);
 				});
 			}
 		}
-	}
-
-	public negateSubTree(query: QueryFilter): void {
-		if (query.self === "AND") {
-			query.self = "OR";
-		} else if (query.self === "OR") {
-			query.self = "AND";
-		} else if (query.self === "NOT") {
-			query.self = "NNOT";
-		} else if (query.self === "NNOT") {
-			query.self = "NOT";
-		}
-		if (query.searches.length !== 0) {
-			this.negateSearches(query.searches);
-		}
-		if (query.children.length !== 0) {
-			query.children.forEach((child) => {
-				this.negateSubTree(child);
-			});
-		}
-	}
-
-	public negateSearches(searches: DatasetSearch[]): void {
-		searches.forEach((search) => {
-			if (search.comparator === "lt") {
-				search.comparator = "nlt";
-			} else if (search.comparator === "gt") {
-				search.comparator = "ngt";
-			} else if (search.comparator === "eq") {
-				search.comparator = "neq";
-			} else if (search.comparator === "neq") {
-				search.comparator = "eq";
-			} else if (search.comparator === "is") {
-				search.comparator = "isnot";
-			} else if (search.comparator === "isnot") {
-				search.comparator = "is";
-			}
-		});
 	}
 }
