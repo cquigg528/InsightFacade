@@ -1,6 +1,7 @@
 import QueryDispatch from "./QueryDispatch";
 import {InsightDatasetKind, InsightError} from "./IInsightFacade";
-import {isArray, isObject, validateSort, validateTransform} from "./QueryUtil";
+import {isArray, isObject} from "./QueryUtil";
+import {validateSort, validateTransform} from "./QueryTransformSortUtil";
 const logicKeys = ["AND", "OR"];
 const mCompareKeys = ["LT", "GT", "EQ"];
 const sCompareKey = "IS";

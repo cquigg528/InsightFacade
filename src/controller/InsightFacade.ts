@@ -12,6 +12,7 @@ import {RoomsDataset} from "./RoomsDataset";
 import {CoursesDataset} from "./CoursesDataset";
 import * as fs from "fs-extra";
 import QueryDispatch from "./QueryDispatch";
+import {sortResult} from "./QueryTransformSortUtil";
 
 export default class InsightFacade implements IInsightFacade {
 	private datasets: Dataset[];
@@ -100,27 +101,34 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		// get dataset
-		let dataset: any = this.getDatasetById(validDatasetId);
+		const dataset: any = this.getDatasetById(validDatasetId);
+
+		const sortingRequired = validator.order.length === 0;
 
 		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
 		if (searchResults.length > 5000) {
 			return Promise.reject(new ResultTooLargeError("too many results"));
 		}
 
+		let finalResult: any[];
+		let aggregateResults: any[];
 		// call Brie's function like
 		if (validator.hasTransforms) {
-			// TODO
-			// let aggregateResults = functionCall(searchResults, validQuery.group, validQuery.applyRules);
-
-			// sort
+			// aggregateResults = functionCall(searchResults, validQuery.group, validQuery.applyRules);
 		}
-
-		// TODO implement sorting
-		if (validator.order.length === 0) {
+		if (validator.hasTransforms && sortingRequired) {
+			// finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);
+			// return Promise.resolve(finalResult);
+		} else if (!sortingRequired && validator.hasTransforms) {
+			// return Promise.resolve(aggregateResults);
+		} else if (sortingRequired) {
+			finalResult = sortResult(searchResults, validator.order, validator.orderDir);
+			return Promise.resolve(finalResult);
+		} else {
 			return Promise.resolve(searchResults);
 		}
-		searchResults.sort((a, b) => a.order > b.order ? -1 : ((b.order > a.order ? 1 : 0)));
 
+		// remove this:
 		return Promise.resolve(searchResults);
 	}
 
