@@ -1,0 +1,33 @@
+{
+  "errorMsg": "ORDER key must be in COLUMNS",
+  "title": "extra space",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "LT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_avg"
+      ],
+      "ORDER": "courses_ avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

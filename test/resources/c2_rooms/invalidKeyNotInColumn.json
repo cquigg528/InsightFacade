@@ -1,0 +1,30 @@
+{
+	"title": "invalid courses key in rooms",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_shortname": "*MG*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"rooms_number"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"rooms_number"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_address"
+			],
+			"APPLY": []
+		},
+		"errorExpected": true,
+		"with": "InsightError"
+	}
+}

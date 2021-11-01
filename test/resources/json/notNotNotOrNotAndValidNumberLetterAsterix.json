@@ -1,0 +1,36 @@
+{
+  "title": "not not not or not and valid number letter asterix",
+  "input": {
+    "WHERE": {
+      "NOT": {
+        "NOT": {
+          "NOT": {
+            "OR": [
+              {
+                "NOT": {
+                  "AND": [
+                    {
+                      "IS": {
+                        "courses_dept": "1c*"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": []
+}

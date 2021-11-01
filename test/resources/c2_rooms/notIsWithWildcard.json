@@ -1,0 +1,343 @@
+{
+	"title": "not is wildcard",
+	"input": {
+		"WHERE": {
+			"NOT": {
+				"IS": {
+					"rooms_shortname": "*B*"
+				}
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"countSeats",
+				"countShortname",
+				"minLong",
+				"maxLat",
+				"sumSeats"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"countSeats"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"countSeats": {
+						"COUNT": "rooms_seats"
+					}
+				},
+				{
+					"countShortname": {
+						"COUNT": "rooms_shortname"
+					}
+				},
+				{
+					"minLong": {
+						"MIN": "rooms_lon"
+					}
+				},
+				{
+					"maxLat": {
+						"MAX": "rooms_lat"
+					}
+				},
+				{
+					"sumSeats": {
+						"SUM": "rooms_seats"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"with": [
+		{
+			"rooms_shortname": "AERL",
+			"countSeats": 1,
+			"countShortname": 1,
+			"minLong": -123.25099,
+			"maxLat": 49.26372,
+			"sumSeats": 144
+		},
+		{
+			"rooms_shortname": "CIRS",
+			"countSeats": 1,
+			"countShortname": 1,
+			"minLong": -123.25314,
+			"maxLat": 49.26207,
+			"sumSeats": 426
+		},
+		{
+			"rooms_shortname": "EOSM",
+			"countSeats": 1,
+			"countShortname": 1,
+			"minLong": -123.25198,
+			"maxLat": 49.26228,
+			"sumSeats": 50
+		},
+		{
+			"rooms_shortname": "FRDM",
+			"countSeats": 1,
+			"countShortname": 1,
+			"minLong": -123.24608,
+			"maxLat": 49.26541,
+			"sumSeats": 160
+		},
+		{
+			"rooms_shortname": "MATX",
+			"countSeats": 1,
+			"countShortname": 1,
+			"minLong": -123.254816,
+			"maxLat": 49.266089,
+			"sumSeats": 106
+		},
+		{
+			"rooms_shortname": "SRC",
+			"countSeats": 1,
+			"countShortname": 1,
+			"minLong": -123.24894,
+			"maxLat": 49.2683,
+			"sumSeats": 897
+		},
+		{
+			"rooms_shortname": "AUDX",
+			"countSeats": 2,
+			"countShortname": 1,
+			"minLong": -123.25655,
+			"maxLat": 49.2666,
+			"sumSeats": 41
+		},
+		{
+			"rooms_shortname": "IONA",
+			"countSeats": 2,
+			"countShortname": 1,
+			"minLong": -123.25042,
+			"maxLat": 49.27106,
+			"sumSeats": 150
+		},
+		{
+			"rooms_shortname": "LSC",
+			"countSeats": 2,
+			"countShortname": 1,
+			"minLong": -123.24494,
+			"maxLat": 49.26236,
+			"sumSeats": 825
+		},
+		{
+			"rooms_shortname": "PCOH",
+			"countSeats": 2,
+			"countShortname": 1,
+			"minLong": -123.2559,
+			"maxLat": 49.264,
+			"sumSeats": 240
+		},
+		{
+			"rooms_shortname": "MGYM",
+			"countSeats": 2,
+			"countShortname": 1,
+			"minLong": -123.2466,
+			"maxLat": 49.2663,
+			"sumSeats": 65
+		},
+		{
+			"rooms_shortname": "FORW",
+			"countSeats": 3,
+			"countShortname": 1,
+			"minLong": -123.25179,
+			"maxLat": 49.26176,
+			"sumSeats": 142
+		},
+		{
+			"rooms_shortname": "UCLL",
+			"countSeats": 3,
+			"countShortname": 1,
+			"minLong": -123.25692,
+			"maxLat": 49.26867,
+			"sumSeats": 163
+		},
+		{
+			"rooms_shortname": "ALRD",
+			"countSeats": 4,
+			"countShortname": 1,
+			"minLong": -123.25318,
+			"maxLat": 49.2699,
+			"sumSeats": 228
+		},
+		{
+			"rooms_shortname": "ANSO",
+			"countSeats": 4,
+			"countShortname": 1,
+			"minLong": -123.25741,
+			"maxLat": 49.26958,
+			"sumSeats": 186
+		},
+		{
+			"rooms_shortname": "CHEM",
+			"countSeats": 4,
+			"countShortname": 1,
+			"minLong": -123.25308,
+			"maxLat": 49.2659,
+			"sumSeats": 913
+		},
+		{
+			"rooms_shortname": "DMP",
+			"countSeats": 4,
+			"countShortname": 1,
+			"minLong": -123.24807,
+			"maxLat": 49.26125,
+			"sumSeats": 440
+		},
+		{
+			"rooms_shortname": "LSK",
+			"countSeats": 4,
+			"countShortname": 1,
+			"minLong": -123.25533,
+			"maxLat": 49.26545,
+			"sumSeats": 505
+		},
+		{
+			"rooms_shortname": "LASR",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.25583,
+			"maxLat": 49.26767,
+			"sumSeats": 325
+		},
+		{
+			"rooms_shortname": "HENN",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.25374,
+			"maxLat": 49.26627,
+			"sumSeats": 658
+		},
+		{
+			"rooms_shortname": "SOWK",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.25505,
+			"maxLat": 49.2643,
+			"sumSeats": 201
+		},
+		{
+			"rooms_shortname": "MCLD",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.24935,
+			"maxLat": 49.26176,
+			"sumSeats": 503
+		},
+		{
+			"rooms_shortname": "MATH",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.255534,
+			"maxLat": 49.266463,
+			"sumSeats": 495
+		},
+		{
+			"rooms_shortname": "ORCH",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.24944,
+			"maxLat": 49.26048,
+			"sumSeats": 662
+		},
+		{
+			"rooms_shortname": "PHRM",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.24342,
+			"maxLat": 49.26229,
+			"sumSeats": 538
+		},
+		{
+			"rooms_shortname": "SWNG",
+			"countSeats": 5,
+			"countShortname": 1,
+			"minLong": -123.25431,
+			"maxLat": 49.26293,
+			"sumSeats": 1421
+		},
+		{
+			"rooms_shortname": "CEME",
+			"countSeats": 6,
+			"countShortname": 1,
+			"minLong": -123.24894,
+			"maxLat": 49.26273,
+			"sumSeats": 289
+		},
+		{
+			"rooms_shortname": "FNH",
+			"countSeats": 6,
+			"countShortname": 1,
+			"minLong": -123.24959,
+			"maxLat": 49.26414,
+			"sumSeats": 263
+		},
+		{
+			"rooms_shortname": "SPPH",
+			"countSeats": 6,
+			"countShortname": 1,
+			"minLong": -123.24842,
+			"maxLat": 49.2642,
+			"sumSeats": 166
+		},
+		{
+			"rooms_shortname": "FSC",
+			"countSeats": 7,
+			"countShortname": 1,
+			"minLong": -123.24886,
+			"maxLat": 49.26044,
+			"sumSeats": 621
+		},
+		{
+			"rooms_shortname": "GEOG",
+			"countSeats": 7,
+			"countShortname": 1,
+			"minLong": -123.25623,
+			"maxLat": 49.26605,
+			"sumSeats": 619
+		},
+		{
+			"rooms_shortname": "SCRF",
+			"countSeats": 7,
+			"countShortname": 1,
+			"minLong": -123.2531,
+			"maxLat": 49.26398,
+			"sumSeats": 1004
+		},
+		{
+			"rooms_shortname": "MCML",
+			"countSeats": 8,
+			"countShortname": 1,
+			"minLong": -123.25027,
+			"maxLat": 49.26114,
+			"sumSeats": 573
+		},
+		{
+			"rooms_shortname": "WOOD",
+			"countSeats": 10,
+			"countShortname": 1,
+			"minLong": -123.24673,
+			"maxLat": 49.26478,
+			"sumSeats": 1297
+		},
+		{
+			"rooms_shortname": "ANGU",
+			"countSeats": 15,
+			"countShortname": 1,
+			"minLong": -123.25364,
+			"maxLat": 49.26486,
+			"sumSeats": 1546
+		}
+	]
+}

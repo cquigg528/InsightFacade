@@ -1,0 +1,30 @@
+{
+  "errorMsg": "Invalid key courses_dep_t in IS",
+  "title": "idstring issues2",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_dep_t": "epse"
+          }
+        },
+        {
+          "GT": {
+            "courses_fail_": 1
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

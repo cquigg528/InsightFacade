@@ -1,0 +1,37 @@
+{
+  "errorMsg": "Asterisks (*) can only be the first or last characters of input strings",
+  "title": "not not not or not and invalid",
+  "input": {
+    "WHERE": {
+      "NOT": {
+        "NOT": {
+          "NOT": {
+            "OR": [
+              {
+                "NOT": {
+                  "AND": [
+                    {
+                      "IS": {
+                        "courses_dept": "*_a_*_c_*"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

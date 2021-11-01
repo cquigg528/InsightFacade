@@ -1,0 +1,85 @@
+{
+	"title": "apply all for rooms",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_shortname": "B*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"countSeats",
+				"countShortname",
+				"minLong",
+				"maxLat",
+				"sumSeats"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"countSeats"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"countSeats": {
+						"COUNT": "rooms_seats"
+					}
+				},
+				{
+					"countShortname": {
+						"COUNT": "rooms_shortname"
+					}
+				},
+				{
+					"minLong": {
+						"MIN": "rooms_lon"
+					}
+				},
+				{
+					"maxLat": {
+						"MAX": "rooms_lat"
+					}
+				},
+				{
+					"sumSeats": {
+						"SUM": "rooms_seats"
+					}
+				}
+			]
+		},
+		"errorExpected": false,
+		"with": [
+			{
+				"rooms_shortname": "BRKX",
+				"countSeats": 2,
+				"countShortname": 1,
+				"minLong": -123.25237,
+				"maxLat": 49.26862,
+				"sumSeats": 94
+			},
+			{
+				"rooms_shortname": "BIOL",
+				"countSeats": 3,
+				"countShortname": 1,
+				"minLong": -123.25249,
+				"maxLat": 49.26479,
+				"sumSeats": 336
+			},
+			{
+				"rooms_shortname": "BUCH",
+				"countSeats": 19,
+				"countShortname": 1,
+				"minLong": -123.25468,
+				"maxLat": 49.26826,
+				"sumSeats": 3190
+			}
+		]
+	}
+}

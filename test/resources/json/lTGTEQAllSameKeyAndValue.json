@@ -1,0 +1,34 @@
+{
+  "title": "LT GT EQ all same key and value",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "LT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": []
+}

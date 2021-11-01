@@ -1,0 +1,41 @@
+{
+  "title": "not not not or not and gt lt",
+  "input": {
+    "WHERE": {
+      "NOT": {
+        "NOT": {
+          "NOT": {
+            "OR": [
+              {
+                "NOT": {
+                  "AND": [
+                    {
+                      "GT": {
+                        "courses_avg": 99.9
+                      }
+                    },
+                    {
+                      "LT": {
+                        "courses_avg": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": []
+}

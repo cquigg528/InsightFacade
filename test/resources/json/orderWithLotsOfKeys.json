@@ -1,0 +1,324 @@
+{
+	"title": "group and average valid",
+	"input": {
+		"WHERE": {
+			"OR": [
+				{
+					"IS": {
+						"courses_id": "310"
+					}
+				},
+				{
+					"IS": {
+						"courses_id": "210"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"courses_title",
+				"overallAvg",
+				"maxFail"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"maxFail",
+					"courses_title",
+					"overallAvg"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"courses_title"
+			],
+			"APPLY": [
+				{
+					"overallAvg": {
+						"AVG": "courses_avg"
+					}
+				},
+				{
+					"maxFail": {
+						"MAX": "courses_fail"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"with": [
+		{
+			"courses_title": "sftwr constructn",
+			"overallAvg": 73.99,
+			"maxFail": 76
+		},
+		{
+			"courses_title": "fmly human dvlpm",
+			"overallAvg": 71.12,
+			"maxFail": 44
+		},
+		{
+			"courses_title": "earth&solar sys",
+			"overallAvg": 73.65,
+			"maxFail": 38
+		},
+		{
+			"courses_title": "soil mech i",
+			"overallAvg": 70.6,
+			"maxFail": 24
+		},
+		{
+			"courses_title": "envir & resource",
+			"overallAvg": 69.49,
+			"maxFail": 19
+		},
+		{
+			"courses_title": "explring univ i",
+			"overallAvg": 72.9,
+			"maxFail": 12
+		},
+		{
+			"courses_title": "envir & sust",
+			"overallAvg": 74.5,
+			"maxFail": 12
+		},
+		{
+			"courses_title": "d&fblck chem&app",
+			"overallAvg": 66.68,
+			"maxFail": 11
+		},
+		{
+			"courses_title": "vascular plants",
+			"overallAvg": 71.49,
+			"maxFail": 10
+		},
+		{
+			"courses_title": "for plant bio ii",
+			"overallAvg": 69.38,
+			"maxFail": 9
+		},
+		{
+			"courses_title": "chem elements",
+			"overallAvg": 69.23,
+			"maxFail": 9
+		},
+		{
+			"courses_title": "intro math compu",
+			"overallAvg": 70,
+			"maxFail": 8
+		},
+		{
+			"courses_title": "intr sftwr eng",
+			"overallAvg": 78.25,
+			"maxFail": 8
+		},
+		{
+			"courses_title": "abstr linear alg",
+			"overallAvg": 66.19,
+			"maxFail": 8
+		},
+		{
+			"courses_title": "parliament&party",
+			"overallAvg": 70.52,
+			"maxFail": 7
+		},
+		{
+			"courses_title": "intro mdvl studi",
+			"overallAvg": 73.22,
+			"maxFail": 7
+		},
+		{
+			"courses_title": "earth sci eng",
+			"overallAvg": 72.3,
+			"maxFail": 7
+		},
+		{
+			"courses_title": "microeconomics",
+			"overallAvg": 76.96,
+			"maxFail": 6
+		},
+		{
+			"courses_title": "intro cptnl phys",
+			"overallAvg": 81.12,
+			"maxFail": 5
+		},
+		{
+			"courses_title": "brit emp to 1850",
+			"overallAvg": 72.03,
+			"maxFail": 5
+		},
+		{
+			"courses_title": "surf min des",
+			"overallAvg": 74.14,
+			"maxFail": 4
+		},
+		{
+			"courses_title": "microecon policy",
+			"overallAvg": 72.98,
+			"maxFail": 4
+		},
+		{
+			"courses_title": "intm japn i a",
+			"overallAvg": 72.46,
+			"maxFail": 4
+		},
+		{
+			"courses_title": "",
+			"overallAvg": 75.28,
+			"maxFail": 4
+		},
+		{
+			"courses_title": "silent cinema",
+			"overallAvg": 74.86,
+			"maxFail": 3
+		},
+		{
+			"courses_title": "early cinema",
+			"overallAvg": 75.08,
+			"maxFail": 3
+		},
+		{
+			"courses_title": "digital arts",
+			"overallAvg": 74.99,
+			"maxFail": 3
+		},
+		{
+			"courses_title": "visual clim chng",
+			"overallAvg": 78.1,
+			"maxFail": 2
+		},
+		{
+			"courses_title": "pol & self-dtrmn",
+			"overallAvg": 76.39,
+			"maxFail": 2
+		},
+		{
+			"courses_title": "int global citiz",
+			"overallAvg": 80.35,
+			"maxFail": 2
+		},
+		{
+			"courses_title": "drama perform",
+			"overallAvg": 78.17,
+			"maxFail": 2
+		},
+		{
+			"courses_title": "drama ideas i",
+			"overallAvg": 77.02,
+			"maxFail": 2
+		},
+		{
+			"courses_title": "digital arts i",
+			"overallAvg": 74.01,
+			"maxFail": 2
+		},
+		{
+			"courses_title": "orchestration",
+			"overallAvg": 77.74,
+			"maxFail": 1
+		},
+		{
+			"courses_title": "inter germ iv",
+			"overallAvg": 79.81,
+			"maxFail": 1
+		},
+		{
+			"courses_title": "inter germ ii",
+			"overallAvg": 79.08,
+			"maxFail": 1
+		},
+		{
+			"courses_title": "hst & thry rhtrc",
+			"overallAvg": 78.41,
+			"maxFail": 1
+		},
+		{
+			"courses_title": "eating culture",
+			"overallAvg": 76.25,
+			"maxFail": 1
+		},
+		{
+			"courses_title": "animal behaviour",
+			"overallAvg": 79.71,
+			"maxFail": 1
+		},
+		{
+			"courses_title": "theory seminar",
+			"overallAvg": 79.82,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "sr rsrch project",
+			"overallAvg": 86.84,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "soil biology",
+			"overallAvg": 79.36,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "rhetoric theory1",
+			"overallAvg": 77.93,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "pro is in midwif",
+			"overallAvg": 84.6,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "music education",
+			"overallAvg": 87.78,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "issus gndr&hlth",
+			"overallAvg": 81.57,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "intro engl honrs",
+			"overallAvg": 85.16,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "interviewing skl",
+			"overallAvg": 83.73,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "intermed port",
+			"overallAvg": 88.25,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "int swedish 2",
+			"overallAvg": 82.75,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "int danish 2",
+			"overallAvg": 78.66,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "images in texts",
+			"overallAvg": 77.21,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "dt hy th & pr ii",
+			"overallAvg": 81.86,
+			"maxFail": 0
+		},
+		{
+			"courses_title": "d hg th & pr iii",
+			"overallAvg": 80.84,
+			"maxFail": 0
+		}
+	]
+}

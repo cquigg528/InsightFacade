@@ -1,0 +1,30 @@
+{
+  "errorMsg": "Referenced dataset \"c\" not added yet",
+  "title": "idstring issues3",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "IS": {
+            "courses_dept": "epse"
+          }
+        },
+        {
+          "GT": {
+            "courses_fail": 1
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "c_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

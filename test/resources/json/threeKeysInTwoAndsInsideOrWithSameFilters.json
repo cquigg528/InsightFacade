@@ -1,0 +1,98 @@
+{
+  "title": "three keys in two ands inside or with same filters",
+  "input": {
+    "WHERE": {
+      "OR": [
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 90
+              }
+            },
+            {
+              "LT": {
+                "courses_avg": 91
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "adhe"
+              }
+            }
+          ]
+        },
+        {
+          "AND": [
+            {
+              "GT": {
+                "courses_avg": 90
+              }
+            },
+            {
+              "LT": {
+                "courses_avg": 91
+              }
+            },
+            {
+              "IS": {
+                "courses_dept": "adhe"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": false,
+  "with": [
+    {
+      "courses_dept": "adhe",
+      "courses_id": "329",
+      "courses_avg": 90.02
+    },
+    {
+      "courses_dept": "adhe",
+      "courses_id": "412",
+      "courses_avg": 90.16
+    },
+    {
+      "courses_dept": "adhe",
+      "courses_id": "330",
+      "courses_avg": 90.17
+    },
+    {
+      "courses_dept": "adhe",
+      "courses_id": "412",
+      "courses_avg": 90.18
+    },
+    {
+      "courses_dept": "adhe",
+      "courses_id": "330",
+      "courses_avg": 90.5
+    },
+    {
+      "courses_dept": "adhe",
+      "courses_id": "330",
+      "courses_avg": 90.72
+    },
+    {
+      "courses_dept": "adhe",
+      "courses_id": "329",
+      "courses_avg": 90.82
+    },
+    {
+      "courses_dept": "adhe",
+      "courses_id": "330",
+      "courses_avg": 90.85
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+	"title": "invalid courses key in rooms",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_shortname": "*MG*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"countSeats",
+				"countShortname",
+				"minLong",
+				"maxLat",
+				"sumSeats"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"countSeats"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"countSeats": {
+						"COUNT": "rooms_seats"
+					}
+				},
+				{
+					"countShortname": {
+						"COUNT": "rooms_shortname"
+					}
+				},
+				{
+					"minLong": {
+						"MIN": "rooms_lon"
+					}
+				},
+				{
+					"maxLat": {
+						"MAX": "rooms_lat"
+					}
+				},
+				{
+					"sumSeats": {
+						"SUM": "rooms_seats"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"with": [
+		{
+			"rooms_shortname": "MGYM",
+			"countSeats": 2,
+			"countShortname": 1,
+			"minLong": -123.2466,
+			"maxLat": 49.2663,
+			"sumSeats": 65
+		}
+	]
+}

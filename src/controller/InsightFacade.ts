@@ -24,6 +24,7 @@ export default class InsightFacade implements IInsightFacade {
 		this.datasetIds = [];
 	}
 
+
 	// Requires id to be valid
 	public getDatasetById(id: string): Dataset | null {
 		for (let dataset of this.datasets) {

@@ -1,0 +1,35 @@
+{
+  "errorMsg": "Cannot query more than one dataset",
+  "title": "capitalized Courses error",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "LT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "GT": {
+            "Courses_audit": 10
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_dept",
+        "courses_id",
+        "courses_avg"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}

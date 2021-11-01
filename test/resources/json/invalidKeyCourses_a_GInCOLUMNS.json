@@ -1,0 +1,33 @@
+{
+  "errorMsg": "Invalid key courses_a*g in COLUMNS",
+  "title": "Invalid key courses_a*g in COLUMNS",
+  "input": {
+    "WHERE": {
+      "AND": [
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "LT": {
+            "courses_audit": 10
+          }
+        },
+        {
+          "GT": {
+            "courses_audit": 10
+          }
+        }
+      ]
+    },
+    "OPTIONS": {
+      "COLUMNS": [
+        "courses_a*g"
+      ],
+      "ORDER": "courses_avg"
+    }
+  },
+  "errorExpected": true,
+  "with": "InsightError"
+}
