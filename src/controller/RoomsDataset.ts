@@ -6,12 +6,6 @@ import * as fs from "fs-extra";
 
 // import parse5 from "parse5";
 
-interface GeoResponse {
-	lat?: number;
-	lon?: number;
-	error?: string;
-}
-
 interface RoomInterface {
 	fullname: string | undefined;
 	shortname: string | undefined;
@@ -128,7 +122,6 @@ export class RoomsDataset extends Dataset {
 					addresses.push(td.childNodes[0].value.trim());
 			}
 		}
-		// hrefs = [...new Set(hrefs.flat(1).filter((item) => (!(item === undefined ))))];
 		let twoDSections: any[] = await this.processBuildings(hrefs, shortnames, fullnames, addresses, zip, parse5);
 		let sections: any[] = twoDSections.flat(1).filter((item) => (!(item === undefined )));
 		this.dataset = sections;
@@ -224,7 +217,7 @@ export class RoomsDataset extends Dataset {
 			let str = filename;
 			let n = str.lastIndexOf("/");
 			let result = str.substring(n + 1);
-			await fs.writeJSON(`${path}${result}`, jsonObject);
+			await fs.writeJSON(`${path}${jsonObject.name}`, jsonObject);
 			return Promise.resolve(jsonObject);
 		} else {
 			return;
