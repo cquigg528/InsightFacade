@@ -1,5 +1,7 @@
+
 import DatasetSearch from "./DatasetSearch";
 import QueryFilter from "./QueryFilter";
+
 // from http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
 import QueryDispatch from "./QueryDispatch";
 import { QueryValidator } from "./QueryValidator";

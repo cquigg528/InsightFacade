@@ -128,7 +128,6 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.resolve(searchResults);
 		}
 
-		// remove this:
 		return Promise.resolve(searchResults);
 	}
 
