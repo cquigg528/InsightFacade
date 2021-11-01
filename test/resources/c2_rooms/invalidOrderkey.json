@@ -53,8 +53,9 @@
 					}
 				}
 			]
-		},
+		}
+	},
 		"errorExpected": false,
 		"with": "InsightError"
-	}
 }
+

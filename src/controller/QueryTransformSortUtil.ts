@@ -41,7 +41,7 @@ function validateTransform(parsedQuery: QueryDispatch, transObj: any, mkeys: str
 					}
 					let innerApplyValid = checkInnerApply(Object.values(applyObj)[0], mkeys, skeys);
 					if (innerApplyValid) {
-						parsedQuery.applyRules.push(Object.values(applyObj)[0]);
+						parsedQuery.applyRules.push(applyObj);
 					} else {
 						return false;
 					}
@@ -87,16 +87,16 @@ function validateSort(validator: QueryValidator, order: any, columns: string[]):
 				if (sortkey !== sortKeys[i]) {
 					validator.validOptions = false;
 				} else if (i === 0) {
-					if (order.sortkey !== "UP" && order.sortkey !== "DOWN") {
+					if (order[sortkey] !== "UP" && order[sortkey] !== "DOWN") {
 						validator.validOptions = false;
 					} else {
-						validator.orderDir = order.sortkey;
+						validator.orderDir = order[sortkey];
 					}
 				} else if (i === 1) {
-					if (typeof order.sortkey === "string" && columns.includes(order.sortkey)) {
-						validator.order.push(order.sortkey);
-					} else if (isArray(order.sortkey)) {
-						order.sortkey.forEach((key: string) => {
+					if (typeof order[sortkey] === "string" && columns.includes(order[sortkey])) {
+						validator.order.push(order[sortkey]);
+					} else if (isArray(order[sortkey])) {
+						order[sortkey].forEach((key: string) => {
 							if (columns.includes(key)) {
 								validator.order.push(key);
 							} else {

@@ -113,9 +113,10 @@ function getTransformed(set: Set<any>, applyRules: any[]): any[] {
 	}
 
 	applyRules.forEach((namedTransformer) => {
-		opNames.push(namedTransformer.key);
-		operations.push(namedTransformer.key.key);
-		targetCols.push(namedTransformer.key.value);
+		let innerObj: any = Object.values(namedTransformer)[0];
+		opNames.push(Object.keys(namedTransformer)[0]);
+		operations.push(Object.keys(innerObj)[0]);
+		targetCols.push(Object.values(innerObj)[0] as string);
 	});
 
 	for (let i = 0; i < opNames.length; i++) {

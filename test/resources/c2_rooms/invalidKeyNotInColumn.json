@@ -23,8 +23,9 @@
 				"rooms_address"
 			],
 			"APPLY": []
-		},
+		}
+	},
 		"errorExpected": true,
 		"with": "InsightError"
-	}
 }
+

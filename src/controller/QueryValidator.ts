@@ -55,14 +55,14 @@ export class QueryValidator {
 				"furniture", "href"];
 			if (courseFields.includes(field)) {
 				validColumnKeysCourses = queryKeyList.every((key: string) =>
-					key.includes("_") ? courseFields.includes(key.split("_")[1]) : false);
+					key.includes("_") ? courseFields.includes(key.split("_")[1]) : true);
 				if (validColumnKeysCourses) {
 					this.mkeys = [id + "_avg", id + "_pass", id + "_fail", id + "_audit", id + "_year"];
 					this.skeys = [id + "_dept", id + "_id", id + "_instructor", id + "_title", id + "_uuid"];
 				}
 			} else if (roomFields.includes(field)) {
 				validColumnKeysRooms = queryKeyList.every((key: string) =>
-					key.includes("_") ? roomFields.includes(key.split("_")[1]) : false);
+					key.includes("_") ? roomFields.includes(key.split("_")[1]) : true);
 				if (validColumnKeysRooms) {
 					this.mkeys = [id + "_lat", id + "_lon", id + "_seats"];
 					this.skeys = [id + "_fullname", id + "_shortname", id + "_number", id + "_name", id + "_address",
@@ -273,12 +273,12 @@ export class QueryValidator {
 						this.validOptions = false;
 					} else if (obj[key].length === 0) {
 						this.validOptions = false;
-					} else {
-						obj[key].forEach((column: string) => {
-							if (!this.mkeys.concat(this.skeys).includes(column)) {
-								this.validOptions = false;
-							}
-						});
+					// } else {
+					// 	obj[key].forEach((column: string) => {
+					// 		if (key.includes("_") && !this.mkeys.concat(this.skeys).includes(column)) {
+					// 			this.validOptions = false;
+					// 		}
+					// 	});
 					}
 				} else if (index === 1 && isArray(obj.COLUMNS)) {
 					hasOrder = true;

@@ -1,6 +1,7 @@
 {
 	"title": "apply all for rooms",
-	"input": {
+	"input":
+	{
 		"WHERE": {
 			"IS": {
 				"rooms_shortname": "B*"
@@ -53,7 +54,8 @@
 					}
 				}
 			]
-		},
+		}
+	},
 		"errorExpected": false,
 		"with": [
 			{
@@ -82,4 +84,3 @@
 			}
 		]
 	}
-}
