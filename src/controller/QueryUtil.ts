@@ -66,4 +66,13 @@ function onlyNonUnique(value: any, ind: any, self: any) {
 	return !(self.indexOf(value) === ind);
 }
 
-export{isEquivalent, getValueByTranslation, onlyNonUnique};
+// code based off of example found at https://davidwells.io/snippets/traverse-object-unknown-size-javascript
+function isArray(arr: any): boolean {
+	return Object.prototype.toString.call(arr) === "[object Array]";
+}
+
+function isObject(obj: any): boolean {
+	return Object.prototype.toString.call(obj) === "[object Object]";
+}
+
+export{isEquivalent, getValueByTranslation, onlyNonUnique, isObject, isArray};
