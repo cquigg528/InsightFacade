@@ -46,12 +46,44 @@ export class CoursesDataset extends Dataset {
 				continue;
 			}
 			// add json object to dataset
-			promises.push(this.addJSONObjectToDataset(jsonObject, filename));
+			if (!(!(Object.keys(jsonObject).includes("result")) || jsonObject.result.length === 0)) {
+				promises.push(this.addJSONObjectToDataset(jsonObject.result, filename));
+			}
 		}
 		let twoDSections: any[] = await Promise.all(promises);
 		let sections: any[] = twoDSections.flat(1).filter((item) => (!(item === undefined )));
 		this.dataset = sections;
 		return sections;
+	}
+
+	protected async addJSONObjectToDataset(jsonObject: any, filename: string): Promise<Promise<any[]> | undefined> {
+			// add all the sections one by one to the datasetObj
+		let retval: any[] = [];
+		for (let [index, section] of jsonObject.entries()) {
+			if (this.validateObject(section)) {
+				this.addObject();
+				retval.push(jsonObject[index]);
+			} else {
+				delete jsonObject[index];
+			}
+		}
+			// write the course to ./data/ folder
+		let path = `./data/${this.id}/`;
+		await fs.promises.mkdir(path, {recursive: true});
+			// code adapted from https://stackoverflow.com/questions/8376525/get-value-of-a-string-after-last-slash-in-javascript
+		let str = filename;
+		let n = str.lastIndexOf("/");
+		let result = str.substring(n + 1);
+		await fs.writeJSON(`${path}${result}`, jsonObject);
+		return Promise.resolve(retval);
+	}
+
+	protected validateObject(val: any): boolean {
+		// code adapted from https://stackoverflow.com/questions/54881865/check-if-multiple-keys-exists-in-json-object
+		// Ensures that the section has all parameters that we will need
+		let neededKeys = ["Subject", "Course", "Avg", "Professor", "Title", "Pass", "Fail",
+			"Audit", "Section", "Year"];
+		return neededKeys.every((key) => Object.keys(val).includes(key));
 	}
 
 	public deleteDataset(): void {
