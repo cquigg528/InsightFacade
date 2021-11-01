@@ -13,6 +13,7 @@ import {CoursesDataset} from "./CoursesDataset";
 import * as fs from "fs-extra";
 import QueryDispatch from "./QueryDispatch";
 import {sortResult} from "./QueryTransformSortUtil";
+import {computeAggregationResult} from "./QueryUtil";
 
 export default class InsightFacade implements IInsightFacade {
 	private datasets: Dataset[];
@@ -111,24 +112,22 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		let finalResult: any[];
-		let aggregateResults: any[];
+		let aggregateResults: any[] = [];
 		// call Brie's function like
 		if (validator.hasTransforms) {
-			// aggregateResults = functionCall(searchResults, validQuery.group, validQuery.applyRules);
+			aggregateResults = computeAggregationResult(searchResults, validQuery.group, validQuery.applyRules);
 		}
 		if (validator.hasTransforms && sortingRequired) {
-			// finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);
-			// return Promise.resolve(finalResult);
+			finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);
+			return Promise.resolve(finalResult);
 		} else if (!sortingRequired && validator.hasTransforms) {
-			// return Promise.resolve(aggregateResults);
+			return Promise.resolve(aggregateResults);
 		} else if (sortingRequired) {
 			finalResult = sortResult(searchResults, validator.order, validator.orderDir);
 			return Promise.resolve(finalResult);
 		} else {
 			return Promise.resolve(searchResults);
 		}
-
-		return Promise.resolve(searchResults);
 	}
 
 	/**
