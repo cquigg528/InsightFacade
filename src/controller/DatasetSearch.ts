@@ -1,5 +1,7 @@
 export type Comparator = "lt" | "gt" | "nlt" | "ngt" | "eq" | "is" | "isnot" | "neq";
-type Field = "avg" | "pass" | "fail" | "audit" | "year" | "dept" | "id" | "instructor" | "title" | "uuid";
+type Field = "avg" | "pass" | "fail" | "audit" | "year" | "dept" | "id" | "instructor" | "title" | "uuid"
+				| "fullname" | "shortname" | "number" | "name" | "address" | "lat" | "lon" | "seats" | "type"
+				| "furniture" | "href";
 
 export default class DatasetSearch {
 	public comparator: Comparator;
