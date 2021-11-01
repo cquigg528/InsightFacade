@@ -51,6 +51,7 @@ function getValueByTranslation(section: any, queryKey: string): number | string 
 			searchKey = "Title";
 			break;
 		default:
+			searchKey = propKey;
 	}
 	if(searchKey === "Year") {
 		if(section["Section"] === "overall"){

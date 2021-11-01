@@ -287,7 +287,7 @@ export class QueryValidator {
 			}
 		});
 		if (this.validOptions) {
-			return obj.columns;
+			return obj.COLUMNS;
 		}
 		return [];
 	}

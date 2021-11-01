@@ -129,6 +129,7 @@ export default class QueryDispatch {
 		let result: any[] = [];
 		sections.forEach((sectionObj) => {
 			let newObject: any = {};
+			// console.log(this.columns);
 			this.columns.forEach((queryKey) => {
 				newObject[queryKey] = getValueByTranslation(sectionObj, queryKey);
 			});
