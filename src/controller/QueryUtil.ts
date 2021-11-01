@@ -1,6 +1,11 @@
+
 import DatasetSearch from "./DatasetSearch";
 import QueryFilter from "./QueryFilter";
+
 // from http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
+import QueryDispatch from "./QueryDispatch";
+import {QueryValidator} from "./QueryValidator";
+
 function isEquivalent(a: any, b: any): boolean {
 	let aProps = Object.getOwnPropertyNames(a);
 	let bProps = Object.getOwnPropertyNames(b);
@@ -50,6 +55,7 @@ function getValueByTranslation(section: any, queryKey: string): number | string 
 			searchKey = "Title";
 			break;
 		default:
+			searchKey = propKey;
 	}
 	if (searchKey === "Year") {
 		if (section["Section"] === "overall") {
@@ -66,6 +72,7 @@ function getValueByTranslation(section: any, queryKey: string): number | string 
 function onlyNonUnique(value: any, ind: any, self: any) {
 	return !(self.indexOf(value) === ind);
 }
+
 
 function computeAggregationResult(searchResult: any[], group: string[], applyRules: any[]): any[] {
 	let groupedResult: any[] = groupResult(searchResult, group);
@@ -207,4 +214,15 @@ function negateSubTree(query: QueryFilter): void {
 	}
 }
 
-export {isEquivalent, getValueByTranslation, onlyNonUnique, computeAggregationResult, negateSearches, negateSubTree};
+// code based off of example found at https://davidwells.io/snippets/traverse-object-unknown-size-javascript
+function isArray(arr: any): boolean {
+	return Object.prototype.toString.call(arr) === "[object Array]";
+}
+
+function isObject(obj: any): boolean {
+	return Object.prototype.toString.call(obj) === "[object Object]";
+}
+
+
+export{isEquivalent, getValueByTranslation, onlyNonUnique, isObject, isArray, computeAggregationResult, negateSearches, negateSubTree};
+

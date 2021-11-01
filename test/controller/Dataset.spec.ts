@@ -26,7 +26,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "avg", 70, false, []);
+					return dataset.findObjectsByMComparator("gt", "avg", 70, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -192,7 +192,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "avg", 50, false, []);
+					return dataset.findObjectsByMComparator("lt", "avg", 50, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -244,7 +244,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "avg", 90, false, []);
+					return dataset.findObjectsByMComparator("eq", "avg", 90, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -296,7 +296,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "pass", 29, false, []);
+					return dataset.findObjectsByMComparator("gt", "pass", 29, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -386,7 +386,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "pass", 29, false, []);
+					return dataset.findObjectsByMComparator("lt", "pass", 29, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -628,7 +628,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "pass", 29, false, []);
+					return dataset.findObjectsByMComparator("eq", "pass", 29, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -680,7 +680,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "fail", 12, false, []);
+					return dataset.findObjectsByMComparator("gt", "fail", 12, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -846,7 +846,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "fail", 12, false, []);
+					return dataset.findObjectsByMComparator("lt", "fail", 12, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1013,7 +1013,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "fail", 22, false, []);
+					return dataset.findObjectsByMComparator("eq", "fail", 22, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1065,7 +1065,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "audit", 9, false, []);
+					return dataset.findObjectsByMComparator("gt", "audit", 9, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1345,7 +1345,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "audit", 9, false, []);
+					return dataset.findObjectsByMComparator("lt", "audit", 9, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1397,7 +1397,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "audit", 9, false, []);
+					return dataset.findObjectsByMComparator("eq", "audit", 9, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1449,7 +1449,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "year", 2015, false, []);
+					return dataset.findObjectsByMComparator("gt", "year", 2015, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1577,7 +1577,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("lt", "year", 2015, false, []);
+					return dataset.findObjectsByMComparator("lt", "year", 2015, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1705,7 +1705,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("eq", "year", 2015, false, []);
+					return dataset.findObjectsByMComparator("eq", "year", 2015, false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1833,7 +1833,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesByMComparator("gt", "avg", 101, false, []);
+					return dataset.findObjectsByMComparator("gt", "avg", 101, false, []);
 				})
 				.then((listofCourses) => {
 					expect(listofCourses).to.deep.equal([]);
@@ -1853,7 +1853,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("is", "instructor", "San", false, []);
+					return dataset.findObjectsBySComparator("is", "instructor", "San", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -1982,7 +1982,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("is", "dept", "CPSC", false, []);
+					return dataset.findObjectsBySComparator("is", "dept", "CPSC", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2111,7 +2111,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("is", "id", "504", false, []);
+					return dataset.findObjectsBySComparator("is", "id", "504", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2354,7 +2354,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("is", "uuid", "002", false, []);
+					return dataset.findObjectsBySComparator("is", "uuid", "31379", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2483,7 +2483,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("is", "instructor", "alice", false, []);
+					return dataset.findObjectsBySComparator("is", "instructor", "alice", false, []);
 				})
 				.then((listofCourses) => {
 					expect(listofCourses).to.deep.equal([]);
@@ -2494,7 +2494,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("is", "instructor", "*an", false, []);
+					return dataset.findObjectsBySComparator("is", "instructor", "*an", false, []);
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -2737,356 +2737,11 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.findCoursesBySComparator("is", "uuid", "00*", false, []);
+					return dataset.findObjectsBySComparator("is", "uuid", "00*", false, []);
 				})
 				.then((listofCourses) => {
-					const expectedCourses = [
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "Intro to Software Engineering",
-							Section: "002",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31379,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "Krentas",
-							Audit: 9,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2015",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "310",
-							Session: "w",
-							Pass: 9,
-							Fail: 1,
-							Avg: 70,
-							Campus: "ubc",
-							Subject: "cpsc",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "Intro to Software Engineering",
-							Section: "001",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31380,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "San",
-							Audit: 10,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2015",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "310",
-							Session: "w",
-							Pass: 11,
-							Fail: 3,
-							Avg: 69,
-							Campus: "ubc",
-							Subject: "cpsc",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "Intro to Software Engineering",
-							Section: "003",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31380,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "Xanotan",
-							Audit: 8,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2015",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "310",
-							Session: "w",
-							Pass: 10,
-							Fail: 2,
-							Avg: 71,
-							Campus: "ubc",
-							Subject: "cpsc",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "Atoms and Stuff",
-							Section: "002",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31379,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "Xanotan",
-							Audit: 19,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2014",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "504",
-							Session: "w",
-							Pass: 19,
-							Fail: 11,
-							Avg: 90,
-							Campus: "ubc",
-							Subject: "phys",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "Atoms and Stuff",
-							Section: "001",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31380,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "Krentas",
-							Audit: 20,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2014",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "504",
-							Session: "w",
-							Pass: 21,
-							Fail: 13,
-							Avg: 89,
-							Campus: "ubc",
-							Subject: "phys",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "Atoms and Stuff",
-							Section: "003",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31380,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "San",
-							Audit: 18,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2014",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "504",
-							Session: "w",
-							Pass: 20,
-							Fail: 12,
-							Avg: 91,
-							Campus: "ubc",
-							Subject: "phys",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "A Real Analysis of Real Analysis",
-							Section: "002",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31379,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "San",
-							Audit: 29,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2016",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "504",
-							Session: "w",
-							Pass: 29,
-							Fail: 21,
-							Avg: 50,
-							Campus: "ubc",
-							Subject: "math",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "A Real Analysis of Real Analysis",
-							Section: "001",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31380,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "Xanotan",
-							Audit: 30,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2016",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "504",
-							Session: "w",
-							Pass: 31,
-							Fail: 23,
-							Avg: 49,
-							Campus: "ubc",
-							Subject: "math",
-						},
-						{
-							tier_eighty_five: 1,
-							tier_ninety: 8,
-							Title: "A Real Analysis of Real Analysis",
-							Section: "003",
-							Detail: "",
-							tier_seventy_two: 0,
-							Other: 1,
-							Low: 89,
-							tier_sixty_four: 0,
-							id: 31380,
-							tier_sixty_eight: 0,
-							tier_zero: 0,
-							tier_seventy_six: 0,
-							tier_thirty: 0,
-							tier_fifty: 0,
-							Professor: "Krentas",
-							Audit: 28,
-							tier_g_fifty: 0,
-							tier_forty: 0,
-							Withdrew: 1,
-							Year: "2016",
-							tier_twenty: 0,
-							Stddev: 2.65,
-							Enrolled: 20,
-							tier_fifty_five: 0,
-							tier_eighty: 0,
-							tier_sixty: 0,
-							tier_ten: 0,
-							High: 98,
-							Course: "504",
-							Session: "w",
-							Pass: 30,
-							Fail: 22,
-							Avg: 51,
-							Campus: "ubc",
-							Subject: "math",
-						},
-					];
-					expect(listofCourses).to.be.an.instanceof(Array);
-					expect(listofCourses).to.have.length(9);
-					expect(listofCourses).to.have.deep.members(expectedCourses);
+					const expectedCourses: never[] = [];
+					expect(listofCourses).to.deep.equal(expectedCourses);
 				});
 		});
 	});
@@ -3103,7 +2758,7 @@ describe("Dataset", function () {
 			return dataset
 				.loadDataset(courses)
 				.then(() => {
-					return dataset.getAllCourses();
+					return dataset.getAllObjects();
 				})
 				.then((listofCourses) => {
 					const expectedCourses = [
@@ -3457,7 +3112,7 @@ describe("Dataset", function () {
 		});
 
 		it("should fail because the dataset does not exist", function () {
-			return expect(dataset.getAllCourses()).eventually.to.be.rejectedWith(Error);
+			return expect(dataset.getAllObjects()).eventually.to.be.rejectedWith(Error);
 		});
 	});
 });

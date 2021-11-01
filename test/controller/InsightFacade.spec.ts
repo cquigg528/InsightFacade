@@ -131,6 +131,35 @@ describe("InsightFacade", function () {
 					});
 				});
 		});
+
+		it("should list a courses dataset and a rooms dataset", function () {
+			return facade
+				.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+				.then(() => {
+					return facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+				})
+				.then(() => {
+					return facade.listDatasets();
+				})
+				.then((insightDatasets) => {
+					const expectedDatasets: InsightDataset[] = [
+						{
+							id: "courses",
+							kind: InsightDatasetKind.Courses,
+							numRows: 64612,
+						},
+						{
+							id: "rooms",
+							kind: InsightDatasetKind.Rooms,
+							numRows: 364,
+						},
+					];
+
+					expect(insightDatasets).to.have.deep.members(expectedDatasets);
+					expect(insightDatasets).to.be.an.instanceof(Array);
+					expect(insightDatasets).to.have.length(2);
+				});
+		});
 	});
 
 	describe("Remove Dataset", function () {
