@@ -326,10 +326,10 @@ describe("InsightFacade", function () {
 	describe("Perform Query Dynamic Tests", function () {
 		let facade: InsightFacade;
 
-		before(function () {
+		before(async function () {
 			clearDisk();
 			facade = new InsightFacade();
-			facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses);
+			await facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses);
 		});
 
 		testFolder<Input, Output, Error>(
@@ -362,10 +362,10 @@ describe("InsightFacade", function () {
 	describe("Perform Query C2 Rooms Dynamic Tests", function () {
 		let facade: InsightFacade;
 
-		before(function () {
+		before(async function () {
 			clearDisk();
 			facade = new InsightFacade();
-			facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+			await facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
 		});
 
 		testFolder<Input, Output, Error>(
@@ -394,7 +394,6 @@ describe("InsightFacade", function () {
 			}
 		);
 	});
-
 
 	describe("Add Dataset", function () {
 		let coursesWithInvalidJson: string;
