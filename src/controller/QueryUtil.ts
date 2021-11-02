@@ -224,5 +224,5 @@ function isObject(obj: any): boolean {
 }
 
 
-export { isEquivalent, getValueByTranslation, onlyNonUnique,
-	computeAggregationResult, negateSearches, negateSubTree, isObject, isArray };
+export {isEquivalent, getValueByTranslation, onlyNonUnique,
+	computeAggregationResult, negateSearches, negateSubTree, isObject, isArray};
