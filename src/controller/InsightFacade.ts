@@ -105,7 +105,7 @@ export default class InsightFacade implements IInsightFacade {
 		// get dataset
 		const dataset: any = this.getDatasetById(validDatasetId);
 
-		const sortingRequired = validator.order.length === 0;
+		const sortingRequired = validator.order.length !== 0;
 
 		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
 		if (searchResults.length > 5000) {
