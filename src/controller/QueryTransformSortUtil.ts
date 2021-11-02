@@ -118,10 +118,10 @@ function validateSort(validator: QueryValidator, order: any, columns: string[]):
 
 function sortResult(searchResults: any[], order: string[], dir: string): any[] {
 	for (let sortKey of order.reverse()) {
-		if (dir === "UP") {
-			searchResults.sort((a, b) => a.sortKey > b.sortKey ? 1 : ((b.sortKey > a.sortKey ? -1 : 0)));
+		if (dir === "DOWN") {
+			searchResults.sort((a, b) => a[sortKey] > b[sortKey] ? -1 : ((b[sortKey] > a[sortKey] ? 1 : 0)));
 		} else {
-			searchResults.sort((a, b) => a.sortKey > b.sortKey ? -1 : ((b.sortKey > a.sortKey ? 1 : 0)));
+			searchResults.sort((a, b) => a[sortKey] > b[sortKey] ? 1 : ((b[sortKey] > a[sortKey] ? -1 : 0)));
 		}
 	}
 	return searchResults;
