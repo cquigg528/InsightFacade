@@ -116,8 +116,7 @@ export default class InsightFacade implements IInsightFacade {
 		let aggregateResults: any[] = [];
 		// call Brie's function like
 		if (validator.hasTransforms) {
-			aggregateResults = computeAggregationResult(searchResults, validQuery.group,
-				validQuery.applyRules, validQuery.columns);
+			aggregateResults = computeAggregationResult(searchResults, validQuery.group, validQuery.applyRules);
 		}
 		if (validator.hasTransforms && sortingRequired) {
 			finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);

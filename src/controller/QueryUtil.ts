@@ -5,9 +5,6 @@ import QueryFilter from "./QueryFilter";
 // from http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
 import QueryDispatch from "./QueryDispatch";
 import { QueryValidator } from "./QueryValidator";
-import { privateEncrypt } from "crypto";
-import { stringify } from "querystring";
-import { group } from "console";
 
 function isEquivalent(a: any, b: any): boolean {
 	let aProps = Object.getOwnPropertyNames(a);
@@ -76,125 +73,79 @@ function onlyNonUnique(value: any, ind: any, self: any) {
 	return !(self.indexOf(value) === ind);
 }
 
-function computeAggregationResult(searchResult: any[], thisGroup: string[], applyRules: any[], columns: any[]): any[] {
-	let groupedResult: any[] = groupResult(searchResult, thisGroup);
+function computeAggregationResult(searchResult: any[], group: string[], applyRules: any[]): any[] {
+	let groupedResult: any[] = groupResult(searchResult, group);
 	let result: any[] = [];
 
 	groupedResult.forEach((set) => {
-		result.push(getTransformed(set, applyRules, columns));
+		result.push(getTransformed(set, applyRules));
 	});
 	return result;
 }
 
 function groupResult(data: any[], groups: string[]): any[] {
-	let groupedResult: Array<Set<any>> = [];
-	let groupIDs: any[] = [];
-	let thisGroup: any[] = [];
-	let setAdded: boolean = false;
+	let groupedResult: any[] = [];
+	let matchesSet: boolean = true;
+	let setMatched: boolean = false;
+	let valueForSet: Set<any>;
 
 	data.forEach((element) => {
-		setAdded = false;
-		thisGroup = [];
-		groups.forEach((column) => {
-			thisGroup.push(element[column]);
+		groupedResult.forEach((set) => {
+			({ setMatched, matchesSet } = setAlreadyExists(setMatched, groups, matchesSet, element, set));
 		});
-		// referenced: https://stackoverflow.com/questions/41661287/how-to-check-if-an-array-contains-another-array
-		groupIDs.forEach((item) => {
-			let index: number = 0;
-			if(JSON.stringify(item) === JSON.stringify(thisGroup)) {
-				groupedResult[index].add(element);
-				setAdded = true;
-			}
-			index++;
-		});
-
-		if (!setAdded) {
-			let newSet: Set<any> = new Set();
-			newSet.add(element);
-			groupedResult.push(newSet);
-			groupIDs.push(thisGroup);
-		}
-
+		// create and add new set that has unmatched values so far
+		valueForSet = new Set();
+		valueForSet.add(element);
+		groupedResult.push(valueForSet);
 	});
+
 	return groupedResult;
 }
 
-function getTransformed(set: Set<any>, applyRules: any[], columns: any[]): any[] {
+function getTransformed(set: Set<any>, applyRules: any[]): any[] {
+	let group: any[] = [];
 	let opNames: string[] = [];
 	let operations: string[] = [];
 	let targetCols: string[] = [];
-	let result: any;
+	let result: any[] = [];
+	for (let item in set) {
+		group.push(item);
+	}
 
-
-	let ogSet = set.values().next().value;
-
-
-	({opNames, operations, targetCols} = getColumnsFromApply(applyRules));
-
-	result = set.values().next().value;
-
-	opNames.forEach((col) => {
-		let index: number = opNames.indexOf(col);
-		result[col] = applyOperation(set, operations[index], targetCols[index]);
-	});
-	columns.forEach((col) => {
-		if(!opNames.includes(col)) {
-			let i: number = 0;
-			Object.keys(ogSet).forEach((key) => {
-				if(key === col) {
-
-					result[col] = Object.values(ogSet)[i];
-				}
-				i += 1;
-			});
-		}
-	});
-
-
-	Object.keys(result).forEach((key) => {
-		if(!columns.includes(key)) {
-			delete result[key];
-		}
-	});
-
-
-	return result;
-}
-
-function getColumnsFromApply(applyRules: any[]){
-	let opNames: string[] = [];
-	let operations: string[] = [];
-	let targetCols: string[] = [];
 	applyRules.forEach((namedTransformer) => {
 		let innerObj: any = Object.values(namedTransformer)[0];
 		opNames.push(Object.keys(namedTransformer)[0]);
 		operations.push(Object.keys(innerObj)[0]);
 		targetCols.push(Object.values(innerObj)[0] as string);
-
 	});
-	return {opNames, operations, targetCols};
+
+	for (let i = 0; i < opNames.length; i++) {
+		result.push({
+			key: opNames[i],
+			value: applyOperation(group, operations[i], targetCols[i]),
+		});
+	}
+
+	return result;
 }
 
-function applyOperation(thisGroup: Set<any>, operation: string, targetCol: string): any {
-	let result: any = 0;
+function applyOperation(group: any[], operation: string, targetCol: string): any {
+	let result: any;
 	let valuesForOp: number[] = [];
 
-	thisGroup.forEach((item) => {
-		valuesForOp.push(item[targetCol]);
+	group.forEach((item) => {
+		valuesForOp.push(parseFloat(item[targetCol]));
 	});
 
 	if (operation === "MAX") {
-		result = valuesForOp.reduce(function(a, b) {
-			return Math.max(a, b);
-		}, -Infinity);
+		result = Math.max.apply(null, valuesForOp);
 	} else if (operation === "MIN") {
-		result = valuesForOp.reduce(function(a, b) {
-			return Math.min(a, b);
-		}, Infinity);
+		result = Math.min.apply(null, valuesForOp);
 	} else if (operation === "AVG") {
 		result = calcSum(valuesForOp) / valuesForOp.length;
 	} else if (operation === "COUNT") {
-		result = (new Set(valuesForOp)).size;
+		let set = new Set(valuesForOp);
+		result = set.size;
 	} else if (operation === "SUM") {
 		result = calcSum(valuesForOp);
 	} else {
@@ -210,6 +161,19 @@ function calcSum(values: any[]): number {
 		result += element;
 	});
 	return result;
+}
+
+function setAlreadyExists(setMatched: boolean, groups: string[], matchesSet: boolean, element: any, set: any) {
+	if (!setMatched) {
+		groups.forEach((group) => {
+			matchesSet = matchesSet && element[group] === set.values().next().value[group];
+		});
+		if (matchesSet) {
+			set.add(element);
+			setMatched = true;
+		}
+	}
+	return { setMatched, matchesSet };
 }
 
 function negateSearches(searches: DatasetSearch[]): void {
@@ -260,7 +224,5 @@ function isObject(obj: any): boolean {
 }
 
 
-
-export { isEquivalent, getValueByTranslation, onlyNonUnique,
-	computeAggregationResult, negateSearches, negateSubTree, isObject, isArray, getColumnsFromApply };
-
+export {isEquivalent, getValueByTranslation, onlyNonUnique,
+	computeAggregationResult, negateSearches, negateSubTree, isObject, isArray};
