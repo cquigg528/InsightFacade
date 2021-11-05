@@ -8,6 +8,7 @@ import {
 	computeAggregationResult,
 	negateSearches,
 	negateSubTree,
+	getColumnsFromApply
 } from "./QueryUtil";
 import {CoursesDataset} from "./CoursesDataset";
 const searchKeys: string[] = ["lt", "gt", "eq", "is"];
@@ -134,11 +135,15 @@ export default class QueryDispatch {
 
 	public applyColumnsAndTranslate(sections: any[], id: string): any[] {
 		let result: any[] = [];
+		let {opNames, operations, targetCols} = getColumnsFromApply(this.applyRules);
 		sections.forEach((sectionObj) => {
 			let newObject: any = {};
 			// console.log(this.columns);
 			this.columns.forEach((queryKey) => {
 				newObject[queryKey] = getValueByTranslation(sectionObj, queryKey);
+			});
+			targetCols.forEach((element: string) => {
+				newObject[element] = getValueByTranslation(sectionObj, element);
 			});
 			result.push(newObject);
 		});
