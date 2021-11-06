@@ -84,7 +84,7 @@ function computeAggregationResult(searchResult: any[], thisGroup: string[], appl
 }
 
 function groupResult(data: any[], groups: string[]): any[] {
-	let groupedResult: Array<Set<any>> = [];
+	let groupedResult: any[] = [];
 	let groupIDs: any[] = [];
 	let thisGroup: any[] = [];
 	let setAdded: boolean = false;
@@ -96,21 +96,24 @@ function groupResult(data: any[], groups: string[]): any[] {
 			thisGroup.push(element[column]);
 		});
 		// referenced: https://stackoverflow.com/questions/41661287/how-to-check-if-an-array-contains-another-array
+		let index: number = 0;
 		groupIDs.forEach((item) => {
-			let index: number = 0;
+
+
 			if(JSON.stringify(item) === JSON.stringify(thisGroup)) {
-				groupedResult[index].add(element);
+				groupedResult[index].push(element);
 				setAdded = true;
 			}
 			index++;
 		});
 
 		if (!setAdded) {
-			let newSet: Set<any> = new Set();
-			newSet.add(element);
+			let newSet: any[] = [];
+			newSet.push(element);
 			groupedResult.push(newSet);
 			groupIDs.push(thisGroup);
 		}
+
 
 	});
 	return groupedResult;
@@ -170,8 +173,8 @@ function getColumnsFromApply(applyRules: any[]){
 }
 
 function applyOperation(thisGroup: Set<any>, operation: string, targetCol: string): any {
-	let result: any = 0;
-	let valuesForOp: number[] = [];
+	let result: number = 0;
+	let valuesForOp: any[] = [];
 
 	thisGroup.forEach((item) => {
 		valuesForOp.push(item[targetCol]);
@@ -186,7 +189,7 @@ function applyOperation(thisGroup: Set<any>, operation: string, targetCol: strin
 			return Math.min(a, b);
 		}, Infinity);
 	} else if (operation === "AVG") {
-		result = calcSum(valuesForOp) / valuesForOp.length;
+		result = Number((calcSum(valuesForOp) / (valuesForOp.length)).toFixed(2));
 	} else if (operation === "COUNT") {
 		result = (new Set(valuesForOp)).size;
 	} else if (operation === "SUM") {
