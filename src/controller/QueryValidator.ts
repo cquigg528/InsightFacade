@@ -273,12 +273,12 @@ export class QueryValidator {
 						this.validOptions = false;
 					} else if (obj[key].length === 0) {
 						this.validOptions = false;
-					// } else {
-					// 	obj[key].forEach((column: string) => {
-					// 		if (key.includes("_") && !this.mkeys.concat(this.skeys).includes(column)) {
-					// 			this.validOptions = false;
-					// 		}
-					// 	});
+					} else {
+						obj[key].forEach((column: string) => {
+							if (key.includes("_") && !this.mkeys.concat(this.skeys).includes(column)) {
+								this.validOptions = false;
+							}
+						});
 					}
 				} else if (index === 1 && isArray(obj.COLUMNS)) {
 					hasOrder = true;
