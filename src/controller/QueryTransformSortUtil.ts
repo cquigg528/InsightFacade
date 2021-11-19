@@ -32,20 +32,21 @@ function validateTransform(parsedQuery: QueryDispatch, transObj: any, mkeys: str
 				for (let applyObj of transObj[key]) {
 					if (!isObject(applyObj) || Object.keys(applyObj).length !== 1) {
 						return false;
-					} else if (Object.keys(applyObj)[0].includes("_")) {
+					} else if (Object.keys(applyObj)[0].includes("_") || Object.keys(applyObj[0]).length === 0) {
 						return false;
 					}
 					applyKeys.push(Object.keys(applyObj)[0]);
 					if (Object.values(applyObj).length !== 1) {
 						return false;
 					}
-					let innerApplyValid = checkInnerApply(Object.values(applyObj)[0], mkeys, skeys);
-					if (innerApplyValid) {
+					if (checkInnerApply(Object.values(applyObj)[0], mkeys, skeys)) {
 						parsedQuery.applyRules.push(applyObj);
 					} else {
 						return false;
 					}
 				}
+			} else {
+				return false;
 			}
 		}
 	});
@@ -57,8 +58,14 @@ function checkApplyKeysAndCols(parsedQuery: QueryDispatch, applyKeys: string[]):
 		return false;
 	} else {
 		for (let colEntry of parsedQuery.columns) {
-			if (!applyKeys.includes(colEntry) && !parsedQuery.group.includes(colEntry)) {
-				return false;
+			if (colEntry.includes("_")) {
+				if (!parsedQuery.group.includes(colEntry)) {
+					return false;
+				}
+			} else {
+				if (!applyKeys.includes(colEntry)) {
+					return false;
+				}
 			}
 		}
 	}

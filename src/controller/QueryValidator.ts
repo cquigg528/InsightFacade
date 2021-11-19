@@ -75,8 +75,7 @@ export class QueryValidator {
 		return (validColumnKeysCourses || validColumnKeysRooms) ? id : null;
 	}
 
-	// performs query syntactic checks and accumulates search information by calling
-	// deconstructQuery
+	// performs query syntactic checks and accumulates search information by calling deconstructQuery
 	// returns QueryDispatch object or null if invalid query
 	public async validateAndParseQuery(): Promise<QueryDispatch> {
 		let parsedQuery: QueryDispatch | null;
@@ -113,8 +112,7 @@ export class QueryValidator {
 		}
 	}
 
-	// Calls recursive helper to build a list of QueryFilters while parsing the query.  Returns null
-	// if query found to be invalid at any time
+	// Calls recursive helpers to build a list of QueryFilters while parsing the query.
 	// REQUIRES: query has outer ordered keys ["WHERE", "OPTIONS"]
 	public async deconstructQuery(): Promise<any> {
 		let queryDispatchObj: QueryDispatch;
@@ -273,12 +271,14 @@ export class QueryValidator {
 						this.validOptions = false;
 					} else if (obj[key].length === 0) {
 						this.validOptions = false;
-					// } else {
-					// 	obj[key].forEach((column: string) => {
-					// 		if (key.includes("_") && !this.mkeys.concat(this.skeys).includes(column)) {
-					// 			this.validOptions = false;
-					// 		}
-					// 	});
+					} else {
+						obj[key].forEach((column: string) => {
+							if (column.includes("_") && !this.mkeys.concat(this.skeys).includes(column)) {
+								this.validOptions = false;
+							} else if (column.length === 0) {
+								this.validOptions = false;
+							}
+						});
 					}
 				} else if (index === 1 && isArray(obj.COLUMNS)) {
 					hasOrder = true;
