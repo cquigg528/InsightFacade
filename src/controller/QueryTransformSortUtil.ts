@@ -94,8 +94,7 @@ function validateSort(validator: QueryValidator, order: any, columns: string[]):
 					}
 				} else if (i === 1) {
 					if (typeof order[sortkey] === "string" && columns.includes(order[sortkey])) {
-						// validator.order.push(order[sortkey]);  keys: must have value type of array
-						validator.validOptions = false;
+						validator.order.push(order[sortkey]);
 					} else if (isArray(order[sortkey])) {
 						order[sortkey].forEach((key: string) => {
 							if (columns.includes(key)) {
