@@ -428,6 +428,87 @@ describe("InsightFacade", function () {
 			}
 		};
 
+		let allApplyFunctions = {
+			WHERE: {},
+			OPTIONS: {
+				COLUMNS: [
+					"courses_title",
+					"overallAvg",
+					"maxFail",
+					"minPass",
+					"sumFail",
+					"countInstructors"
+				]
+			},
+			TRANSFORMATIONS: {
+				GROUP: [
+					"courses_title"
+				],
+				APPLY: [
+					{
+						overallAvg: {
+							AVG: "courses_avg"
+						}
+					},
+					{
+						maxFail: {
+							MAX: "courses_fail"
+						}
+					},
+					{
+						minPass: {
+							MIN: "courses_pass"
+						}
+					},
+					{
+						sumFail: {
+							SUM: "courses_fail"
+						}
+					},
+					{
+						countInstructors: {
+							COUNT: "courses_instructor"
+						}
+					}
+				]
+			}
+		};
+
+		let avgGroup = {
+			WHERE: {
+				OR: [
+					{
+						IS: {
+							courses_id: "310"
+						}
+					},
+					{
+						IS: {
+							courses_id: "210"
+						}
+					}
+				]
+			},
+			OPTIONS: {
+				COLUMNS: [
+					"courses_title",
+					"overallAvg"
+				]
+			},
+			TRANSFORMATIONS: {
+				GROUP: [
+					"courses_title"
+				],
+				APPLY: [
+					{
+						overallAvg: {
+							AVG: "courses_avg"
+						}
+					}
+				]
+			}
+		};
+
 		// Runs before each "it"
 		beforeEach(function () {
 			clearDisk();
@@ -447,6 +528,22 @@ describe("InsightFacade", function () {
 			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
 				.then(() => {
 					let result = facade.performQuery(notNotNotOrNotAndGtLt);
+					return expect(result).to.eventually.deep.equal([]);
+				});
+		});
+
+		it("should run allApplyFunctions", function () {
+			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+				.then(() => {
+					let result = facade.performQuery(allApplyFunctions);
+					return expect(result).to.eventually.deep.equal([]);
+				});
+		});
+
+		it("should run avgGroup", function() {
+			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+				.then(() => {
+					let result = facade.performQuery(avgGroup);
 					return expect(result).to.eventually.deep.equal([]);
 				});
 		});
