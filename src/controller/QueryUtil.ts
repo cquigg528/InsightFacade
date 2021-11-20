@@ -2,6 +2,9 @@ import DatasetSearch from "./DatasetSearch";
 import QueryFilter from "./QueryFilter";
 import Decimal from "decimal.js";
 import {switchOnSkey, switchOnMKey} from "./Dataset";
+import QueryDispatch from "./QueryDispatch";
+import { QueryValidator } from "./QueryValidator";
+import Decimal from "decimal.js";
 
 // from http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
 function isEquivalent(a: any, b: any): boolean {
@@ -171,7 +174,7 @@ function getColumnsFromApply(applyRules: any[]){
 }
 
 function applyOperation(thisGroup: Set<any>, operation: string, targetCol: string): any {
-	let result: number = 0;
+	let result: any = 0;
 	let valuesForOp: any[] = [];
 	// let skeySwitched = switchOnSkey(targetCol.split("_")[1]);
 	// let translatedTargetCol = (skeySwitched === "") ? switchOnMKey(targetCol.split("_")[1]) : skeySwitched;
@@ -192,7 +195,6 @@ function applyOperation(thisGroup: Set<any>, operation: string, targetCol: strin
 		let total = calcAvgSum(valuesForOp);
 		let avg = total.toNumber() / valuesForOp.length;
 		result = Number(avg.toFixed(2));
-		// result = Number((calcSum(valuesForOp) / (valuesForOp.length)).toFixed(2));
 	} else if (operation === "COUNT") {
 		result = (new Set(valuesForOp)).size;
 	} else if (operation === "SUM") {
@@ -218,6 +220,16 @@ function calcSum(values: any[]): number {
 	let result: number = 0;
 	values.forEach((element) => {
 		result += element;
+	});
+	return result;
+}
+
+function calcAvgSum(values: any[]): Decimal {
+	let result: Decimal = new Decimal(0);
+	let num: Decimal;
+	values.forEach((element) => {
+		num = new Decimal(element);
+		result = Decimal.add(result,num);
 	});
 	return result;
 }
