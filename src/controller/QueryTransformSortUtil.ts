@@ -32,7 +32,7 @@ function validateTransform(parsedQuery: QueryDispatch, transObj: any, mkeys: str
 				for (let applyObj of transObj[key]) {
 					if (!isObject(applyObj) || Object.keys(applyObj).length !== 1) {
 						return false;
-					} else if (Object.keys(applyObj)[0].includes("_") || Object.keys(applyObj[0]).length === 0) {
+					} else if (Object.keys(applyObj)[0].includes("_") || Object.keys(applyObj)[0].length === 0) {
 						return false;
 					}
 					applyKeys.push(Object.keys(applyObj)[0]);

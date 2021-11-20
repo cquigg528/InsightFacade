@@ -57,7 +57,7 @@ export abstract class Dataset implements InsightDataset {
 		if (comparator === null) {
 			return Promise.reject("Invalid mcomparator!");
 		}
-		let searchKey: string = this.switchOnSearchKey(mkey);
+		let searchKey: string = switchOnMKey(mkey);
 		if (searchKey === "") {
 			return Promise.reject("Invalid mkey!");
 		}
@@ -110,38 +110,6 @@ export abstract class Dataset implements InsightDataset {
 		return comparator;
 	}
 
-	public switchOnSearchKey(mkey: string): string {
-		let searchKey: string;
-		switch (mkey) {
-			case "avg":
-				searchKey = "Avg";
-				break;
-			case "pass":
-				searchKey = "Pass";
-				break;
-			case "fail":
-				searchKey = "Fail";
-				break;
-			case "audit":
-				searchKey = "Audit";
-				break;
-			case "year":
-				searchKey = "Year";
-				break;
-			case "lat":
-				searchKey = "lat";
-				break;
-			case "lon":
-				searchKey = "lon";
-				break;
-			case "seats":
-				searchKey = "seats";
-				break;
-			default: searchKey = "";
-		}
-		return searchKey;
-	}
-
 	public async findObjectsBySComparator(comparator: string,
 		skey: string,
 		inptstr: string,
@@ -163,7 +131,7 @@ export abstract class Dataset implements InsightDataset {
 		} else {
 			regex = new RegExp("^" + inptstr + "$", "i");
 		}
-		let searchKey = this.switchOnSkey(skey);
+		let searchKey = switchOnSkey(skey);
 		if (searchKey === "") {
 			return Promise.reject(new InsightError("Invalid ID!"));
 		}
@@ -178,58 +146,92 @@ export abstract class Dataset implements InsightDataset {
 		});
 	}
 
-	private switchOnSkey(skey: string) {
-		let searchKey: string;
-		switch (skey) {
-			case "instructor":
-				searchKey = "Professor";
-				break;
-			case "dept":
-				searchKey = "Subject";
-				break;
-			case "id":
-				searchKey = "Course";
-				break;
-			case "uuid":
-				searchKey = "id";
-				break;
-			case "title":
-				searchKey = "Title";
-				break;
-			case "fullname":
-				searchKey = "fullname";
-				break;
-			case "shortname":
-				searchKey = "shortname";
-				break;
-			case "number":
-				searchKey = "number";
-				break;
-			case "name":
-				searchKey = "name";
-				break;
-			case "address":
-				searchKey = "address";
-				break;
-			case "type":
-				searchKey = "type";
-				break;
-			case "furniture":
-				searchKey = "furniture";
-				break;
-			case "href":
-				searchKey = "href";
-				break;
-			default:
-				searchKey = "";
-				break;
-		}
-		return searchKey;
-	}
-
 	public async getAllObjects(): Promise<any[]> {
 		// for use when a query has no Filter, or any other time we want to return all sections in a dataset
 		let courses = await this.setUpSearch();
 		return courses.flat(1);
 	}
 }
+
+function switchOnSkey(skey: string) {
+	let searchKey: string;
+	switch (skey) {
+		case "instructor":
+			searchKey = "Professor";
+			break;
+		case "dept":
+			searchKey = "Subject";
+			break;
+		case "id":
+			searchKey = "Course";
+			break;
+		case "uuid":
+			searchKey = "id";
+			break;
+		case "title":
+			searchKey = "Title";
+			break;
+		case "fullname":
+			searchKey = "fullname";
+			break;
+		case "shortname":
+			searchKey = "shortname";
+			break;
+		case "number":
+			searchKey = "number";
+			break;
+		case "name":
+			searchKey = "name";
+			break;
+		case "address":
+			searchKey = "address";
+			break;
+		case "type":
+			searchKey = "type";
+			break;
+		case "furniture":
+			searchKey = "furniture";
+			break;
+		case "href":
+			searchKey = "href";
+			break;
+		default:
+			searchKey = "";
+			break;
+	}
+	return searchKey;
+}
+
+function switchOnMKey(mkey: string): string {
+	let searchKey: string;
+	switch (mkey) {
+		case "avg":
+			searchKey = "Avg";
+			break;
+		case "pass":
+			searchKey = "Pass";
+			break;
+		case "fail":
+			searchKey = "Fail";
+			break;
+		case "audit":
+			searchKey = "Audit";
+			break;
+		case "year":
+			searchKey = "Year";
+			break;
+		case "lat":
+			searchKey = "lat";
+			break;
+		case "lon":
+			searchKey = "lon";
+			break;
+		case "seats":
+			searchKey = "seats";
+			break;
+		default: searchKey = "";
+	}
+	return searchKey;
+}
+
+export {switchOnMKey, switchOnSkey};

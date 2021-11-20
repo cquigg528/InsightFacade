@@ -108,9 +108,9 @@ export default class InsightFacade implements IInsightFacade {
 		const sortingRequired = validator.order.length !== 0;
 
 		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
-		if (searchResults.length > 5000) {
-			return Promise.reject(new ResultTooLargeError("too many results"));
-		}
+		// if (searchResults.length > 5000) {
+		// 	return Promise.reject(new ResultTooLargeError("too many results"));
+		// }
 
 		let finalResult: any[];
 		let aggregateResults: any[] = [];
@@ -118,6 +118,12 @@ export default class InsightFacade implements IInsightFacade {
 		if (validator.hasTransforms) {
 			aggregateResults = computeAggregationResult(searchResults, validQuery.group,
 				validQuery.applyRules, validQuery.columns);
+		} else {
+			aggregateResults = searchResults;
+		}
+
+		if (aggregateResults.length > 5000) {
+			return Promise.reject(new ResultTooLargeError("too many results"));
 		}
 		if (validator.hasTransforms && sortingRequired) {
 			finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);

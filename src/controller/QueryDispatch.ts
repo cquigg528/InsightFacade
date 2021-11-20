@@ -123,22 +123,22 @@ export default class QueryDispatch {
 	public async performDatasetSearch(dataset: CoursesDataset): Promise<any[]> {
 		if (this.emptyWhere) {
 			let sections = await dataset.getAllObjects();
-			return Promise.resolve(sections);
+			let result = this.applyColumnsAndTranslate(sections);
+			return Promise.resolve(result);
 		} else {
 			this.findAndProcessNot(this.query);
 			let rawResult: any[] = await this.filterCourses(this.query, dataset);
 			let prunedResult = [...new Set(rawResult)];
-			let result: any[] = this.applyColumnsAndTranslate(prunedResult, dataset.id);
+			let result: any[] = this.applyColumnsAndTranslate(prunedResult);
 			return Promise.resolve(result);
 		}
 	}
 
-	public applyColumnsAndTranslate(sections: any[], id: string): any[] {
+	public applyColumnsAndTranslate(sections: any[]): any[] {
 		let result: any[] = [];
 		let {opNames, operations, targetCols} = getColumnsFromApply(this.applyRules);
 		sections.forEach((sectionObj) => {
 			let newObject: any = {};
-			// console.log(this.columns);
 			this.columns.forEach((queryKey) => {
 				newObject[queryKey] = getValueByTranslation(sectionObj, queryKey);
 			});

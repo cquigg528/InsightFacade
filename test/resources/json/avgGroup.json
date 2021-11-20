@@ -35,8 +35,7 @@
 		}
 	},
 	"errorExpected": false,
-	"with": {
-		"result": [
+	"with":  [
 			{
 				"courses_title": "eating culture",
 				"overallAvg": 76.25
@@ -255,4 +254,4 @@
 			}
 		]
 	}
-}
+
