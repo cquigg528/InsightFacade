@@ -4,7 +4,6 @@ import Decimal from "decimal.js";
 import {switchOnSkey, switchOnMKey} from "./Dataset";
 import QueryDispatch from "./QueryDispatch";
 import { QueryValidator } from "./QueryValidator";
-import Decimal from "decimal.js";
 
 // from http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
 function isEquivalent(a: any, b: any): boolean {
@@ -203,16 +202,6 @@ function applyOperation(thisGroup: Set<any>, operation: string, targetCol: strin
 		result = -1;
 	}
 
-	return result;
-}
-
-function calcAvgSum(values: any[]): Decimal {
-	let result: Decimal = new Decimal(0);
-	let num: Decimal;
-	values.forEach((element) => {
-		num = new Decimal(element);
-		result = Decimal.add(result,num);
-	});
 	return result;
 }
 
