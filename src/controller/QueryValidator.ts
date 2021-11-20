@@ -102,7 +102,8 @@ export class QueryValidator {
 			return Promise.reject(new InsightError("invalid WHERE or OPTIONS key"));
 		}
 		parsedQuery = await this.deconstructQuery();
-		if (parsedQuery === null) {
+		if (parsedQuery === null ||
+			(parsedQuery.columns.filter((element) => !element.includes("_")).length !== 0 && !this.hasTransforms)) {
 			return Promise.reject(new InsightError("invalid query"));
 		} else if (this.hasTransforms) {
 			return validateTransform(parsedQuery, this.query.TRANSFORMATIONS, this.mkeys, this.skeys) ?
@@ -182,8 +183,7 @@ export class QueryValidator {
 					this.validWhere = false;
 				}
 			} else if (sCompareKey.includes(key)) {
-				// IS
-				// check that key satisfies id_skey and inputstring does not include '*' except maybe endpoints
+				// IS, check that key satisfies id_skey and inputstring does not include '*' except maybe endpoints
 				if (!this.isSComparisonValid(obj, key)) {
 					this.validWhere = false;
 				}

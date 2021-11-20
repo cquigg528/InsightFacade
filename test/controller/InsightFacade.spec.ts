@@ -11,7 +11,7 @@ import {expect, use} from "chai";
 import chaiAsPromised from "chai-as-promised";
 import {clearDisk, getContentFromArchives} from "../TestUtil";
 import {testFolder} from "@ubccpsc310/folder-test";
-import {isDocumentTypeNode} from "parse5/lib/tree-adapters/default";
+import {describe} from "mocha";
 
 use(chaiAsPromised);
 
@@ -357,6 +357,99 @@ describe("InsightFacade", function () {
 				},
 			}
 		);
+	});
+
+	describe("Debugging tests", function () {
+		let facade: IInsightFacade;
+
+		let emptyKeyWithDatasetQuery: any = {
+			WHERE: {
+				AND: [
+					{
+						GT: {
+							courses_audit: 10
+						}
+					},
+					{
+						LT: {
+							courses_audit: 10
+						}
+					},
+					{
+						GT: {
+							courses_audit: 10
+						}
+					}
+				]
+			},
+			OPTIONS: {
+				COLUMNS: [
+					"courses_avg",
+					"courses"
+				],
+				ORDER: "courses_avg"
+			}
+		};
+
+		let notNotNotOrNotAndGtLt = {
+			WHERE: {
+				NOT: {
+					NOT: {
+						NOT: {
+							OR: [
+								{
+									NOT: {
+										AND: [
+											{
+												GT: {
+													courses_avg: 99.9
+												}
+											},
+											{
+												LT: {
+													courses_avg: 1
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				}
+			},
+			OPTIONS: {
+				COLUMNS: [
+					"courses_dept",
+					"courses_id",
+					"courses_avg"
+				],
+				ORDER: "courses_avg"
+			}
+		};
+
+		// Runs before each "it"
+		beforeEach(function () {
+			clearDisk();
+			facade = new InsightFacade();
+		});
+
+		// This works
+		it("should reject a query with applykey in COLUMNS when GROUP is not present", function () {
+			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+				.then(() => {
+					let result = facade.performQuery(emptyKeyWithDatasetQuery);
+					return expect(result).to.eventually.be.rejectedWith(InsightError);
+				});
+		});
+
+		it("should return an empty list if there are no results (many nested nots)", function () {
+			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+				.then(() => {
+					let result = facade.performQuery(notNotNotOrNotAndGtLt);
+					return expect(result).to.eventually.deep.equal([]);
+				});
+		});
 	});
 
 	describe("Perform Query C2 Rooms Dynamic Tests", function () {
