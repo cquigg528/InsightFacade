@@ -6,8 +6,30 @@
 		<link href="/style.css" rel="stylesheet" />
 	</head>
 	<body>
-		<button id="click-me-button" class="button" >Click Me!</button>
+	<div id="view-datasets-container" class="viewDatasetsContainer">
+		<button id="add-dataset" class="addDatasetButton" onclick="document.getElementById('datasetInput').click();">Add a new dataset</button>
+		<input type="file" name="datasetInput" id="datasetInput" style="display: none;">
+<!--		<button id="add-dataset" class="addDatasetButton" onclick="document.getElementById('file-input').click();">Add a new dataset</button>-->
+<!--		<input id="file-input" type="file" name="name" style="display: none;" />-->
+<!--		<h1>Datasets</h1>-->
+<!--		<ul id="datasets"></ul>-->
+<!--		<script>-->
+<!--			type="text/javascript"-->
+<!--			src="/frontend.js"-->
+<!--			fetch(url)-->
+<!--				.then((resp) => resp.json())-->
+<!--				.then(function(data) {-->
+<!--					let datasets = data.results;-->
+<!--					console.log(datasets);-->
+<!--					return datasets.map(function(dataset) {-->
 
-		<script type="text/javascript" src="/frontend.js"></script>
+<!--					})-->
+<!--			})-->
+<!--			.catch(function(error) {-->
+
+<!--			});-->
+
+<!--		</script>-->
+	</div>
 	</body>
 </html>
