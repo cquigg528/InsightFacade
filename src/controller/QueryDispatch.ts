@@ -34,20 +34,31 @@ export default class QueryDispatch {
 
 	public traverseQuery(node: QueryFilter, filterObj: any): QueryFilter {
 		for (let key of Object.keys(filterObj)) {
-			if (key === "WHERE") {
-				this.traverseQuery(node, filterObj[key]);
-			} else if (key === "AND" || key === "OR") {
-				let newNode: QueryFilter = new QueryFilter(node, key, [], []);
-				node.children.push(newNode);
-				// obj[key] is array in this case
-				this.handleNestedArrays(newNode, filterObj[key]);
-			} else if (key === "NOT") {
-				let newNode: QueryFilter = new QueryFilter(node, key, [], []);
-				node.children.push(newNode);
-				let nestedObjKey = Object.keys(filterObj[key])[0];
-				if (nestedObjKey === "AND" || nestedObjKey === "OR") {
-					let newNodeChild: QueryFilter = new QueryFilter(newNode, nestedObjKey, [], []);
-					Object.values(filterObj[key][nestedObjKey]).forEach((obj, index) => {
+			if (key !== "OPTIONS" && key !== "TRANSFORMATIONS") {
+				if (key === "WHERE") {
+					this.traverseQuery(node, filterObj[key]);
+				} else if (key === "AND" || key === "OR") {
+					let newNode: QueryFilter = new QueryFilter(node, key, [], []);
+					node.children.push(newNode);
+					this.handleNestedArrays(newNode, filterObj[key]);
+				} else if (key === "NOT") {
+					let newNode: QueryFilter = new QueryFilter(node, key, [], []);
+					node.children.push(newNode);
+					let nestedObjKey = Object.keys(filterObj[key])[0];
+					if (nestedObjKey === "AND" || nestedObjKey === "OR") {
+						let newNodeChild: QueryFilter = new QueryFilter(newNode, nestedObjKey, [], []);
+						Object.values(filterObj[key][nestedObjKey]).forEach((obj, index) => {
+							let nestedObj = this.traverseQuery(newNodeChild, obj);
+							let repeat = newNode.children.some((queryFilter) => {
+								return queryFilter === nestedObj;
+							});
+							if (!repeat) {
+								newNode.children.push(nestedObj);
+							}
+						});
+					} else if (nestedObjKey === "NOT") {
+						let newNodeChild: QueryFilter = new QueryFilter(newNode, nestedObjKey, [], []);
+						let obj = filterObj[key][nestedObjKey];
 						let nestedObj = this.traverseQuery(newNodeChild, obj);
 						let repeat = newNode.children.some((queryFilter) => {
 							return queryFilter === nestedObj;
@@ -55,32 +66,20 @@ export default class QueryDispatch {
 						if (!repeat) {
 							newNode.children.push(nestedObj);
 						}
-					});
-				} else if (nestedObjKey === "NOT") {
-					let newNodeChild: QueryFilter = new QueryFilter(newNode, nestedObjKey, [], []);
-					let obj = filterObj[key][nestedObjKey];
-					let nestedObj = this.traverseQuery(newNodeChild, obj);
-					let repeat = newNode.children.some((queryFilter) => {
-						return queryFilter === nestedObj;
-					});
-					if (!repeat) {
-						newNode.children.push(nestedObj);
+					} else {
+						// next item is a Dataset filter, simply pass current node in recursion
+						this.traverseQuery(newNode, filterObj[key]);
 					}
-				} else {
-					// next item is a Dataset filter, simply pass current node in recursion
-					this.traverseQuery(newNode, filterObj[key]);
+				} else if (searchKeys.includes(key.toLowerCase())) {
+					// instantiate DatasetSearch object here
+					let comparator = key.toLowerCase() as any;
+					let field = Object.keys(filterObj[key])[0] as any;
+					field = field.split("_")[1];
+					const value = Object.values(filterObj[key])[0] as any;
+					const datasetSearch: DatasetSearch = new DatasetSearch(comparator, field, value);
+					// assign to filter
+					node.searches.push(datasetSearch);
 				}
-			} else if (searchKeys.includes(key.toLowerCase())) {
-				// instantiate DatasetSearch object here
-				let comparator = key.toLowerCase() as any;
-				let field = Object.keys(filterObj[key])[0] as any;
-				field = field.split("_")[1];
-				const value = Object.values(filterObj[key])[0] as any;
-				const datasetSearch: DatasetSearch = new DatasetSearch(comparator, field, value);
-				// assign to filter
-				node.searches.push(datasetSearch);
-			} else {
-				continue;
 			}
 		}
 		return node;

@@ -132,7 +132,7 @@ export class QueryValidator {
 			return Promise.resolve(queryDispatchObj);
 		}
 		// build query dispatch
-		const filterObj = this.query.WHERE;
+		const filterObj = this.query;
 		queryDispatchObj.buildQueryDispatch(filterObj);
 		return Promise.resolve(queryDispatchObj);
 	}

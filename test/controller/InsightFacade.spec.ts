@@ -509,6 +509,43 @@ describe("InsightFacade", function () {
 			}
 		};
 
+		let notNotNotOrAndGtLt = {
+			WHERE: {
+				NOT: {
+					NOT: {
+						NOT: {
+							OR: [
+								{
+									NOT: {
+										AND: [
+											{
+												GT: {
+													courses_avg: 99.9
+												}
+											},
+											{
+												LT: {
+													courses_avg: 1
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				}
+			},
+			OPTIONS: {
+				COLUMNS: [
+					"courses_dept",
+					"courses_id",
+					"courses_avg"
+				],
+				ORDER: "courses_avg"
+			}
+		};
+
 		// Runs before each "it"
 		beforeEach(function () {
 			clearDisk();
@@ -544,6 +581,14 @@ describe("InsightFacade", function () {
 			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
 				.then(() => {
 					let result = facade.performQuery(avgGroup);
+					return expect(result).to.eventually.deep.equal([]);
+				});
+		});
+
+		it("should work with notNotNotOrNotAndGtLt", function () {
+			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+				.then(() => {
+					let result = facade.performQuery(notNotNotOrAndGtLt);
 					return expect(result).to.eventually.deep.equal([]);
 				});
 		});
