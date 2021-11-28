@@ -32,7 +32,6 @@ export default class InsightFacade implements IInsightFacade {
 				return dataset;
 			}
 		}
-		console.assert("invalid id");
 		return null;
 	}
 
@@ -185,4 +184,19 @@ export default class InsightFacade implements IInsightFacade {
 		});
 		return Promise.resolve(id);
 	}
+
+	public async checkEmptyDisk(): Promise<any> {
+		fs.readdir("./data", function (err, files) {
+			if (err) {
+				return Promise.reject(new InsightError("Error checking disk"));
+			} else {
+				if (!files.length) {
+					return Promise.resolve(false);
+				} else {
+					Promise.resolve(true);
+				}
+			}
+		});
+	}
+
 }
