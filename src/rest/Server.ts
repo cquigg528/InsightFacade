@@ -3,6 +3,8 @@ import * as http from "http";
 import cors from "cors";
 import InsightFacade from "../controller/InsightFacade";
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import * as fs from "fs-extra";
+import {persistDir} from "../../test/TestUtil";
 
 export default class Server {
 	private readonly port: number;
@@ -87,12 +89,12 @@ export default class Server {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/echo/hello
 		this.express.get("/echo/:msg", Server.echo);
+		this.express.get("/dataset/:id");
 		this.express.get("/datasets", this.getDatasets.bind(this));
 		this.express.put("/dataset/:id/:kind", this.addDataset.bind(this));
 		this.express.delete("/dataset/:id", this.deleteDataset.bind(this));
-
+		this.express.post("/query", this.performQuery.bind(this));
 		// TODO: your other endpoints should go here
-
 	}
 
 	private async deleteDataset(req: Request, res: Response) {
@@ -123,8 +125,7 @@ export default class Server {
 				Buffer.from(req.body).toString("base64"), kind);
 			res.status(200).json({result: response});
 		} catch(err) {
-			console.log(err);
-			res.status(400).json({error: err});
+			res.status(400).json({error: (err as InsightError).message});
 		}
 	}
 
@@ -145,6 +146,19 @@ export default class Server {
 			res.status(400).json({error: err});
 		}
 	}
+
+	private async performQuery(req: Request, res: Response) {
+		if (await this.facade.checkEmptyDisk()) {
+			res.status(400).json({error: "Missing Dataset"});
+		}
+		try {
+			const response = await this.facade.performQuery(req.body);
+			res.status(200).json({result: response});
+		} catch(err) {
+			res.status(400).json({error: (err as InsightError).message});
+		}
+	}
+
 
 	private static performEcho(msg: string): string {
 		if (typeof msg !== "undefined" && msg !== null) {

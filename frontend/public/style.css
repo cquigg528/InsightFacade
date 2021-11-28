@@ -7,8 +7,136 @@
 	text-decoration: none;
 	display: inline-block;
 	font-size: 32px;
+	border-radius: 16px;
+}
+
+.viewDatasetsButton {
+	background-color: blue;
+	border: black;
+	color: black;
+	padding: 16px 16px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 32px;
+	border-radius: 16px;
+}
+
+.deleteDatasetButton {
+	background-color: green;
+	border: black;
+	color: black;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border-radius: 16px;
+}
+
+.deleteDatasetButton:hover {
+	cursor: pointer;
+}
+
+.viewDatasetsList {
+}
+
+.viewDatasetsList:hover {
+	cursor: pointer;
+}
+
+.addDatasetContainer {
+	display: flex;
+	flex-direction: column;
 }
 
 .addDatasetButton:hover {
 	cursor: pointer;
+}
+
+.viewDatasetsButton:hover {
+	cursor: pointer;
+}
+
+.addDatasetForm {
+
+}
+
+.datasetsContainer {
+	display: flex;
+	flex-direction: row;
+}
+
+.viewDatasetsContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+.searchDatasetsContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+.searchDatasetsButton {
+	background-color: purple;
+	border: black;
+	color: black;
+	padding: 16px 16px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 32px;
+	border-radius: 16px;
+}
+
+.searchDatasetsButton:hover {
+	cursor: pointer;
+}
+
+.searchDatasetsForm {
+
+}
+
+.coursesScomparatorSearchContainer {
+
+}
+
+.coursesMcomparatorSearchContainer {
+
+}
+
+.coursesSelections {
+
+}
+
+.roomsScomparatorSearchContainer {
+
+}
+
+.roomsMcomparatorSearchContainer {
+
+}
+
+.roomsSelections {
+
+}
+
+.searchResultsContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+.searchResultsHeader {
+	background-color: orange;
+	border: black;
+	color: black;
+	padding: 16px 16px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 32px;
+	border-radius: 16px;
+}
+
+.searchResultsList {
+
 }
