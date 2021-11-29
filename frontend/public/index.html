@@ -51,7 +51,7 @@
 								<option value="audit">Number of students who audited the course</option>
 							</select>
 							<div id="courses-mcomparator-search-container" class="courses-mcomparatorSearchContainer" style="display:none">
-								<select id="courses-mcomparator-selector" name="coursesMcomparatorSelector">
+								<select id="courses-mcomparator-selector" name="coursesComparator">
 									<option selected disabled>Select here</option>
 									<option value="lt">Less than (<)</option>
 									<option value="gt">Greater than (>)</option>
@@ -60,11 +60,11 @@
 									<option value="gteq">Great than or equal to (>=)</option>
 									<option value="neq">Not equal to (!=)</option>
 								</select>
-								<input id="courses-numerical-search-term" type="number" name="coursesMSearchTerm"/><br>
+								<input id="courses-numerical-search-term" type="number" name="coursesMSearchTerm" step="0.01" min="0"/><br>
 							</div>
 							<div id="courses-scomparator-search-container" class="courses-scomparatorSearchContainer" style="display: none">
-								<input type="checkbox" id="courses-scomparator" name="coursesScomparator" value="not">
-								<label for="courses-scomparator">Not</label>
+								<input type="checkbox" id="courses-not" name="coursesNot" value="not">
+								<label for="courses-not">Not</label>
 								<input id="courses-text-search-term" type="text" name="coursesSSearchTerm"/>
 							</div><br>
 <!--							<label for="courses-and-selector">And</label>-->
@@ -178,7 +178,7 @@
 						<option value="furniture">Furniture in the room</option>
 					</select>
 					<div id="rooms-mcomparator-search-container" class="roomsMcomparatorSearchContainer" style="display:none">
-						<select id="rooms-mcomparator-selector" name="roomsMcomparatorSelector">
+						<select id="rooms-mcomparator-selector" name="roomsComparator">
 							<option selected disabled>Select here</option>
 							<option value="lt">Less than (<)</option>
 							<option value="gt">Greater than (>)</option>
@@ -190,8 +190,8 @@
 						<input id="rooms-numerical-search-term" type="number" name="roomsMSearchTerm"/><br>
 					</div>
 					<div id="rooms-scomparator-search-container" class="roomsScomparatorSearchContainer" style="display: none">
-						<input type="checkbox" id="rooms-scomparator" name="rooms-scomparator" value="not">
-						<label for="rooms-scomparator">Not</label>
+						<input type="checkbox" id="rooms-not" name="roomsNot" value="not">
+						<label for="rooms-not">Not</label>
 						<input id="rooms-text-search-term" type="text" name="roomsSSearchTerm"/><br>
 					</div>
 					<fieldset>

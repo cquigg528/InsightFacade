@@ -30,9 +30,9 @@ export class QueryValidator {
 		this.datasetType = "";
 	}
 
-	public setUpQueryValidation(datasetIds: string[], query: any): string | null {
+	public setUpQueryValidation(datasetIds: string[], query: any): Array<string | boolean> {
 		if (typeof query !== "object") {
-			return null;
+			return ["Your query was not a valid JSON object", false];
 		}
 		let id = null;
 		let validColumnKeysCourses, validColumnKeysRooms: boolean = false;
@@ -41,12 +41,14 @@ export class QueryValidator {
 			let queryKeyList = query.OPTIONS.COLUMNS;
 			const queryKey = queryKeyList.find((key: string) => key.includes("_"));
 			if (typeof queryKey === "undefined" || typeof  queryKey !== "string") {
-				return null;
+				return ["Your dataset ID was incorrectly specified. " +
+				"Please make sure the dataset you are searching has already been added.", false];
 			}
 			// If id is not in dataset, reject
 			id = queryKey.split("_")[0];
 			if (id.trim() === "" || !datasetIds.includes(id)  || id.includes("_") || queryKey.split("_").length !== 2) {
-				return null;
+				return ["Your dataset ID was incorrectly specified. " +
+				"Please make sure the dataset you are searching has already been added.", false];
 			}
 			// Check that all keys in columns are of type room or course
 			let field: string = queryKey.split("_")[1];
@@ -70,9 +72,10 @@ export class QueryValidator {
 				}
 			}
 		} catch (e) {
-			return null;
+			return [(e as Error).message, false];
 		}
-		return (validColumnKeysCourses || validColumnKeysRooms) ? id : null;
+		return (validColumnKeysCourses || validColumnKeysRooms) ? [id, true] :
+			["You did not correctly specify the column keys.", false];
 	}
 
 	// performs query syntactic checks and accumulates search information by calling deconstructQuery
@@ -197,11 +200,8 @@ export class QueryValidator {
 		const valueList = Object.values(obj[key]);
 
 		let expectedFields: string [] = [];
-		if (this.datasetType === "courses") {
-			expectedFields = ["avg", "pass", "fail", "audit", "year"];
-		} else if (this.datasetType === "rooms") {
-			expectedFields = ["lat", "lon", "seats"];
-		}
+		expectedFields = this.datasetType === "courses" ? ["avg", "pass", "fail", "audit", "year"]
+			: ["lat", "lon", "seats"];
 
 		// require the following to be true
 		const onlyOneMkey: boolean = mkeyList.length === 1;

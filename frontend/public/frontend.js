@@ -197,42 +197,52 @@ function extractData(formData) {
 	let dir;
 	let sortedBy;
 	let useNot = false;
+	let mkeysArray;
 	switch (formData.get("kindOfDataset")) {
 		case "courses":
 			datasetID = formData.get("courses-datasetID");
 			searchKey = formData.get("coursesSearchTerms");
-			searchComparator = formData.get("coursesMcomparatorSelector");
-			if (!searchComparator) {
-				searchComparator = "IS";
-				(formData.get("coursesScomparator") === "not") ? useNot = true : useNot = false;
-				searchValue = formData.get("coursesSSearchTerm");
-			} else {
+			searchComparator = formData.get("coursesComparator");
+			mkeysArray = ["avg", "pass", "fail", "year", "audit"];
+			if (mkeysArray.includes(searchKey)) {
 				searchComparator = searchComparator.toUpperCase();
 				let NotComparators = ['LTEQ', 'GTEQ', 'NEQ'];
-				NotComparators.includes(searchComparator) ? useNot = true : useNot = false;
+				useNot = NotComparators.includes(searchComparator);
 				searchValue = parseFloat(formData.get("coursesMSearchTerm"));
+			} else {
+				searchComparator = "IS";
+				useNot = formData.get("coursesNot") === "not";
+				searchValue = formData.get("coursesSSearchTerm");
 			}
+			console.log(searchComparator);
 			columns = formData.getAll("courses-columns");
 			sortedString = formData.get("sortCourses");
-			sortedBy = sortedString.split("_")[0];
-			dir = sortedString.split("_")[1];
+			if (sortedString) {
+				sortedBy = sortedString.split("_")[0];
+				dir = sortedString.split("_")[1];
+			}
 			break;
 		case "rooms":
 			datasetID = formData.get("rooms-datasetID");
 			searchKey = formData.get("roomsSearchTerms");
-			searchComparator = formData.get("roomsMcomparatorSelector");
-			console.log(searchComparator);
-			if (!searchComparator) {
-				searchComparator = "IS";
-				searchValue = formData.get("roomsSSearchTerm");
-			} else {
+			searchComparator = formData.get("roomsComparator");
+			mkeysArray = ["lat", "lon", "seats"];
+			if (mkeysArray.includes(searchKey)) {
 				searchComparator = searchComparator.toUpperCase();
+				let NotComparators = ['LTEQ', 'GTEQ', 'NEQ'];
+				useNot = NotComparators.includes(searchComparator);
 				searchValue = parseFloat(formData.get("roomsMSearchTerm"));
+			} else {
+				searchComparator = "IS";
+				useNot = formData.get("roomsNot") === "not";
+				searchValue = formData.get("roomsSSearchTerm");
 			}
 			columns = formData.getAll("rooms-columns");
 			sortedString = formData.get("sortRooms");
-			sortedBy = sortedString.split("_")[0];
-			dir = sortedString.split("_")[1];
+			if (sortedString) {
+				sortedBy = sortedString.split("_")[0];
+				dir = sortedString.split("_")[1];
+			}
 			break;
 	}
 	return [datasetID, searchKey, searchComparator, searchValue, columns, sortedBy, useNot, dir];
@@ -285,9 +295,11 @@ async function searchDatasets() {
 		queryObject["WHERE"] = searchObject;
 	}
 	columnsObject["COLUMNS"] = columns;
-	orderObject["dir"] = dir.toUpperCase();
-	orderObject["keys"] = `${datasetID}_${sortedBy}`
-	columnsObject["ORDER"] = orderObject;
+	if (dir && sortedBy) {
+		orderObject["dir"] = dir.toUpperCase();
+		orderObject["keys"] = `${datasetID}_${sortedBy}`
+		columnsObject["ORDER"] = orderObject;
+	}
 	queryObject["OPTIONS"] = columnsObject;
 	const queryUrl = 'http://localhost:4321/query';
 	console.log(queryObject);
@@ -305,7 +317,7 @@ async function searchDatasets() {
 				});
 			} else {
 				return response.json().then((err) => {
-					alert(err.error)
+					alert(`Your search in invalid because of the following error: ${err.error}\nPlease modify your search and try again!`)
 				});
 			}
 		})
