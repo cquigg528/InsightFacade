@@ -236,6 +236,10 @@ function negateSearches(searches: DatasetSearch[]): void {
 			search.comparator = "isnot";
 		} else if (search.comparator === "isnot") {
 			search.comparator = "is";
+		} else if (search.comparator === "nlt") {
+			search.comparator = "lt";
+		} else if (search.comparator === "ngt") {
+			search.comparator = "gt";
 		}
 	});
 }
