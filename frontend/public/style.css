@@ -1,7 +1,28 @@
+.headerContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.header {
+	padding: 32px 32px 32px 32px;
+	text-align: center;
+	font-size: 64px;
+	display: inline-block;
+	text-decoration: underline;
+}
+
+.subheader {
+	padding: 0 16px 32px 16px;
+	text-align: center;
+	font-size: 32px;
+	display: inline-block;
+}
+
 .addDatasetButton {
-	background-color: red;
-	border: black;
-	color: black;
+	background-color: black;
+	border: white;
+	color: white;
 	padding: 16px 16px;
 	text-align: center;
 	text-decoration: none;
@@ -11,9 +32,9 @@
 }
 
 .viewDatasetsButton {
-	background-color: blue;
-	border: black;
-	color: black;
+	background-color: black;
+	border: white;
+	color: white;
 	padding: 16px 16px;
 	text-align: center;
 	text-decoration: none;
@@ -23,9 +44,9 @@
 }
 
 .deleteDatasetButton {
-	background-color: green;
-	border: black;
-	color: black;
+	background-color: black;
+	border: white;
+	color: white;
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
@@ -58,12 +79,22 @@
 }
 
 .addDatasetForm {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	text-align: left;
+	font-size: 16px;
+	padding-top: 16px;
+}
 
+input {
+	margin-bottom: 12px;
 }
 
 .datasetsContainer {
 	display: flex;
 	flex-direction: row;
+	justify-content: center;
 }
 
 .viewDatasetsContainer {
@@ -77,9 +108,9 @@
 }
 
 .searchDatasetsButton {
-	background-color: purple;
-	border: black;
-	color: black;
+	background-color: black;
+	border: white;
+	color: white;
 	padding: 16px 16px;
 	text-align: center;
 	text-decoration: none;
@@ -126,9 +157,9 @@
 }
 
 .searchResultsHeader {
-	background-color: orange;
-	border: black;
-	color: black;
+	background-color: black;
+	border: white;
+	color: white;
 	padding: 16px 16px;
 	text-align: center;
 	text-decoration: none;
@@ -138,5 +169,13 @@
 }
 
 .searchResultsList {
+
+}
+
+.coursesSearch {
+
+}
+
+.roomsSearch {
 
 }

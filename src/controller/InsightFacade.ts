@@ -89,9 +89,10 @@ export default class InsightFacade implements IInsightFacade {
 		let validQuery: QueryDispatch | null;
 
 		let validator: QueryValidator = new QueryValidator(query);
-		let validDatasetId = validator.setUpQueryValidation(this.datasetIds, query);
-		if (validDatasetId === null) {
-			return Promise.reject(new InsightError("invalid datasetId"));
+		let [validDatasetId, isValid] = validator.setUpQueryValidation(this.datasetIds, query);
+		validDatasetId = validDatasetId as string;
+		if (!isValid) {
+			return Promise.reject(new InsightError(validDatasetId));
 		}
 
 		validQuery = await validator.validateAndParseQuery();
@@ -122,7 +123,8 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		if (aggregateResults.length > 5000) {
-			return Promise.reject(new ResultTooLargeError("too many results"));
+			return Promise.reject(new ResultTooLargeError("Your search yielded over 5000 results, " +
+				"please further narrow your search to see results"));
 		}
 		if (validator.hasTransforms && sortingRequired) {
 			finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);

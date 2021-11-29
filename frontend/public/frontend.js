@@ -1,3 +1,27 @@
+async function generateHeaderMessage() {
+	let headerContainer = document.getElementById("campus-explorer-container");
+	while (headerContainer.firstChild) {
+		headerContainer.removeChild(headerContainer.firstChild);
+	}
+	let header = document.createElement("div");
+	header.className = "header";
+	header.innerText = "UBC Campus Explorer";
+	header.id = "campus-explorer-header";
+	headerContainer.append(header);
+	let subheader = document.createElement("campus-explorer-subheader");
+	subheader.className = "subheader";
+	subheader.id = "campus-explorer-subheader";
+	let response = await fetch('http://localhost:4321/datasets');
+	let results = await response.json();
+	let jsonDatasets = results.result;
+	if (jsonDatasets.length === 0) {
+		subheader.innerText = "Find your favourite courses and rooms at the University of British Columbia!\nSimply add a dataset to start searching!";
+	} else {
+		subheader.innerText = "Find your favourite courses and rooms at the University of British Columbia!";
+	}
+	headerContainer.append(subheader);
+}
+
 function toggleAddForm() {
 	let ele = document.getElementById("add-dataset-form");
 	ele.style.display === 'block' ? ele.style.display = 'none' : ele.style.display = 'block';
@@ -154,49 +178,79 @@ function checkRoomsSelectedSearchTerm()
 	}
 }
 
+function cloneCourseSearchTerms() {
+	let list = document.getElementById("courses-search-list");
+	let elemToClone = document.getElementById("courses-search");
+	let clonedElem = elemToClone.cloneNode(true);
+	console.log(clonedElem.childNodes);
+	list.append(clonedElem);
+	console.log(list);
+}
+
 function extractData(formData) {
 	let datasetID;
 	let searchKey;
 	let searchComparator;
 	let searchValue;
 	let columns;
+	let sortedString;
+	let dir;
 	let sortedBy;
-	let useNot;
+	let useNot = false;
+	let mkeysArray;
 	switch (formData.get("kindOfDataset")) {
 		case "courses":
 			datasetID = formData.get("courses-datasetID");
 			searchKey = formData.get("coursesSearchTerms");
-			searchComparator = formData.get("coursesMcomparatorSelector").toUpperCase();
-			if (searchComparator === "") {
-				searchComparator = "IS";
-				searchValue = formData.get("coursesSSearchTerm");
-			} else {
+			searchComparator = formData.get("coursesComparator");
+			mkeysArray = ["avg", "pass", "fail", "year", "audit"];
+			if (mkeysArray.includes(searchKey)) {
+				searchComparator = searchComparator.toUpperCase();
 				let NotComparators = ['LTEQ', 'GTEQ', 'NEQ'];
-				NotComparators.includes(searchComparator) ? useNot = true : useNot = false;
+				useNot = NotComparators.includes(searchComparator);
 				searchValue = parseFloat(formData.get("coursesMSearchTerm"));
+			} else {
+				searchComparator = "IS";
+				useNot = formData.get("coursesNot") === "not";
+				searchValue = formData.get("coursesSSearchTerm");
 			}
+			console.log(searchComparator);
 			columns = formData.getAll("courses-columns");
-			sortedBy = formData.get("sortCourses");
+			sortedString = formData.get("sortCourses");
+			if (sortedString) {
+				sortedBy = sortedString.split("_")[0];
+				dir = sortedString.split("_")[1];
+			}
 			break;
 		case "rooms":
 			datasetID = formData.get("rooms-datasetID");
 			searchKey = formData.get("roomsSearchTerms");
-			searchComparator = formData.get("roomsMcomparatorSelector").toUpperCase();
-			if (searchComparator === "") {
-				searchComparator = "IS";
-				searchValue = formData.get("roomsSSearchTerm");
-			} else {
+			searchComparator = formData.get("roomsComparator");
+			mkeysArray = ["lat", "lon", "seats"];
+			if (mkeysArray.includes(searchKey)) {
+				searchComparator = searchComparator.toUpperCase();
+				let NotComparators = ['LTEQ', 'GTEQ', 'NEQ'];
+				useNot = NotComparators.includes(searchComparator);
 				searchValue = parseFloat(formData.get("roomsMSearchTerm"));
+			} else {
+				searchComparator = "IS";
+				useNot = formData.get("roomsNot") === "not";
+				searchValue = formData.get("roomsSSearchTerm");
 			}
 			columns = formData.getAll("rooms-columns");
-			sortedBy = formData.get("sortRooms");
+			sortedString = formData.get("sortRooms");
+			if (sortedString) {
+				sortedBy = sortedString.split("_")[0];
+				dir = sortedString.split("_")[1];
+			}
 			break;
 	}
-	return [datasetID, searchKey, searchComparator, searchValue, columns, sortedBy, useNot];
+	return [datasetID, searchKey, searchComparator, searchValue, columns, sortedBy, useNot, dir];
 }
 
 async function searchDatasets() {
 	let formData = new FormData(document.querySelector('form[data-form="search-form"]'));
+	console.log(...formData);
 	let data = extractData(formData);
 	let datasetID = data[0];
 	let searchKey = data[1];
@@ -205,6 +259,7 @@ async function searchDatasets() {
 	let columns = data[4];
 	let sortedBy = data[5];
 	let useNot = data[6];
+	let dir = data[7];
 	let i = 0;
 	for (let column in columns) {
 		column = `${datasetID}_${columns[i]}`;
@@ -229,6 +284,8 @@ async function searchDatasets() {
 			case "NEQ":
 				searchComparator = "EQ";
 				break;
+			default:
+				break;
 		}
 		searchObject[`${searchComparator}`] = compareObject;
 		notObject["NOT"] = searchObject;
@@ -238,11 +295,14 @@ async function searchDatasets() {
 		queryObject["WHERE"] = searchObject;
 	}
 	columnsObject["COLUMNS"] = columns;
-	orderObject["dir"] = "UP";
-	orderObject["keys"] = `${datasetID}_${sortedBy}`
-	columnsObject["ORDER"] = orderObject;
+	if (dir && sortedBy) {
+		orderObject["dir"] = dir.toUpperCase();
+		orderObject["keys"] = `${datasetID}_${sortedBy}`
+		columnsObject["ORDER"] = orderObject;
+	}
 	queryObject["OPTIONS"] = columnsObject;
 	const queryUrl = 'http://localhost:4321/query';
+	console.log(queryObject);
 	return fetch(queryUrl, {
 		method: 'POST',
 		headers: {
@@ -257,7 +317,7 @@ async function searchDatasets() {
 				});
 			} else {
 				return response.json().then((err) => {
-					alert(err.error)
+					alert(`Your search in invalid because of the following error: ${err.error}\nPlease modify your search and try again!`)
 				});
 			}
 		})
@@ -265,6 +325,7 @@ async function searchDatasets() {
 }
 
 function displaySearchResults(jsonResult) {
+	console.log(jsonResult);
 	document.getElementById("search-results-container").style.display = 'block';
 	let resultsList = document.getElementById("search-results-list");
 	resultsList.innerHTML = '';
@@ -292,6 +353,8 @@ async function uploadFile() {
 		.then((response) => {
 			if (response.ok) {
 				return response.json().then((result) => {
+					let subheader = document.getElementById("campus-explorer-subheader");
+					subheader.innerText = "Find your favourite courses and rooms at the University of British Columbia!";
 					alert("File was successfully uploaded!");
 				})} else {
 					return response.json().then((err) => alert(err.error));
@@ -318,6 +381,7 @@ async function showDatasets() {
 	datasetsList.innerHTML = '';
 	for (let i = 0; i < jsonDatasets.length; i++) {
 		const datasetElement = document.createElement('li');
+		datasetElement.id = `dataset-element-${jsonDatasets[i].id}`;
 		datasetElement.innerText = `Dataset name: ${jsonDatasets[i].id}\n Dataset type: ${jsonDatasets[i].kind}\n Number of rows: ${jsonDatasets[i].numRows}\n`;
 		const deleteLink = document.createElement('button');
 		deleteLink.innerHTML = `<button id="delete-dataset" class="deleteDatasetButton" onclick="deleteDataset('${jsonDatasets[i].id}')"> Delete Dataset </button>`;
@@ -334,6 +398,7 @@ async function deleteDataset(datasetID) {
 		.then((response) => {
 			if (response.ok) {
 				return response.json().then((result) => {
+					document.getElementById(`dataset-element-${result.result}`).remove();
 					alert("Dataset was successfully deleted!");
 				})} else {
 				return response.json().then((err) => alert(err.error));

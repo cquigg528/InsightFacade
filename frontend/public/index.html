@@ -6,19 +6,20 @@
 		<link href="/style.css" rel="stylesheet" />
 		<script type="text/javascript" src="frontend.js"></script>
 	</head>
-	<body>
+	<body onload="generateHeaderMessage()">
+	<div id="campus-explorer-container" class="headerContainer"></div>
 	<div id="datasets-container" class="datasetsContainer">
 		<div id="add-dataset-container" class="addDatasetContainer">
 			<button id="add-dataset" class="addDatasetButton" onclick="toggleAddForm()"> Add a new dataset </button>
-			<form data-form="add-form" id="add-dataset-form"  onsubmit="uploadFile(); return false;" style="display: none">
+			<form data-form="add-form" id="add-dataset-form" class="addDatasetForm"  onsubmit="uploadFile(); return false;" style="display: none">
 				<label for="datasetID">Dataset name:</label>
 				<input id="datasetID" type="text" name="datasetID"/><br>
 				<input type="radio" id="coursesKind" name="kind" value="courses">
 				<label for="coursesKind">Courses</label>
 				<input type="radio" id="roomsKind" name="kind" value="rooms">
 				<label for="roomsKind">Rooms</label><br>
-				<input id="fileupload" type="file" name="fileupload" /> <br>
-				<input type="submit" />
+				<input id="fileupload" type="file" name="fileupload"/> <br>
+				<input type="submit"/>
 			</form>
 		</div>
 		<div id="view-datasets-container" class="viewDatasetsContainer">
@@ -31,98 +32,128 @@
 				<input type="radio" id="coursesDataset" name="kindOfDataset" value="courses" onclick="showCoursesSelections()">
 				<label for="coursesDataset">Courses</label><br>
 				<div id="courses-selections" class="coursesSelections" style="display: none">
-					<label for="search-courses-datasetID">Which dataset would you like to search?</label>
-					<input id="search-courses-datasetID" type="text" name="courses-datasetID"/><br>
-					<label for="courses-search-terms">Select your search terms!</label>
-					<select id="courses-search-terms" name="coursesSearchTerms" onclick="checkCoursesSelectedSearchTerm()">
-						<option selected disabled>Select here</option>
-						<option value="avg">Course average</option>
-						<option value="id">Course number</option>
-						<option value="dept">Department</option>
-						<option value="instructor">Instructor</option>
-						<option value="title">Course title</option>
-						<option value="pass">Number of students who passed</option>
-						<option value="fail">Number of students who failed</option>
-						<option value="uuid">Unique ID of a course offering</option>
-						<option value="year">Year that the course offering ran</option>
-						<option value="audit">Number of students who audited the course</option>
-					</select>
-					<div id="courses-mcomparator-search-container" class="courses-mcomparatorSearchContainer" style="display:none">
-						<select id="courses-mcomparator-selector" name="coursesMcomparatorSelector">
-							<option value="lt">Less than (<)</option>
-							<option value="gt">Greater than (>)</option>
-							<option value="eq">Equal to (=)</option>
-							<option value="lteq">Less than or equal to (<=)</option>
-							<option value="gteq">Great than or equal to (>=)</option>
-							<option value="neq">Not equal to (!=)</option>
-						</select>
-						<input id="courses-numerical-search-term" type="number" name="coursesMSearchTerm"/><br>
-					</div>
-					<div id="courses-scomparator-search-container" class="courses-scomparatorSearchContainer" style="display: none">
-						<input type="checkbox" id="courses-scomparator" name="coursesScomparator" value="not">
-						<label for="courses-scomparator">Not</label>
-						<input id="courses-text-search-term" type="text" name="coursesSSearchTerm"/><br>
-					</div>
+					<ul id="courses-search-list" class="coursesSearchList">
+						<div id="courses-search" class="coursesSearch">
+							<label for="search-courses-datasetID">Which dataset would you like to search?</label>
+							<input id="search-courses-datasetID" type="text" name="courses-datasetID"/><br>
+							<label for="courses-search-terms">Select your search terms!</label>
+							<select id="courses-search-terms" name="coursesSearchTerms" onclick="checkCoursesSelectedSearchTerm()">
+								<option selected disabled>Select here</option>
+								<option value="avg">Course average</option>
+								<option value="id">Course number</option>
+								<option value="dept">Department</option>
+								<option value="instructor">Instructor</option>
+								<option value="title">Course title</option>
+								<option value="pass">Number of students who passed</option>
+								<option value="fail">Number of students who failed</option>
+								<option value="uuid">Unique ID of a course offering</option>
+								<option value="year">Year that the course offering ran</option>
+								<option value="audit">Number of students who audited the course</option>
+							</select>
+							<div id="courses-mcomparator-search-container" class="courses-mcomparatorSearchContainer" style="display:none">
+								<select id="courses-mcomparator-selector" name="coursesComparator">
+									<option selected disabled>Select here</option>
+									<option value="lt">Less than (<)</option>
+									<option value="gt">Greater than (>)</option>
+									<option value="eq">Equal to (=)</option>
+									<option value="lteq">Less than or equal to (<=)</option>
+									<option value="gteq">Great than or equal to (>=)</option>
+									<option value="neq">Not equal to (!=)</option>
+								</select>
+								<input id="courses-numerical-search-term" type="number" name="coursesMSearchTerm" step="0.01" min="0"/><br>
+							</div>
+							<div id="courses-scomparator-search-container" class="courses-scomparatorSearchContainer" style="display: none">
+								<input type="checkbox" id="courses-not" name="coursesNot" value="not">
+								<label for="courses-not">Not</label>
+								<input id="courses-text-search-term" type="text" name="coursesSSearchTerm"/>
+							</div><br>
+<!--							<label for="courses-and-selector">And</label>-->
+<!--							<input id="courses-and-selector" type="radio" name="coursesRecursiveSelector" value="and" onclick="cloneCourseSearchTerms()"/>-->
+<!--							<label for="courses-or-selector">Or</label>-->
+<!--							<input id="courses-or-selector" type="radio" name="coursesRecursiveSelector" value="or" onclick="cloneCourseSearchTerms()"/>-->
+<!--							<br>-->
+						</div>
+					</ul>
 					<fieldset>
 						<legend>Which fields do you want to display?</legend>
 						<input type="checkbox" name="courses-columns" value="avg" onclick="toggleCoursesAverage()">Courses Average<br>
 						<div id="sort-courses-avg-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-avg" name="sortCourses" value="avg">
-							<label for="sort-courses-avg">Sort?</label>
+							<input type="radio" id="sort-courses-avg-up" name="sortCourses" value="avg_up">
+							<label for="sort-courses-avg-up">Ascending</label>
+							<input type="radio" id="sort-courses-avg-down" name="sortCourses" value="avg_down">
+							<label for="sort-courses-avg-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="id" onclick="toggleCoursesID()">Course Number<br>
 						<div id="sort-courses-id-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-id" name="sortCourses" value="id">
-							<label for="sort-courses-id">Sort?</label>
+							<input type="radio" id="sort-courses-id-up" name="sortCourses" value="id_up">
+							<label for="sort-courses-id-up">Ascending</label>
+							<input type="radio" id="sort-courses-id-down" name="sortCourses" value="id_down">
+							<label for="sort-courses-id-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="dept" onclick="toggleCoursesDept()">Department<br>
 						<div id="sort-courses-dept-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-dept" name="sortCourses" value="dept">
-							<label for="sort-courses-dept">Sort?</label>
+							<input type="radio" id="sort-courses-dept-up" name="sortCourses" value="dept_up">
+							<label for="sort-courses-dept-up">Ascending</label>
+							<input type="radio" id="sort-courses-dept-down" name="sortCourses" value="dept_down">
+							<label for="sort-courses-dept-down">Descendng</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="instructor" onclick="toggleCoursesInstructor()">Instructor<br>
 						<div id="sort-courses-instructor-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-instructor" name="sortCourses" value="instructor">
-							<label for="sort-courses-instructor">Sort?</label>
+							<input type="radio" id="sort-courses-instructor-up" name="sortCourses" value="instructor_up">
+							<label for="sort-courses-instructor-up">Ascending</label>
+							<input type="radio" id="sort-courses-instructor-down" name="sortCourses" value="instructor_down">
+							<label for="sort-courses-instructor-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="title" onclick="toggleCoursesTitle()">Course title<br>
 						<div id="sort-courses-title-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-title" name="sortCourses" value="title">
-							<label for="sort-courses-title">Sort?</label>
+							<input type="radio" id="sort-courses-title-up" name="sortCourses" value="title_up">
+							<label for="sort-courses-title-up">Ascending</label>
+							<input type="radio" id="sort-courses-title-down" name="sortCourses" value="title_down">
+							<label for="sort-courses-title-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="pass" onclick="toggleCoursesPass()">Number of students who passed<br>
 						<div id="sort-courses-pass-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-pass" name="sortCourses" value="pass">
-							<label for="sort-courses-pass">Sort?</label>
+							<input type="radio" id="sort-courses-pass-up" name="sortCourses" value="pass_up">
+							<label for="sort-courses-pass-up">Ascending</label>
+							<input type="radio" id="sort-courses-pass-down" name="sortCourses" value="pass_down">
+							<label for="sort-courses-pass-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="fail" onclick="toggleCoursesFail()">Number of students who failed<br>
 						<div id="sort-courses-fail-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-fail" name="sortCourses" value="fail">
-							<label for="sort-courses-fail">Sort?</label>
+							<input type="radio" id="sort-courses-fail-up" name="sortCourses" value="fail_up">
+							<label for="sort-courses-fail-up">Ascending</label>
+							<input type="radio" id="sort-courses-fail-down" name="sortCourses" value="fail_down">
+							<label for="sort-courses-fail-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="uuid" onclick="toggleCoursesUUID()">Unique ID of a course offering<br>
 						<div id="sort-courses-uuid-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-uuid" name="sortCourses" value="uuid">
-							<label for="sort-courses-uuid">Sort?</label>
+							<input type="radio" id="sort-courses-uuid-up" name="sortCourses" value="uuid_up">
+							<label for="sort-courses-uuid-up">Ascending</label>
+							<input type="radio" id="sort-courses-uuid-down" name="sortCourses" value="uuid_down">
+							<label for="sort-courses-uuid-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="year" onclick="toggleCoursesYear()">Year that the course offering ran<br>
 						<div id="sort-courses-year-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-year" name="sortCourses" value="year">
-							<label for="sort-courses-year">Sort?</label>
+							<input type="radio" id="sort-courses-year-up" name="sortCourses" value="year_up">
+							<label for="sort-courses-year-up">Ascending</label>
+							<input type="radio" id="sort-courses-year-down" name="sortCourses" value="year_down">
+							<label for="sort-courses-year-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="courses-columns" value="audit" onclick="toggleCoursesAudit()">Number of students who audited the course<br>
 						<div id="sort-courses-audit-container" class="SortCourses" style="display:none">
-							<input type="radio" id="sort-courses-audit" name="sortCourses" value="audit">
-							<label for="sort-courses-audit">Sort?</label>
+							<input type="radio" id="sort-courses-audit-up" name="sortCourses" value="audit_up">
+							<label for="sort-courses-audit-up">Ascending</label>
+							<input type="radio" id="sort-courses-audit-down" name="sortCourses" value="audit_down">
+							<label for="sort-courses-audit-down">Descending</label>
 							<br>
 						</div>
 					</fieldset>
@@ -147,7 +178,8 @@
 						<option value="furniture">Furniture in the room</option>
 					</select>
 					<div id="rooms-mcomparator-search-container" class="roomsMcomparatorSearchContainer" style="display:none">
-						<select id="rooms-mcomparator-selector" name="roomsMcomparatorSelector">
+						<select id="rooms-mcomparator-selector" name="roomsComparator">
+							<option selected disabled>Select here</option>
 							<option value="lt">Less than (<)</option>
 							<option value="gt">Greater than (>)</option>
 							<option value="eq">Equal to (=)</option>
@@ -158,70 +190,90 @@
 						<input id="rooms-numerical-search-term" type="number" name="roomsMSearchTerm"/><br>
 					</div>
 					<div id="rooms-scomparator-search-container" class="roomsScomparatorSearchContainer" style="display: none">
-						<input type="checkbox" id="rooms-scomparator" name="rooms-scomparator" value="not">
-						<label for="rooms-scomparator">Not</label>
+						<input type="checkbox" id="rooms-not" name="roomsNot" value="not">
+						<label for="rooms-not">Not</label>
 						<input id="rooms-text-search-term" type="text" name="roomsSSearchTerm"/><br>
 					</div>
 					<fieldset>
 						<legend>Which fields do you want to display?</legend>
 						<input type="checkbox" name="rooms-columns" value="seats" onclick="toggleRoomsSeats()">Number of seats in the room<br>
 						<div id="sort-rooms-seats-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-seats" name="sortRooms" value="seats">
-							<label for="sort-rooms-seats">Sort?</label>
+							<input type="radio" id="sort-rooms-seats-up" name="sortRooms" value="seats_up">
+							<label for="sort-rooms-seats-up">Ascending</label>
+							<input type="radio" id="sort-rooms-seats-down" name="sortRooms" value="seats_down">
+							<label for="sort-rooms-seats-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="lat" onclick="toggleRoomsLat()">Latitude of building<br>
 						<div id="sort-rooms-lat-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-lat" name="sortRooms" value="lat">
-							<label for="sort-rooms-lat">Sort?</label>
+							<input type="radio" id="sort-rooms-lat-up" name="sortRooms" value="lat_up">
+							<label for="sort-rooms-lat-up">Ascending</label>
+							<input type="radio" id="sort-rooms-lat-down" name="sortRooms" value="lat_down">
+							<label for="sort-rooms-lat-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="lon" onclick="toggleRoomsLon()">Longitude of building<br>
 						<div id="sort-rooms-lon-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-lon" name="sortRooms" value="lon">
-							<label for="sort-rooms-lon">Sort?</label>
+							<input type="radio" id="sort-rooms-lon-up" name="sortRooms" value="lon_up">
+							<label for="sort-rooms-lon-up">Ascending</label>
+							<input type="radio" id="sort-rooms-lon-down" name="sortRooms" value="lon_down">
+							<label for="sort-rooms-lon-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="fullname" onclick="toggleRoomsFullname()">Full name of the building<br>
 						<div id="sort-rooms-fullname-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-fullname" name="sortRooms" value="fullname">
-							<label for="sort-rooms-fullname">Sort?</label>
+							<input type="radio" id="sort-rooms-fullname-up" name="sortRooms" value="fullname_up">
+							<label for="sort-rooms-fullname-up">Ascending</label>
+							<input type="radio" id="sort-rooms-fullname-down" name="sortRooms" value="fullname_down">
+							<label for="sort-rooms-fullname-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="shortname" onclick="toggleRoomsShortname()">Building code<br>
 						<div id="sort-rooms-shortname-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-shortname" name="sortRooms" value="shortname">
-							<label for="sort-rooms-shortname">Sort?</label>
+							<input type="radio" id="sort-rooms-shortname-up" name="sortRooms" value="shortname_up">
+							<label for="sort-rooms-shortname-up">Ascending</label>
+							<input type="radio" id="sort-rooms-shortname-down" name="sortRooms" value="shortname_down">
+							<label for="sort-rooms-shortname-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="number" onclick="toggleRoomsNumber()">Room number<br>
 						<div id="sort-rooms-number-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-number" name="sortRooms" value="number">
-							<label for="sort-rooms-number">Sort?</label>
+							<input type="radio" id="sort-rooms-number-up" name="sortRooms" value="number_up">
+							<label for="sort-rooms-number-up">Ascending</label>
+							<input type="radio" id="sort-rooms-number-down" name="sortRooms" value="number_down">
+							<label for="sort-rooms-number-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="name" onclick="toggleRoomsName()">Room ID<br>
 						<div id="sort-rooms-name-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-name" name="sortRooms" value="name">
-							<label for="sort-rooms-name">Sort?</label>
+							<input type="radio" id="sort-rooms-name-up" name="sortRooms" value="name_up">
+							<label for="sort-rooms-name-up">Ascending</label>
+							<input type="radio" id="sort-rooms-name-down" name="sortRooms" value="name_down">
+							<label for="sort-rooms-name-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="address" onclick="toggleRoomsAddress()">Building address<br>
 						<div id="sort-rooms-address-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-address" name="sortRooms" value="address">
-							<label for="sort-rooms-address">Sort?</label>
+							<input type="radio" id="sort-rooms-address-up" name="sortRooms" value="address_up">
+							<label for="sort-rooms-address-up">Ascending</label>
+							<input type="radio" id="sort-rooms-address-down" name="sortRooms" value="address_down">
+							<label for="sort-rooms-address-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="type" onclick="toggleRoomsType()">Type of the room<br>
 						<div id="sort-rooms-type-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-type" name="sortRooms" value="type">
-							<label for="sort-rooms-type">Sort?</label>
+							<input type="radio" id="sort-rooms-type-up" name="sortRooms" value="type_up">
+							<label for="sort-rooms-type-up">Ascending</label>
+							<input type="radio" id="sort-rooms-type-down" name="sortRooms" value="type_down">
+							<label for="sort-rooms-type-down">Descending</label>
 							<br>
 						</div>
 						<input type="checkbox" name="rooms-columns" value="furniture" onclick="toggleRoomsFurniture()">Furniture in the room<br>
 						<div id="sort-rooms-furniture-container" class="SortRooms" style="display:none">
-							<input type="radio" id="sort-rooms-furniture" name="sortRooms" value="furniture">
-							<label for="sort-rooms-furniture">Sort?</label>
+							<input type="radio" id="sort-rooms-furniture-up" name="sortRooms" value="furniture_up">
+							<label for="sort-rooms-furniture-up">Ascending</label>
+							<input type="radio" id="sort-rooms-furniture-down" name="sortRooms" value="furniture_down">
+							<label for="sort-rooms-furniture-down">Descending</label>
 							<br>
 						</div>
 					</fieldset>
