@@ -249,20 +249,23 @@ function negateSubTree(query: QueryFilter): void {
 		query.self = "OR";
 	} else if (query.self === "OR") {
 		query.self = "AND";
-	} else if (query.self === "NOT") {
-		query.self = "NNOT";
 	} else if (query.self === "NNOT") {
 		query.self = "NOT";
 	}
-	if (query.searches.length !== 0) {
-		negateSearches(query.searches);
-	}
-	if (query.children.length !== 0) {
-		query.children.forEach((child) => {
-			negateSubTree(child);
-		});
+	if (query.self === "NOT") {
+		query.self = "NNOT";
+	} else {
+		if (query.searches.length !== 0) {
+			negateSearches(query.searches);
+		}
+		if (query.children.length !== 0) {
+			query.children.forEach((child) => {
+				negateSubTree(child);
+			});
+		}
 	}
 }
+
 
 // code based off of example found at https://davidwells.io/snippets/traverse-object-unknown-size-javascript
 function isArray(arr: any): boolean {
