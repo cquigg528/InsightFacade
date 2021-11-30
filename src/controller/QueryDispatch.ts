@@ -256,9 +256,8 @@ export default class QueryDispatch {
 	}
 
 	public findAndProcessNot(query: QueryFilter | null): void {
-		if (query === null) {
-			console.assert("QueryDispatch query field is null???");
-		} else {
+		// eslint-disable-next-line no-mixed-spaces-and-tabs
+		 if (query !== null) {
 			if (query.self === "NOT") {
 				query.children.forEach((child) => {
 					negateSubTree(child);
