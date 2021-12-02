@@ -185,11 +185,11 @@ function applyOperation(thisGroup: Set<any>, operation: string, targetCol: strin
 	if (operation === "MAX") {
 		result = valuesForOp.reduce(function(a, b) {
 			return Math.max(a, b);
-		}, -Infinity);
+		}, -1);
 	} else if (operation === "MIN") {
 		result = valuesForOp.reduce(function(a, b) {
 			return Math.min(a, b);
-		}, Infinity);
+		}, 10000);
 	} else if (operation === "AVG") {
 		let total = calcAvgSum(valuesForOp);
 		let avg = total.toNumber() / valuesForOp.length;
