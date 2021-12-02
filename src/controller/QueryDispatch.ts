@@ -256,8 +256,7 @@ export default class QueryDispatch {
 	}
 
 	public findAndProcessNot(query: QueryFilter | null): void {
-		// eslint-disable-next-line no-mixed-spaces-and-tabs
-		 if (query !== null) {
+		if (query !== null) {
 			if (query.self === "NOT") {
 				query.children.forEach((child) => {
 					negateSubTree(child);
