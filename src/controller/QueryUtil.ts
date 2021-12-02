@@ -98,11 +98,10 @@ function groupResult(data: any[], groups: string[]): any[] {
 		// referenced: https://stackoverflow.com/questions/41661287/how-to-check-if-an-array-contains-another-array
 		let index: number = 0;
 		groupIDs.forEach((item) => {
-
-
 			if(JSON.stringify(item) === JSON.stringify(thisGroup)) {
 				groupedResult[index].push(element);
 				setAdded = true;
+				return;
 			}
 			index++;
 		});
@@ -144,13 +143,14 @@ function getTransformed(set: Set<any>, applyRules: any[], columns: any[]): any[]
 				}
 				i += 1;
 			});
+			return;
 		}
 	});
-
 
 	Object.keys(result).forEach((key) => {
 		if(!columns.includes(key)) {
 			delete result[key];
+			return;
 		}
 	});
 
