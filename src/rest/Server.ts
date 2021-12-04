@@ -89,12 +89,10 @@ export default class Server {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/echo/hello
 		this.express.get("/echo/:msg", Server.echo);
-		this.express.get("/dataset/:id");
 		this.express.get("/datasets", this.getDatasets.bind(this));
 		this.express.put("/dataset/:id/:kind", this.addDataset.bind(this));
 		this.express.delete("/dataset/:id", this.deleteDataset.bind(this));
 		this.express.post("/query", this.performQuery.bind(this));
-		// TODO: your other endpoints should go here
 	}
 
 	private async deleteDataset(req: Request, res: Response) {

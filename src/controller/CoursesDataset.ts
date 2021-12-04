@@ -5,8 +5,8 @@ import {Dataset} from "./Dataset";
 
 export class CoursesDataset extends Dataset {
 
-	constructor(id: string, kind: InsightDatasetKind) {
-		super(id, kind);
+	constructor(id: string, kind: InsightDatasetKind, dataset: any[]|undefined = undefined, numRows: number = 0) {
+		super(id, kind, dataset, numRows);
 	}
 
 	public async loadDataset(content: string) {

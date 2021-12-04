@@ -112,7 +112,7 @@ export default class InsightFacade implements IInsightFacade {
 		// }
 
 		let finalResult: any[];
-		let aggregateResults: any[] = [];
+		let aggregateResults: any[];
 		// call Brie's function like
 		if (validator.hasTransforms) {
 			aggregateResults = computeAggregationResult(searchResults, validQuery.group,
@@ -188,14 +188,39 @@ export default class InsightFacade implements IInsightFacade {
 
 	public async checkEmptyDisk(): Promise<any> {
 		return new Promise((resolve, reject) => {
-			fs.readdir("./data", (err, files) => {
+			fs.readdir("./data", async (err, folders) => {
 				if (err) {
 					return reject(new InsightError("Error checking disk"));
 				} else {
-					if (!files.length) {
+					if (!folders.length) {
 						return resolve(false);
 					} else {
-						this.datasetIds = files;
+						this.datasetIds = folders;
+						for (let folder of folders) {
+							let files = await fs.readdir(`./data/${folder}`);
+							let kind;
+							if (files[0].includes("_")) {
+								kind = InsightDatasetKind.Rooms;
+							} else {
+								kind = InsightDatasetKind.Courses;
+							}
+							let promises = [];
+							let listOfCourses = [];
+							for (let file of files) {
+								promises.push(await fs.readFile(`./data/${folder}/${file}`));
+							}
+							await Promise.all(promises);
+							for (let buf of promises) {
+								listOfCourses.push(JSON.parse(buf.toString()));
+							}
+							let newDataset;
+							if (kind === InsightDatasetKind.Courses) {
+								newDataset = new CoursesDataset(folder, kind, listOfCourses, listOfCourses.length);
+							} else {
+								newDataset = new RoomsDataset(folder, kind, listOfCourses, listOfCourses.length);
+							}
+							this.datasets.push(newDataset);
+						}
 						return resolve(true);
 					}
 				}
