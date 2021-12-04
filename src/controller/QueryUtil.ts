@@ -89,7 +89,7 @@ function groupResult(data: any[], groups: string[]): any[] {
 	let thisGroup: any[] = [];
 	let setAdded: boolean = false;
 
-	data.forEach((element) => {
+	for (let element of data) {
 		setAdded = false;
 		thisGroup = [];
 		groups.forEach((column) => {
@@ -97,24 +97,21 @@ function groupResult(data: any[], groups: string[]): any[] {
 		});
 		// referenced: https://stackoverflow.com/questions/41661287/how-to-check-if-an-array-contains-another-array
 		let index: number = 0;
-		groupIDs.forEach((item) => {
-			if(JSON.stringify(item) === JSON.stringify(thisGroup)) {
+		for (let item of groupIDs) {
+			if (JSON.stringify(item) === JSON.stringify(thisGroup)) {
 				groupedResult[index].push(element);
 				setAdded = true;
-				return;
+				break;
 			}
 			index++;
-		});
-
+		}
 		if (!setAdded) {
 			let newSet: any[] = [];
 			newSet.push(element);
 			groupedResult.push(newSet);
 			groupIDs.push(thisGroup);
 		}
-
-
-	});
+	}
 	return groupedResult;
 }
 
@@ -129,28 +126,29 @@ function getTransformed(set: Set<any>, applyRules: any[], columns: any[]): any[]
 
 	result = set.values().next().value;
 
-	opNames.forEach((col) => {
+	for (let col of opNames) {
 		let index: number = opNames.indexOf(col);
 		result[col] = applyOperation(set, operations[index], targetCols[index]);
-	});
-	columns.forEach((col) => {
+	}
+	for (let col of columns) {
 		if(!opNames.includes(col)) {
 			let i: number = 0;
-			Object.keys(ogSet).forEach((key) => {
+			for (let key of Object.keys((ogSet))) {
 				if(key === col) {
-
 					result[col] = Object.values(ogSet)[i];
 				}
 				i += 1;
-			});
-			return;
+			}
+			break;
 		}
-	});
+	}
+	// result = Object.keys(result).filter((key) => {
+	// 	return columns.includes(key);
+	// });
 
 	Object.keys(result).forEach((key) => {
 		if(!columns.includes(key)) {
 			delete result[key];
-			return;
 		}
 	});
 

@@ -107,11 +107,9 @@ export default class InsightFacade implements IInsightFacade {
 		const sortingRequired = validator.order.length !== 0;
 
 		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
-
-		// uncomment this
-		if (searchResults.length > 5000) {
-			return Promise.reject(new ResultTooLargeError("too many results"));
-		}
+		// if (searchResults.length > 5000) {
+		// 	return Promise.reject(new ResultTooLargeError("too many results"));
+		// }
 
 		let finalResult: any[];
 		let aggregateResults: any[] = [];
