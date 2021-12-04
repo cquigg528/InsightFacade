@@ -229,7 +229,9 @@ function switchOnMKey(mkey: string): string {
 		case "seats":
 			searchKey = "seats";
 			break;
-		default: searchKey = "";
+		default:
+			searchKey = "";
+			break;
 	}
 	return searchKey;
 }

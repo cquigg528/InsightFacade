@@ -112,15 +112,14 @@ export default class Server {
 
 	private async addDataset(req: Request, res: Response) {
 		let kind: InsightDatasetKind;
-		if (req.params.kind === "courses") {
-			kind = InsightDatasetKind.Courses;
-		} else if (req.params.kind === "rooms") {
-			kind = InsightDatasetKind.Rooms;
-		} else {
-			res.status(400).json({error: "Invalid kind!"});
-			return;
-		}
 		try {
+			if (req.params.kind === "courses") {
+				kind = InsightDatasetKind.Courses;
+			} else if (req.params.kind === "rooms") {
+				kind = InsightDatasetKind.Rooms;
+			} else {
+				throw new InsightError("Invalid kind!");
+			}
 			const response = await this.facade.addDataset(req.params.id,
 				Buffer.from(req.body).toString("base64"), kind);
 			res.status(200).json({result: response});
@@ -148,12 +147,14 @@ export default class Server {
 	}
 
 	private async performQuery(req: Request, res: Response) {
-		if (await this.facade.checkEmptyDisk()) {
-			res.status(400).json({error: "Missing Dataset"});
-		}
 		try {
-			const response = await this.facade.performQuery(req.body);
-			res.status(200).json({result: response});
+			let notEmptyDisk = await this.facade.checkEmptyDisk();
+			if (!notEmptyDisk) {
+				throw new InsightError("Missing dataset");
+			} else {
+				const response = await this.facade.performQuery(req.body);
+				res.status(200).json({result: response});
+			}
 		} catch(err) {
 			res.status(400).json({error: (err as InsightError).message});
 		}
