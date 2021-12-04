@@ -214,10 +214,12 @@ function calcSum(values: any[]): number {
 function calcAvgSum(values: any[]): Decimal {
 	let result: Decimal = new Decimal(0);
 	let num: Decimal;
-	values.forEach((element) => {
-		num = new Decimal(element);
-		result = Decimal.add(result,num);
-	});
+	for (let element of values) {
+		if (typeof element === "number") {
+			num = new Decimal(element);
+			result = Decimal.add(result,num);
+		}
+	}
 	return result;
 }
 function negateSearches(searches: DatasetSearch[]): void {

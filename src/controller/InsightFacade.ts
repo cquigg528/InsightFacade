@@ -187,16 +187,19 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	public async checkEmptyDisk(): Promise<any> {
-		fs.readdir("./data", function (err, files) {
-			if (err) {
-				return Promise.reject(new InsightError("Error checking disk"));
-			} else {
-				if (!files.length) {
-					return Promise.resolve(false);
+		return new Promise((resolve, reject) => {
+			fs.readdir("./data", (err, files) => {
+				if (err) {
+					return reject(new InsightError("Error checking disk"));
 				} else {
-					Promise.resolve(true);
+					if (!files.length) {
+						return resolve(false);
+					} else {
+						this.datasetIds = files;
+						return resolve(true);
+					}
 				}
-			}
+			});
 		});
 	}
 
