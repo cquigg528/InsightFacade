@@ -360,396 +360,396 @@ describe("InsightFacade", function () {
 		);
 	});
 
-	describe("Debugging tests", function () {
-		let facade: IInsightFacade;
-
-		let emptyKeyWithDatasetQuery: any = {
-			WHERE: {
-				AND: [
-					{
-						GT: {
-							courses_audit: 10
-						}
-					},
-					{
-						LT: {
-							courses_audit: 10
-						}
-					},
-					{
-						GT: {
-							courses_audit: 10
-						}
-					}
-				]
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_avg",
-					"courses"
-				],
-				ORDER: "courses_avg"
-			}
-		};
-
-		let notNotNotOrNotAndGtLt = {
-			WHERE: {
-				NOT: {
-					NOT: {
-						NOT: {
-							OR: [
-								{
-									NOT: {
-										AND: [
-											{
-												GT: {
-													courses_avg: 99.9
-												}
-											},
-											{
-												LT: {
-													courses_avg: 1
-												}
-											}
-										]
-									}
-								}
-							]
-						}
-					}
-				}
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_id",
-					"courses_avg"
-				],
-				ORDER: "courses_avg"
-			}
-		};
-
-		let allApplyFunctions = {
-			WHERE: {},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_title",
-					"overallAvg",
-					"maxFail",
-					"minPass",
-					"sumFail",
-					"countInstructors"
-				]
-			},
-			TRANSFORMATIONS: {
-				GROUP: [
-					"courses_title"
-				],
-				APPLY: [
-					{
-						overallAvg: {
-							AVG: "courses_avg"
-						}
-					},
-					{
-						maxFail: {
-							MAX: "courses_fail"
-						}
-					},
-					{
-						minPass: {
-							MIN: "courses_pass"
-						}
-					},
-					{
-						sumFail: {
-							SUM: "courses_fail"
-						}
-					},
-					{
-						countInstructors: {
-							COUNT: "courses_instructor"
-						}
-					}
-				]
-			}
-		};
-
-		let avgGroup = {
-			WHERE: {
-				OR: [
-					{
-						IS: {
-							courses_id: "310"
-						}
-					},
-					{
-						IS: {
-							courses_id: "210"
-						}
-					}
-				]
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_title",
-					"overallAvg"
-				]
-			},
-			TRANSFORMATIONS: {
-				GROUP: [
-					"courses_title"
-				],
-				APPLY: [
-					{
-						overallAvg: {
-							AVG: "courses_avg"
-						}
-					}
-				]
-			}
-		};
-
-		let notNotNotOrAndGtLt = {
-			WHERE: {
-				NOT: {
-					NOT: {
-						NOT: {
-							OR: [
-								{
-									NOT: {
-										AND: [
-											{
-												GT: {
-													courses_avg: 99.9
-												}
-											},
-											{
-												LT: {
-													courses_avg: 1
-												}
-											}
-										]
-									}
-								}
-							]
-						}
-					}
-				}
-			},
-			OPTIONS: {
-				COLUMNS: [
-					"courses_dept",
-					"courses_id",
-					"courses_avg"
-				],
-				ORDER: "courses_avg"
-			}
-		};
-
-		// Runs before each "it"
-		beforeEach(function () {
-			clearDisk();
-			facade = new InsightFacade();
-		});
-
-		// This works
-		it("should reject a query with applykey in COLUMNS when GROUP is not present", function () {
-			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
-				.then(() => {
-					let result = facade.performQuery(emptyKeyWithDatasetQuery);
-					return expect(result).to.eventually.be.rejectedWith(InsightError);
-				});
-		});
-
-		it("should return an empty list if there are no results (many nested nots)", function () {
-			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
-				.then(() => {
-					let result = facade.performQuery(notNotNotOrNotAndGtLt);
-					return expect(result).to.eventually.deep.equal([]);
-				});
-		});
-
-		it("should run allApplyFunctions", function () {
-			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
-				.then(() => {
-					let result = facade.performQuery(allApplyFunctions);
-					return expect(result).to.eventually.deep.equal([]);
-				});
-		});
-
-		it("should run avgGroup", function () {
-			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
-				.then(() => {
-					let result = facade.performQuery(avgGroup);
-					return expect(result).to.eventually.deep.equal([]);
-				});
-		});
-
-		it("should work with notNotNotOrNotAndGtLt", function () {
-			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
-				.then(() => {
-					let result = facade.performQuery(notNotNotOrAndGtLt);
-					return expect(result).to.eventually.deep.equal([]);
-				});
-		});
-	});
-
-	describe("Perform Query C2 Rooms Dynamic Tests", function () {
-		let facade: InsightFacade;
-
-		before(async function () {
-			clearDisk();
-			facade = new InsightFacade();
-			await facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
-		});
-
-		testFolder<Input, Output, Error>(
-			"Dynamic query testing",
-			(input): Promise<Output> => {
-				return facade.performQuery(input);
-			},
-			"./test/resources/c2_rooms",
-			{
-				errorValidator: (error): error is Error => error === "InsightError" || error === "ResultTooLargeError",
-
-				assertOnError: (expected, actual) => {
-					if (expected === "InsightError") {
-						expect(actual).to.be.instanceof(InsightError);
-					} else if (expected === "ResultTooLargeError") {
-						expect(actual).to.be.instanceof(ResultTooLargeError);
-					} else {
-						// this should be unreachable
-						expect.fail("UNEXPECTED ERROR");
-					}
-				},
-
-				assertOnResult: (expected, actual) => {
-					expect(actual).to.have.deep.members(expected);
-				},
-			}
-		);
-	});
-
-	describe("Add Dataset", function () {
-		let coursesWithInvalidJson: string;
-
-		let facade: IInsightFacade;
-
-		// Runs before each "it"
-		beforeEach(function () {
-			clearDisk();
-			facade = new InsightFacade();
-		});
-
-		it("should be able to add dataset that includes invalid json ", function () {
-			coursesWithInvalidJson = getContentFromArchives("barb.zip");
-			return facade
-				.addDataset("test", coursesWithInvalidJson, InsightDatasetKind.Courses)
-				.then((addedIDs) => expect(addedIDs).to.deep.equal(["test"]));
-		});
-
-		it("should add a valid dataset: collection empty", function () {
-			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses).then((idList) => {
-				expect(idList).to.deep.equal(["courses"]);
-				expect(idList).to.be.an.instanceof(Array);
-				expect(idList).to.have.length(1);
-			});
-		});
-
-		it("should add a valid dataset: collection already has one valid dataset", function () {
-			return facade
-				.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
-				.then(() => {
-					return facade.addDataset("small", coursesContentStr, InsightDatasetKind.Courses);
-				})
-				.then((idList) => {
-					expect(idList).to.have.deep.members(["courses", "small"]);
-					expect(idList).to.be.an.instanceof(Array);
-					expect(idList).to.have.length(2);
-				});
-		});
-
-		it("should add a valid dataset: id contains some whitespace", function () {
-			return facade.addDataset("  co  urses  ", coursesContentStr, InsightDatasetKind.Courses).then((idList) => {
-				expect(idList).to.deep.equal(["  co  urses  "]);
-				expect(idList).to.be.an.instanceof(Array);
-				expect(idList).to.have.length(1);
-			});
-		});
-
-		it("should reject a duplicate dataset", function () {
-			return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses).then(() => {
-				return expect(
-					facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
-				).eventually.to.be.rejectedWith(InsightError);
-			});
-		});
-
-		it("should reject a valid dataset with kind-type Rooms", function () {
-			return expect(
-				facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Rooms)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: id contains underscore", function () {
-			return expect(
-				facade.addDataset("_courses", coursesContentStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: id is all whitespace", function () {
-			return expect(
-				facade.addDataset("    ", coursesContentStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: id is empty string", function () {
-			return expect(
-				facade.addDataset("", coursesContentStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: course files not under a folder courses/", function () {
-			const noCoursesStr = getContentFromArchives("noCoursesFolder.zip");
-			return expect(
-				facade.addDataset("courses", noCoursesStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: courses not in JSON format", function () {
-			const noJSON = getContentFromArchives("filesNotJson.zip");
-			return expect(
-				facade.addDataset("courses", noJSON, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: empty file", function () {
-			const emptyFileStr = getContentFromArchives("emptyFile.zip");
-			return expect(
-				facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: empty file empty courses", function () {
-			const emptyFileStr = getContentFromArchives("emptyFileEmptyCourses.zip");
-			return expect(
-				facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: jsons not in courses", function () {
-			const emptyFileStr = getContentFromArchives("jsonsNotInCourses.zip");
-			return expect(
-				facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-
-		it("should reject an invalid dataset: jsons in different folder", function () {
-			const emptyFileStr = getContentFromArchives("jsonsInDifferentFolder.zip");
-			return expect(
-				facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
-			).to.eventually.be.rejectedWith(InsightError);
-		});
-	});
+	// describe("Debugging tests", function () {
+	// 	let facade: IInsightFacade;
+	//
+	// 	let emptyKeyWithDatasetQuery: any = {
+	// 		WHERE: {
+	// 			AND: [
+	// 				{
+	// 					GT: {
+	// 						courses_audit: 10
+	// 					}
+	// 				},
+	// 				{
+	// 					LT: {
+	// 						courses_audit: 10
+	// 					}
+	// 				},
+	// 				{
+	// 					GT: {
+	// 						courses_audit: 10
+	// 					}
+	// 				}
+	// 			]
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_avg",
+	// 				"courses"
+	// 			],
+	// 			ORDER: "courses_avg"
+	// 		}
+	// 	};
+	//
+	// 	let notNotNotOrNotAndGtLt = {
+	// 		WHERE: {
+	// 			NOT: {
+	// 				NOT: {
+	// 					NOT: {
+	// 						OR: [
+	// 							{
+	// 								NOT: {
+	// 									AND: [
+	// 										{
+	// 											GT: {
+	// 												courses_avg: 99.9
+	// 											}
+	// 										},
+	// 										{
+	// 											LT: {
+	// 												courses_avg: 1
+	// 											}
+	// 										}
+	// 									]
+	// 								}
+	// 							}
+	// 						]
+	// 					}
+	// 				}
+	// 			}
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_id",
+	// 				"courses_avg"
+	// 			],
+	// 			ORDER: "courses_avg"
+	// 		}
+	// 	};
+	//
+	// 	let allApplyFunctions = {
+	// 		WHERE: {},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_title",
+	// 				"overallAvg",
+	// 				"maxFail",
+	// 				"minPass",
+	// 				"sumFail",
+	// 				"countInstructors"
+	// 			]
+	// 		},
+	// 		TRANSFORMATIONS: {
+	// 			GROUP: [
+	// 				"courses_title"
+	// 			],
+	// 			APPLY: [
+	// 				{
+	// 					overallAvg: {
+	// 						AVG: "courses_avg"
+	// 					}
+	// 				},
+	// 				{
+	// 					maxFail: {
+	// 						MAX: "courses_fail"
+	// 					}
+	// 				},
+	// 				{
+	// 					minPass: {
+	// 						MIN: "courses_pass"
+	// 					}
+	// 				},
+	// 				{
+	// 					sumFail: {
+	// 						SUM: "courses_fail"
+	// 					}
+	// 				},
+	// 				{
+	// 					countInstructors: {
+	// 						COUNT: "courses_instructor"
+	// 					}
+	// 				}
+	// 			]
+	// 		}
+	// 	};
+	//
+	// 	let avgGroup = {
+	// 		WHERE: {
+	// 			OR: [
+	// 				{
+	// 					IS: {
+	// 						courses_id: "310"
+	// 					}
+	// 				},
+	// 				{
+	// 					IS: {
+	// 						courses_id: "210"
+	// 					}
+	// 				}
+	// 			]
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_title",
+	// 				"overallAvg"
+	// 			]
+	// 		},
+	// 		TRANSFORMATIONS: {
+	// 			GROUP: [
+	// 				"courses_title"
+	// 			],
+	// 			APPLY: [
+	// 				{
+	// 					overallAvg: {
+	// 						AVG: "courses_avg"
+	// 					}
+	// 				}
+	// 			]
+	// 		}
+	// 	};
+	//
+	// 	let notNotNotOrAndGtLt = {
+	// 		WHERE: {
+	// 			NOT: {
+	// 				NOT: {
+	// 					NOT: {
+	// 						OR: [
+	// 							{
+	// 								NOT: {
+	// 									AND: [
+	// 										{
+	// 											GT: {
+	// 												courses_avg: 99.9
+	// 											}
+	// 										},
+	// 										{
+	// 											LT: {
+	// 												courses_avg: 1
+	// 											}
+	// 										}
+	// 									]
+	// 								}
+	// 							}
+	// 						]
+	// 					}
+	// 				}
+	// 			}
+	// 		},
+	// 		OPTIONS: {
+	// 			COLUMNS: [
+	// 				"courses_dept",
+	// 				"courses_id",
+	// 				"courses_avg"
+	// 			],
+	// 			ORDER: "courses_avg"
+	// 		}
+	// 	};
+	//
+	// 	// Runs before each "it"
+	// 	beforeEach(function () {
+	// 		clearDisk();
+	// 		facade = new InsightFacade();
+	// 	});
+	//
+	// 	// This works
+	// 	it("should reject a query with applykey in COLUMNS when GROUP is not present", function () {
+	// 		return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 			.then(() => {
+	// 				let result = facade.performQuery(emptyKeyWithDatasetQuery);
+	// 				return expect(result).to.eventually.be.rejectedWith(InsightError);
+	// 			});
+	// 	});
+	//
+	// 	it("should return an empty list if there are no results (many nested nots)", function () {
+	// 		return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 			.then(() => {
+	// 				let result = facade.performQuery(notNotNotOrNotAndGtLt);
+	// 				return expect(result).to.eventually.deep.equal([]);
+	// 			});
+	// 	});
+	//
+	// 	it("should run allApplyFunctions", function () {
+	// 		return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 			.then(() => {
+	// 				let result = facade.performQuery(allApplyFunctions);
+	// 				return expect(result).to.eventually.deep.equal([]);
+	// 			});
+	// 	});
+	//
+	// 	it("should run avgGroup", function () {
+	// 		return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 			.then(() => {
+	// 				let result = facade.performQuery(avgGroup);
+	// 				return expect(result).to.eventually.deep.equal([]);
+	// 			});
+	// 	});
+	//
+	// 	it("should work with notNotNotOrNotAndGtLt", function () {
+	// 		return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 			.then(() => {
+	// 				let result = facade.performQuery(notNotNotOrAndGtLt);
+	// 				return expect(result).to.eventually.deep.equal([]);
+	// 			});
+	// 	});
+	// });
+	//
+	// describe("Perform Query C2 Rooms Dynamic Tests", function () {
+	// 	let facade: InsightFacade;
+	//
+	// 	before(async function () {
+	// 		clearDisk();
+	// 		facade = new InsightFacade();
+	// 		await facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+	// 	});
+	//
+	// 	testFolder<Input, Output, Error>(
+	// 		"Dynamic query testing",
+	// 		(input): Promise<Output> => {
+	// 			return facade.performQuery(input);
+	// 		},
+	// 		"./test/resources/c2_rooms",
+	// 		{
+	// 			errorValidator: (error): error is Error => error === "InsightError" || error === "ResultTooLargeError",
+	//
+	// 			assertOnError: (expected, actual) => {
+	// 				if (expected === "InsightError") {
+	// 					expect(actual).to.be.instanceof(InsightError);
+	// 				} else if (expected === "ResultTooLargeError") {
+	// 					expect(actual).to.be.instanceof(ResultTooLargeError);
+	// 				} else {
+	// 					// this should be unreachable
+	// 					expect.fail("UNEXPECTED ERROR");
+	// 				}
+	// 			},
+	//
+	// 			assertOnResult: (expected, actual) => {
+	// 				expect(actual).to.have.deep.members(expected);
+	// 			},
+	// 		}
+	// 	);
+	// });
+	//
+	// describe("Add Dataset", function () {
+	// 	let coursesWithInvalidJson: string;
+	//
+	// 	let facade: IInsightFacade;
+	//
+	// 	// Runs before each "it"
+	// 	beforeEach(function () {
+	// 		clearDisk();
+	// 		facade = new InsightFacade();
+	// 	});
+	//
+	// 	it("should be able to add dataset that includes invalid json ", function () {
+	// 		coursesWithInvalidJson = getContentFromArchives("barb.zip");
+	// 		return facade
+	// 			.addDataset("test", coursesWithInvalidJson, InsightDatasetKind.Courses)
+	// 			.then((addedIDs) => expect(addedIDs).to.deep.equal(["test"]));
+	// 	});
+	//
+	// 	it("should add a valid dataset: collection empty", function () {
+	// 		return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses).then((idList) => {
+	// 			expect(idList).to.deep.equal(["courses"]);
+	// 			expect(idList).to.be.an.instanceof(Array);
+	// 			expect(idList).to.have.length(1);
+	// 		});
+	// 	});
+	//
+	// 	it("should add a valid dataset: collection already has one valid dataset", function () {
+	// 		return facade
+	// 			.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 			.then(() => {
+	// 				return facade.addDataset("small", coursesContentStr, InsightDatasetKind.Courses);
+	// 			})
+	// 			.then((idList) => {
+	// 				expect(idList).to.have.deep.members(["courses", "small"]);
+	// 				expect(idList).to.be.an.instanceof(Array);
+	// 				expect(idList).to.have.length(2);
+	// 			});
+	// 	});
+	//
+	// 	it("should add a valid dataset: id contains some whitespace", function () {
+	// 		return facade.addDataset("  co  urses  ", coursesContentStr, InsightDatasetKind.Courses).then((idList) => {
+	// 			expect(idList).to.deep.equal(["  co  urses  "]);
+	// 			expect(idList).to.be.an.instanceof(Array);
+	// 			expect(idList).to.have.length(1);
+	// 		});
+	// 	});
+	//
+	// 	it("should reject a duplicate dataset", function () {
+	// 		return facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses).then(() => {
+	// 			return expect(
+	// 				facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 			).eventually.to.be.rejectedWith(InsightError);
+	// 		});
+	// 	});
+	//
+	// 	it("should reject a valid dataset with kind-type Rooms", function () {
+	// 		return expect(
+	// 			facade.addDataset("courses", coursesContentStr, InsightDatasetKind.Rooms)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: id contains underscore", function () {
+	// 		return expect(
+	// 			facade.addDataset("_courses", coursesContentStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: id is all whitespace", function () {
+	// 		return expect(
+	// 			facade.addDataset("    ", coursesContentStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: id is empty string", function () {
+	// 		return expect(
+	// 			facade.addDataset("", coursesContentStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: course files not under a folder courses/", function () {
+	// 		const noCoursesStr = getContentFromArchives("noCoursesFolder.zip");
+	// 		return expect(
+	// 			facade.addDataset("courses", noCoursesStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: courses not in JSON format", function () {
+	// 		const noJSON = getContentFromArchives("filesNotJson.zip");
+	// 		return expect(
+	// 			facade.addDataset("courses", noJSON, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: empty file", function () {
+	// 		const emptyFileStr = getContentFromArchives("emptyFile.zip");
+	// 		return expect(
+	// 			facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: empty file empty courses", function () {
+	// 		const emptyFileStr = getContentFromArchives("emptyFileEmptyCourses.zip");
+	// 		return expect(
+	// 			facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: jsons not in courses", function () {
+	// 		const emptyFileStr = getContentFromArchives("jsonsNotInCourses.zip");
+	// 		return expect(
+	// 			facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	//
+	// 	it("should reject an invalid dataset: jsons in different folder", function () {
+	// 		const emptyFileStr = getContentFromArchives("jsonsInDifferentFolder.zip");
+	// 		return expect(
+	// 			facade.addDataset("courses", emptyFileStr, InsightDatasetKind.Courses)
+	// 		).to.eventually.be.rejectedWith(InsightError);
+	// 	});
+	// });
 });
