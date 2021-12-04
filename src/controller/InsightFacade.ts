@@ -112,7 +112,7 @@ export default class InsightFacade implements IInsightFacade {
 		// }
 
 		let finalResult: any[];
-		let aggregateResults: any[] = [];
+		let aggregateResults: any[];
 		// call Brie's function like
 		if (validator.hasTransforms) {
 			aggregateResults = computeAggregationResult(searchResults, validQuery.group,
