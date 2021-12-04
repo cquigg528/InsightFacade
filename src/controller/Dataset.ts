@@ -7,11 +7,12 @@ export abstract class Dataset implements InsightDataset {
 	public numRows: number;
 	protected dataset: any[] | undefined;
 
-	protected constructor(id: string, kind: InsightDatasetKind) {
+	protected constructor(id: string, kind: InsightDatasetKind,
+		dataset: any[]|undefined = undefined, numRows: number = 0) {
 		this.id = id;
-		this.numRows = 0;
+		this.numRows = numRows;
 		this.kind = kind;
-		this.dataset = undefined;
+		this.dataset = dataset;
 	}
 
 	public deleteDataset(): void {

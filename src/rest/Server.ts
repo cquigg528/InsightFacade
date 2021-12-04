@@ -89,12 +89,10 @@ export default class Server {
 		// This is an example endpoint this you can invoke by accessing this URL in your browser:
 		// http://localhost:4321/echo/hello
 		this.express.get("/echo/:msg", Server.echo);
-		this.express.get("/dataset/:id");
 		this.express.get("/datasets", this.getDatasets.bind(this));
 		this.express.put("/dataset/:id/:kind", this.addDataset.bind(this));
 		this.express.delete("/dataset/:id", this.deleteDataset.bind(this));
 		this.express.post("/query", this.performQuery.bind(this));
-		// TODO: your other endpoints should go here
 	}
 
 	private async deleteDataset(req: Request, res: Response) {
@@ -112,15 +110,14 @@ export default class Server {
 
 	private async addDataset(req: Request, res: Response) {
 		let kind: InsightDatasetKind;
-		if (req.params.kind === "courses") {
-			kind = InsightDatasetKind.Courses;
-		} else if (req.params.kind === "rooms") {
-			kind = InsightDatasetKind.Rooms;
-		} else {
-			res.status(400).json({error: "Invalid kind!"});
-			return;
-		}
 		try {
+			if (req.params.kind === "courses") {
+				kind = InsightDatasetKind.Courses;
+			} else if (req.params.kind === "rooms") {
+				kind = InsightDatasetKind.Rooms;
+			} else {
+				throw new InsightError("Invalid kind!");
+			}
 			const response = await this.facade.addDataset(req.params.id,
 				Buffer.from(req.body).toString("base64"), kind);
 			res.status(200).json({result: response});
@@ -148,12 +145,14 @@ export default class Server {
 	}
 
 	private async performQuery(req: Request, res: Response) {
-		if (await this.facade.checkEmptyDisk()) {
-			res.status(400).json({error: "Missing Dataset"});
-		}
 		try {
-			const response = await this.facade.performQuery(req.body);
-			res.status(200).json({result: response});
+			let notEmptyDisk = await this.facade.checkEmptyDisk();
+			if (!notEmptyDisk) {
+				throw new InsightError("Missing dataset");
+			} else {
+				const response = await this.facade.performQuery(req.body);
+				res.status(200).json({result: response});
+			}
 		} catch(err) {
 			res.status(400).json({error: (err as InsightError).message});
 		}
