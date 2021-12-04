@@ -94,7 +94,6 @@ export default class InsightFacade implements IInsightFacade {
 		if (!isValid) {
 			return Promise.reject(new InsightError(validDatasetId));
 		}
-
 		validQuery = await validator.validateAndParseQuery();
 
 		if (validQuery === null) {
@@ -108,9 +107,11 @@ export default class InsightFacade implements IInsightFacade {
 		const sortingRequired = validator.order.length !== 0;
 
 		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
-		// if (searchResults.length > 5000) {
-		// 	return Promise.reject(new ResultTooLargeError("too many results"));
-		// }
+
+		// uncomment this
+		if (searchResults.length > 5000) {
+			return Promise.reject(new ResultTooLargeError("too many results"));
+		}
 
 		let finalResult: any[];
 		let aggregateResults: any[] = [];
