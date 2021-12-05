@@ -73,17 +73,18 @@ function onlyNonUnique(value: any, ind: any, self: any) {
 	return !(self.indexOf(value) === ind);
 }
 
-function computeAggregationResult(searchResult: any[], thisGroup: string[], applyRules: any[], columns: any[]): any[] {
-	let groupedResult: any[] = groupResult(searchResult, thisGroup);
+async function computeAggregationResult(searchResult: any[],
+	thisGroup: string[], applyRules: any[], columns: any[]): Promise<any[]> {
+	let groupedResult: any[] = await groupResult(searchResult, thisGroup);
 	let result: any[] = [];
 
-	for (let i = 0, n = groupedResult.length; i < n; i++){
+	for (let i = 0, n = groupedResult.length; i < n; i++) {
 		result.push(getTransformed(groupedResult[i], applyRules, columns));
 	}
 	return result;
 }
 
-function groupResult(data: any[], groups: string[]): any[] {
+function groupResult(data: any[], groups: string[]): Promise<any[]> {
 	let groupedResult: any[] = [];
 	let groupIDs: any[] = [];
 	let thisGroup: any[] = [];
@@ -113,7 +114,7 @@ function groupResult(data: any[], groups: string[]): any[] {
 			groupIDs.push(thisGroup);
 		}
 	}
-	return groupedResult;
+	return Promise.all(groupedResult);
 }
 
 function getTransformed(set: Set<any>, applyRules: any[], columns: any[]): any[] {

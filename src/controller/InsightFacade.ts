@@ -104,7 +104,7 @@ export default class InsightFacade implements IInsightFacade {
 			let aggregateResults, finalResult: any[] = [];
 			if (validator.hasTransforms) {
 				try {
-					aggregateResults = computeAggregationResult(searchResults, validQuery.group,
+					aggregateResults = await computeAggregationResult(searchResults, validQuery.group,
 						validQuery.applyRules, validQuery.columns);
 				} catch (err) {
 					return Promise.reject(new InsightError((err as Error).message));
