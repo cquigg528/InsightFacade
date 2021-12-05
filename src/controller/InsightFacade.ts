@@ -96,16 +96,16 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			validQuery = await validator.validateAndParseQuery();
 			if (validQuery === null) {
-				// query found to be invalid
 				return Promise.reject(new InsightError("query failed validation"));
 			}
-			// get dataset
 			const dataset: any = this.getDatasetById(validDatasetId);
 			const sortingRequired = validator.order.length !== 0;
 			let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
-
-			let finalResult: any[];
-			let aggregateResults: any[] = [];
+			if (searchResults.length > 5000) {
+				return Promise.reject(new ResultTooLargeError("Your search yielded over 5000 results, " +
+					"please further narrow your search to see results"));
+			}
+			let aggregateResults, finalResult: any[] = [];
 			if (validator.hasTransforms) {
 				try {
 					aggregateResults = computeAggregationResult(searchResults, validQuery.group,
@@ -116,7 +116,6 @@ export default class InsightFacade implements IInsightFacade {
 			} else {
 				aggregateResults = searchResults;
 			}
-
 			if (aggregateResults.length > 5000) {
 				return Promise.reject(new ResultTooLargeError("Your search yielded over 5000 results, " +
 					"please further narrow your search to see results"));
