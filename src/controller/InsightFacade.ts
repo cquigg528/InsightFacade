@@ -89,7 +89,7 @@ export default class InsightFacade implements IInsightFacade {
 		let validQuery: QueryDispatch | null;
 
 		let validator: QueryValidator = new QueryValidator(query);
-		let [validDatasetId, isValid] = validator.setUpQueryValidation(this.datasetIds, query);
+		let [validDatasetId, isValid] = validator.setUpQueryValidation(this.datasets, query);
 		validDatasetId = validDatasetId as string;
 		if (!isValid) {
 			return Promise.reject(new InsightError(validDatasetId));
@@ -112,11 +112,15 @@ export default class InsightFacade implements IInsightFacade {
 		// }
 
 		let finalResult: any[];
-		let aggregateResults: any[];
+		let aggregateResults: any[] = [];
 		// call Brie's function like
 		if (validator.hasTransforms) {
-			aggregateResults = computeAggregationResult(searchResults, validQuery.group,
-				validQuery.applyRules, validQuery.columns);
+			try {
+				aggregateResults = computeAggregationResult(searchResults, validQuery.group,
+					validQuery.applyRules, validQuery.columns);
+			} catch (err) {
+				return Promise.reject(new InsightError((err as Error).message));
+			}
 		} else {
 			aggregateResults = searchResults;
 		}

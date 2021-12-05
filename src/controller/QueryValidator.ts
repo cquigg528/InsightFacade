@@ -9,15 +9,9 @@ const negationKey = "NOT";
 const possibleKeys = logicKeys.concat(mCompareKeys).concat(sCompareKey).concat(negationKey);
 
 export class QueryValidator {
-	public query: any;
-	public mkeys: string[];
-	public skeys: string[];
-	public validWhere: boolean;
-	public validOptions: boolean;
-	public order: string[];
-	public orderDir: string;
-	public hasTransforms: boolean;
-	public datasetType: string;
+	public query: any; public mkeys: string[]; public skeys: string[];
+	public validWhere: boolean; public validOptions: boolean; public order: string[];
+	public orderDir: string; public hasTransforms: boolean; public datasetType: string;
 	constructor(query: any) {
 		this.query = query;
 		this.mkeys = [];
@@ -30,11 +24,14 @@ export class QueryValidator {
 		this.datasetType = "";
 	}
 
-	public setUpQueryValidation(datasetIds: string[], query: any): Array<string | boolean> {
+	public setUpQueryValidation(datasets: any[], query: any): Array<string | boolean> {
+		let datasetIds = datasets.map((dataset) => {
+			return dataset.id;
+		});
 		if (typeof query !== "object") {
 			return ["Your query was not a valid JSON object", false];
 		}
-		let id = null;
+		let id: string | boolean | null = null;
 		let validColumnKeysCourses, validColumnKeysRooms: boolean = false;
 		// If there is no query.COLUMNS.OPTIONS field, or if that field is an empty list, the query is invalid
 		try {
@@ -50,19 +47,22 @@ export class QueryValidator {
 				return ["Your dataset ID was incorrectly specified. " +
 				"Please make sure the dataset you are searching has already been added.", false];
 			}
+			let dataset = datasets.filter((data) => {
+				return data.id === id;
+			});
 			// Check that all keys in columns are of type room or course
 			let field: string = queryKey.split("_")[1];
 			let courseFields = ["avg", "pass", "fail", "audit", "dept", "year", "id", "instructor", "title", "uuid"];
 			let roomFields = ["fullname", "shortname", "number", "name", "address", "lat", "lon", "seats", "type",
 				"furniture", "href"];
-			if (courseFields.includes(field)) {
+			if (dataset[0].kind === InsightDatasetKind.Courses && courseFields.includes(field)) {
 				validColumnKeysCourses = queryKeyList.every((key: string) =>
 					key.includes("_") ? courseFields.includes(key.split("_")[1]) : true);
 				if (validColumnKeysCourses) {
 					this.mkeys = [id + "_avg", id + "_pass", id + "_fail", id + "_audit", id + "_year"];
 					this.skeys = [id + "_dept", id + "_id", id + "_instructor", id + "_title", id + "_uuid"];
 				}
-			} else if (roomFields.includes(field)) {
+			} else if (dataset[0].kind === InsightDatasetKind.Rooms && roomFields.includes(field)) {
 				validColumnKeysRooms = queryKeyList.every((key: string) =>
 					key.includes("_") ? roomFields.includes(key.split("_")[1]) : true);
 				if (validColumnKeysRooms) {
