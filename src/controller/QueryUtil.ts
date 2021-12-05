@@ -4,6 +4,7 @@ import Decimal from "decimal.js";
 import {switchOnSkey, switchOnMKey} from "./Dataset";
 import QueryDispatch from "./QueryDispatch";
 import { QueryValidator } from "./QueryValidator";
+import { type } from "os";
 
 // from http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
 function isEquivalent(a: any, b: any): boolean {
@@ -74,48 +75,37 @@ function onlyNonUnique(value: any, ind: any, self: any) {
 }
 
 function computeAggregationResult(searchResult: any[], thisGroup: string[], applyRules: any[], columns: any[]): any[] {
-	let groupedResult: any[] = groupResult(searchResult, thisGroup);
+	let groupedResult: Map<string, any[]> = groupResult(searchResult, thisGroup);
 	let result: any[] = [];
 
-	groupedResult.forEach((set) => {
+	for(let set of groupedResult.values()) {
 		result.push(getTransformed(set, applyRules, columns));
-	});
+	}
 	return result;
 }
 
-function groupResult(data: any[], groups: string[]): any[] {
-	let groupedResult: any[] = [];
-	let groupIDs: any[] = [];
-	let thisGroup: any[] = [];
-	let setAdded: boolean = false;
+function groupResult(data: any[], groups: string[]): Map<string, any[]> {
+	let groupedResult: Map<string, any[]> = new Map<string, any[]>();
+	let thisGroup: string[] = [];
 
 	for (let element of data) {
-		setAdded = false;
 		thisGroup = [];
 		groups.forEach((column) => {
 			thisGroup.push(element[column]);
 		});
+		let stringGroup = JSON.stringify(thisGroup);
+		if (groupedResult.has(stringGroup)) {
+			groupedResult.get(stringGroup)?.push(element);
+		} else {
+			groupedResult.set(stringGroup, [element]);
+		}
 		// referenced: https://stackoverflow.com/questions/41661287/how-to-check-if-an-array-contains-another-array
-		let index: number = 0;
-		for (let item of groupIDs) {
-			if (JSON.stringify(item) === JSON.stringify(thisGroup)) {
-				groupedResult[index].push(element);
-				setAdded = true;
-				break;
-			}
-			index++;
-		}
-		if (!setAdded) {
-			let newSet: any[] = [];
-			newSet.push(element);
-			groupedResult.push(newSet);
-			groupIDs.push(thisGroup);
-		}
+
 	}
 	return groupedResult;
 }
 
-function getTransformed(set: Set<any>, applyRules: any[], columns: any[]): any[] {
+function getTransformed(set: any[], applyRules: any[], columns: any[]): any[] {
 	let opNames: string[] = [];
 	let operations: string[] = [];
 	let targetCols: string[] = [];
@@ -170,7 +160,7 @@ function getColumnsFromApply(applyRules: any[]){
 	return {opNames, operations, targetCols};
 }
 
-function applyOperation(thisGroup: Set<any>, operation: string, targetCol: string): any {
+function applyOperation(thisGroup: any[], operation: string, targetCol: string): any {
 	let result: any = 0;
 	let valuesForOp: any[] = [];
 	// let skeySwitched = switchOnSkey(targetCol.split("_")[1]);
