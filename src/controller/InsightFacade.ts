@@ -86,59 +86,54 @@ export default class InsightFacade implements IInsightFacade {
 	 * or an InsightError (for any other source of failure) describing the error.
 	 */
 	public async performQuery(query: any): Promise<any[]> {
-		let validQuery: QueryDispatch | null;
-
-		let validator: QueryValidator = new QueryValidator(query);
-		let [validDatasetId, isValid] = validator.setUpQueryValidation(this.datasets, query);
-		validDatasetId = validDatasetId as string;
-		if (!isValid) {
-			return Promise.reject(new InsightError(validDatasetId));
-		}
-		validQuery = await validator.validateAndParseQuery();
-
-		if (validQuery === null) {
-			// query found to be invalid
-			return Promise.reject(new InsightError("query failed validation"));
-		}
-
-		// get dataset
-		const dataset: any = this.getDatasetById(validDatasetId);
-
-		const sortingRequired = validator.order.length !== 0;
-
-		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
-		// if (searchResults.length > 5000) {
-		// 	return Promise.reject(new ResultTooLargeError("too many results"));
-		// }
-
-		let finalResult: any[];
-		let aggregateResults: any[] = [];
-		// call Brie's function like
-		if (validator.hasTransforms) {
-			try {
-				aggregateResults = computeAggregationResult(searchResults, validQuery.group,
-					validQuery.applyRules, validQuery.columns);
-			} catch (err) {
-				return Promise.reject(new InsightError((err as Error).message));
+		try {
+			let validQuery: QueryDispatch | null;
+			let validator: QueryValidator = new QueryValidator(query);
+			let [validDatasetId, isValid] = validator.setUpQueryValidation(this.datasets, query);
+			validDatasetId = validDatasetId as string;
+			if (!isValid) {
+				return Promise.reject(new InsightError(validDatasetId));
 			}
-		} else {
-			aggregateResults = searchResults;
-		}
+			validQuery = await validator.validateAndParseQuery();
+			if (validQuery === null) {
+				// query found to be invalid
+				return Promise.reject(new InsightError("query failed validation"));
+			}
+			// get dataset
+			const dataset: any = this.getDatasetById(validDatasetId);
+			const sortingRequired = validator.order.length !== 0;
+			let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
 
-		if (aggregateResults.length > 5000) {
-			return Promise.reject(new ResultTooLargeError("Your search yielded over 5000 results, " +
-				"please further narrow your search to see results"));
-		}
-		if (validator.hasTransforms && sortingRequired) {
-			finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);
-			return Promise.resolve(finalResult);
-		} else if (!sortingRequired && validator.hasTransforms) {
-			return Promise.resolve(aggregateResults);
-		} else if (sortingRequired) {
-			finalResult = sortResult(searchResults, validator.order, validator.orderDir);
-			return Promise.resolve(finalResult);
-		} else {
-			return Promise.resolve(searchResults);
+			let finalResult: any[];
+			let aggregateResults: any[] = [];
+			if (validator.hasTransforms) {
+				try {
+					aggregateResults = computeAggregationResult(searchResults, validQuery.group,
+						validQuery.applyRules, validQuery.columns);
+				} catch (err) {
+					return Promise.reject(new InsightError((err as Error).message));
+				}
+			} else {
+				aggregateResults = searchResults;
+			}
+
+			if (aggregateResults.length > 5000) {
+				return Promise.reject(new ResultTooLargeError("Your search yielded over 5000 results, " +
+					"please further narrow your search to see results"));
+			}
+			if (validator.hasTransforms && sortingRequired) {
+				finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);
+				return Promise.resolve(finalResult);
+			} else if (!sortingRequired && validator.hasTransforms) {
+				return Promise.resolve(aggregateResults);
+			} else if (sortingRequired) {
+				finalResult = sortResult(searchResults, validator.order, validator.orderDir);
+				return Promise.resolve(finalResult);
+			} else {
+				return Promise.resolve(searchResults);
+			}
+		} catch (err) {
+			return Promise.reject(new InsightError((err as Error).message));
 		}
 	}
 
