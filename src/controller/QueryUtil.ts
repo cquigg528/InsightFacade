@@ -74,15 +74,18 @@ function onlyNonUnique(value: any, ind: any, self: any) {
 	return !(self.indexOf(value) === ind);
 }
 
+
 function computeAggregationResult(searchResult: any[], thisGroup: string[], applyRules: any[], columns: any[]): any[] {
 	let groupedResult: Map<string, any[]> = groupResult(searchResult, thisGroup);
 	let result: any[] = [];
 
 	for(let set of groupedResult.values()) {
 		result.push(getTransformed(set, applyRules, columns));
+
 	}
 	return result;
 }
+
 
 function groupResult(data: any[], groups: string[]): Map<string, any[]> {
 	let groupedResult: Map<string, any[]> = new Map<string, any[]>();

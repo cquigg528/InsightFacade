@@ -86,55 +86,49 @@ export default class InsightFacade implements IInsightFacade {
 	 * or an InsightError (for any other source of failure) describing the error.
 	 */
 	public async performQuery(query: any): Promise<any[]> {
-		let validQuery: QueryDispatch | null;
-
-		let validator: QueryValidator = new QueryValidator(query);
-		let [validDatasetId, isValid] = validator.setUpQueryValidation(this.datasetIds, query);
-		validDatasetId = validDatasetId as string;
-		if (!isValid) {
-			return Promise.reject(new InsightError(validDatasetId));
-		}
-		validQuery = await validator.validateAndParseQuery();
-
-		if (validQuery === null) {
-			// query found to be invalid
-			return Promise.reject(new InsightError("query failed validation"));
-		}
-
-		// get dataset
-		const dataset: any = this.getDatasetById(validDatasetId);
-
-		const sortingRequired = validator.order.length !== 0;
-
-		let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
-		// if (searchResults.length > 5000) {
-		// 	return Promise.reject(new ResultTooLargeError("too many results"));
-		// }
-
-		let finalResult: any[];
-		let aggregateResults: any[] = [];
-		// call Brie's function like
-		if (validator.hasTransforms) {
-			aggregateResults = computeAggregationResult(searchResults, validQuery.group,
-				validQuery.applyRules, validQuery.columns);
-		} else {
-			aggregateResults = searchResults;
-		}
-
-		if (aggregateResults.length > 5000) {
-			return Promise.reject(new ResultTooLargeError("Your search yielded over 5000 results, " +
-				"please further narrow your search to see results"));
-		}
-		if (validator.hasTransforms && sortingRequired) {
-			finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);
-			return Promise.resolve(finalResult);
-		} else if (!sortingRequired && validator.hasTransforms) {
-			return Promise.resolve(aggregateResults);
-		} else if (sortingRequired) {
-			finalResult = sortResult(searchResults, validator.order, validator.orderDir);
-			return Promise.resolve(finalResult);
-		} else {
-			return Promise.resolve(searchResults);
+		try {
+			let validQuery: QueryDispatch | null;
+			let validator: QueryValidator = new QueryValidator(query);
+			let [validDatasetId, isValid] = validator.setUpQueryValidation(this.datasets, query);
+			validDatasetId = validDatasetId as string;
+			if (!isValid) {
+				return Promise.reject(new InsightError(validDatasetId));
+			}
+			validQuery = await validator.validateAndParseQuery();
+			if (validQuery === null) {
+				return Promise.reject(new InsightError("query failed validation"));
+			}
+			const dataset: any = this.getDatasetById(validDatasetId);
+			const sortingRequired = validator.order.length !== 0;
+			let searchResults: any[] = await validQuery.performDatasetSearch(dataset);
+			let aggregateResults, finalResult: any[] = [];
+			if (validator.hasTransforms) {
+				try {
+					aggregateResults = await computeAggregationResult(searchResults, validQuery.group,
+						validQuery.applyRules, validQuery.columns);
+				} catch (err) {
+					return Promise.reject(new InsightError((err as Error).message));
+				}
+			} else {
+				aggregateResults = searchResults;
+			}
+			if (aggregateResults.length > 5000) {
+				return Promise.reject(new ResultTooLargeError("Your search yielded over 5000 results, " +
+					"please further narrow your search to see results"));
+			}
+			if (validator.hasTransforms && sortingRequired) {
+				finalResult = sortResult(aggregateResults, validator.order, validator.orderDir);
+				return Promise.resolve(finalResult);
+			} else if (!sortingRequired && validator.hasTransforms) {
+				return Promise.resolve(aggregateResults);
+			} else if (sortingRequired) {
+				finalResult = sortResult(searchResults, validator.order, validator.orderDir);
+				return Promise.resolve(finalResult);
+			} else {
+				return Promise.resolve(searchResults);
+			}
+		} catch (err) {
+			return Promise.reject(new InsightError((err as Error).message));
 		}
 	}
 
@@ -188,14 +182,39 @@ export default class InsightFacade implements IInsightFacade {
 
 	public async checkEmptyDisk(): Promise<any> {
 		return new Promise((resolve, reject) => {
-			fs.readdir("./data", (err, files) => {
+			fs.readdir("./data", async (err, folders) => {
 				if (err) {
 					return reject(new InsightError("Error checking disk"));
 				} else {
-					if (!files.length) {
+					if (!folders.length) {
 						return resolve(false);
 					} else {
-						this.datasetIds = files;
+						this.datasetIds = folders;
+						for (let folder of folders) {
+							let files = await fs.readdir(`./data/${folder}`);
+							let kind;
+							if (files[0].includes("_")) {
+								kind = InsightDatasetKind.Rooms;
+							} else {
+								kind = InsightDatasetKind.Courses;
+							}
+							let promises = [];
+							let listOfCourses = [];
+							for (let file of files) {
+								promises.push(await fs.readFile(`./data/${folder}/${file}`));
+							}
+							await Promise.all(promises);
+							for (let buf of promises) {
+								listOfCourses.push(JSON.parse(buf.toString()));
+							}
+							let newDataset;
+							if (kind === InsightDatasetKind.Courses) {
+								newDataset = new CoursesDataset(folder, kind, listOfCourses, listOfCourses.length);
+							} else {
+								newDataset = new RoomsDataset(folder, kind, listOfCourses, listOfCourses.length);
+							}
+							this.datasets.push(newDataset);
+						}
 						return resolve(true);
 					}
 				}
