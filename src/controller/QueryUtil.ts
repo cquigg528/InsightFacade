@@ -77,9 +77,9 @@ function computeAggregationResult(searchResult: any[], thisGroup: string[], appl
 	let groupedResult: any[] = groupResult(searchResult, thisGroup);
 	let result: any[] = [];
 
-	groupedResult.forEach((set) => {
-		result.push(getTransformed(set, applyRules, columns));
-	});
+	for (let i = 0, n = groupedResult.length; i < n; i++){
+		result.push(getTransformed(groupedResult[i], applyRules, columns));
+	}
 	return result;
 }
 
@@ -89,7 +89,8 @@ function groupResult(data: any[], groups: string[]): any[] {
 	let thisGroup: any[] = [];
 	let setAdded: boolean = false;
 
-	for (let element of data) {
+	for (let i = 0, n = data.length; i < n; i++){
+		let element = data[i];
 		setAdded = false;
 		thisGroup = [];
 		groups.forEach((column) => {
