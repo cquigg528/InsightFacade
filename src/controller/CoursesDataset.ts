@@ -31,7 +31,7 @@ export class CoursesDataset extends Dataset {
 				continue;
 			}
 			// check if the file is in the courses folder
-			const regex = new RegExp("courses/.*");
+			const regex = new RegExp("^[^/]*/courses/.*");
 			if (!regex.test(zip.files[filename].name)) {
 				continue;
 			}
