@@ -37,31 +37,35 @@ export default class InsightFacade implements IInsightFacade {
 
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		// Check if id is invalid: contains underscores or only whitespace, or is already in dataset
-		if (id.includes("_")) {
-			return Promise.reject(new InsightError("Invalid ID: Contains an underscore (_)."));
+		try {
+			if (id.includes("_")) {
+				return Promise.reject(new InsightError("Invalid ID: Contains an underscore (_)."));
+			}
+			if (id.trim() === "") {
+				return Promise.reject(new InsightError("Invalid ID: Contains only whitespace."));
+			}
+			if (this.datasetIds.includes(id)) {
+				return Promise.reject(new InsightError("Dataset already contains this ID."));
+			}
+			if (kind !== InsightDatasetKind.Courses && kind !== InsightDatasetKind.Rooms) {
+				return Promise.reject(new InsightError("Invalid kind! We only accept courses or rooms."));
+			}
+			let datasetObj: Dataset;
+			if (kind === InsightDatasetKind.Rooms) {
+				datasetObj = new RoomsDataset(id, kind);
+			} else {
+				datasetObj = new CoursesDataset(id, kind);
+			}
+			await datasetObj.loadDataset(content);
+			if (datasetObj.numRows === 0) {
+				return Promise.reject(new InsightError("Dataset contains no valid sections!"));
+			}
+			this.datasets.push(datasetObj);
+			this.datasetIds.push(datasetObj.id);
+			return Promise.resolve(this.datasetIds);
+		} catch (err) {
+			return Promise.reject(new InsightError((err as Error).message));
 		}
-		if (id.trim() === "") {
-			return Promise.reject(new InsightError("Invalid ID: Contains only whitespace."));
-		}
-		if (this.datasetIds.includes(id)) {
-			return Promise.reject(new InsightError("Dataset already contains this ID."));
-		}
-		if (kind !== InsightDatasetKind.Courses && kind !== InsightDatasetKind.Rooms) {
-			return Promise.reject(new InsightError("Invalid kind! We only accept courses or rooms."));
-		}
-		let datasetObj: Dataset;
-		if (kind === InsightDatasetKind.Rooms) {
-			datasetObj = new RoomsDataset(id, kind);
-		} else {
-			datasetObj = new CoursesDataset(id, kind);
-		}
-		await datasetObj.loadDataset(content);
-		if (datasetObj.numRows === 0) {
-			return Promise.reject(new InsightError("Dataset contains no valid sections!"));
-		}
-		this.datasets.push(datasetObj);
-		this.datasetIds.push(datasetObj.id);
-		return Promise.resolve(this.datasetIds);
 	}
 
 	public listDatasets(): Promise<InsightDataset[]> {
@@ -104,7 +108,7 @@ export default class InsightFacade implements IInsightFacade {
 			let aggregateResults, finalResult: any[] = [];
 			if (validator.hasTransforms) {
 				try {
-					aggregateResults = await computeAggregationResult(searchResults, validQuery.group,
+					aggregateResults = computeAggregationResult(searchResults, validQuery.group,
 						validQuery.applyRules, validQuery.columns);
 				} catch (err) {
 					return Promise.reject(new InsightError((err as Error).message));
@@ -152,32 +156,36 @@ export default class InsightFacade implements IInsightFacade {
 	 * that subsequent queries for that id should fail unless a new addDataset happens first.
 	 */
 	public async removeDataset(id: string): Promise<string> {
-		const validIdRegex = /^[^_]+$/;
+		try {
+			const validIdRegex = /^[^_]+$/;
 
-		// if regex does not match, reject
-		if (!id.match(validIdRegex) || id.trim() === "") {
-			return Promise.reject(new InsightError("Invalid ID!"));
-		}
-		if (this.datasetIds.includes(id)) {
-			let path = `./data/${id}/`;
-			try {
-				await fs.rmdir(path, {recursive: true});
-			} catch {
-				return Promise.reject(new InsightError("Failed to remove directory!"));
+			// if regex does not match, reject
+			if (!id.match(validIdRegex) || id.trim() === "") {
+				return Promise.reject(new InsightError("Invalid ID!"));
 			}
-		} else {
-			return Promise.reject(new NotFoundError("Could not find that ID!"));
-		}
-		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-		this.datasets.forEach((dataset, index) => {
-			if (dataset.id === id) {
-				// datasets should only be added in addDataset and removed in removeDataset, and both methods
-				// add/remove from both datasets and datasetIds, so it's safe to to remove both here.
-				this.datasets.splice(index, 1);
-				this.datasetIds.splice(index, 1);
+			if (this.datasetIds.includes(id)) {
+				let path = `./data/${id}/`;
+				try {
+					await fs.rmdir(path, {recursive: true});
+				} catch {
+					return Promise.reject(new InsightError("Failed to remove directory!"));
+				}
+			} else {
+				return Promise.reject(new NotFoundError("Could not find that ID!"));
 			}
-		});
-		return Promise.resolve(id);
+			// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+			this.datasets.forEach((dataset, index) => {
+				if (dataset.id === id) {
+					// datasets should only be added in addDataset and removed in removeDataset, and both methods
+					// add/remove from both datasets and datasetIds, so it's safe to to remove both here.
+					this.datasets.splice(index, 1);
+					this.datasetIds.splice(index, 1);
+				}
+			});
+			return Promise.resolve(id);
+		} catch (err) {
+			return Promise.reject(new InsightError((err as Error).message));
+		}
 	}
 
 	public async checkEmptyDisk(): Promise<any> {
