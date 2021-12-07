@@ -12,7 +12,7 @@ export class CoursesDataset extends Dataset {
 	public async loadDataset(content: string) {
 		let jsZip = new JSZip();
 		let jsonObject;
-		let zip;
+		let zip: JSZip;
 		try {
 			zip = await jsZip.loadAsync(content, {base64: true});
 		} catch (error) {
@@ -23,6 +23,10 @@ export class CoursesDataset extends Dataset {
 			return Promise.reject(new InsightError("No folder named courses!"));
 		}
 
+		let maxLength = Math.max(...Object.keys(zip.files).map((filename) => {
+			return zip.files[filename].name.split("/").length;
+		}));
+
 		// iterate over all the files in the zip folder
 		let promises = [];
 		for (let filename of Object.keys(zip.files)) {
@@ -31,10 +35,11 @@ export class CoursesDataset extends Dataset {
 				continue;
 			}
 			// check if the file is in the courses folder
-			const regex = new RegExp("^[^/]*/courses/.*");
-			if (!regex.test(zip.files[filename].name)) {
+			let filenameArray = zip.files[filename].name.split("/");
+			if (filenameArray.length < maxLength || filenameArray[filenameArray.length - 2] !== "courses") {
 				continue;
 			}
+
 			// get file data and parse it so it will be a JSON object
 			let fileData = await zip.files[filename].async("string");
 			try {
