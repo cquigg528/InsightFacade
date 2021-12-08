@@ -156,36 +156,32 @@ export default class InsightFacade implements IInsightFacade {
 	 * that subsequent queries for that id should fail unless a new addDataset happens first.
 	 */
 	public async removeDataset(id: string): Promise<string> {
-		try {
-			const validIdRegex = /^[^_]+$/;
+		const validIdRegex = /^[^_]+$/;
 
-			// if regex does not match, reject
-			if (!id.match(validIdRegex) || id.trim() === "") {
-				return Promise.reject(new InsightError("Invalid ID!"));
-			}
-			if (this.datasetIds.includes(id)) {
-				let path = `./data/${id}/`;
-				try {
-					await fs.rmdir(path, {recursive: true});
-				} catch {
-					return Promise.reject(new InsightError("Failed to remove directory!"));
-				}
-			} else {
-				return Promise.reject(new NotFoundError("Could not find that ID!"));
-			}
-			// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
-			this.datasets.forEach((dataset, index) => {
-				if (dataset.id === id) {
-					// datasets should only be added in addDataset and removed in removeDataset, and both methods
-					// add/remove from both datasets and datasetIds, so it's safe to to remove both here.
-					this.datasets.splice(index, 1);
-					this.datasetIds.splice(index, 1);
-				}
-			});
-			return Promise.resolve(id);
-		} catch (err) {
-			return Promise.reject(new InsightError((err as Error).message));
+		// if regex does not match, reject
+		if (!id.match(validIdRegex) || id.trim() === "") {
+			return Promise.reject(new InsightError("Invalid ID!"));
 		}
+		if (this.datasetIds.includes(id)) {
+			let path = `./data/${id}/`;
+			try {
+				await fs.rmdir(path, {recursive: true});
+			} catch {
+				return Promise.reject(new InsightError("Failed to remove directory!"));
+			}
+		} else {
+			return Promise.reject(new NotFoundError("Could not find that ID!"));
+		}
+		// code taken from https://stackoverflow.com/questions/15292278/how-do-i-remove-an-array-item-in-typescript
+		this.datasets.forEach((dataset, index) => {
+			if (dataset.id === id) {
+				// datasets should only be added in addDataset and removed in removeDataset, and both methods
+				// add/remove from both datasets and datasetIds, so it's safe to to remove both here.
+				this.datasets.splice(index, 1);
+				this.datasetIds.splice(index, 1);
+			}
+		});
+		return Promise.resolve(id);
 	}
 
 	public async checkEmptyDisk(): Promise<any> {
