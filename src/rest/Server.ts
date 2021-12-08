@@ -102,7 +102,7 @@ export default class Server {
 		} catch (err) {
 			if (err instanceof NotFoundError) {
 				res.status(404).json({error: (err as NotFoundError).message});
-			} else if (err instanceof InsightError) {
+			} else {
 				res.status(400).json({error: (err as Error).message});
 			}
 		}
@@ -123,9 +123,7 @@ export default class Server {
 				Buffer.from(req.body).toString("base64"), kind);
 			res.status(200).json({result: response});
 		} catch(err) {
-			if (err instanceof InsightError) {
-				res.status(400).json({error: (err as Error).message});
-			}
+			res.status(400).json({error: (err as Error).message});
 		}
 	}
 
@@ -157,9 +155,7 @@ export default class Server {
 				res.status(200).json({result: response});
 			}
 		} catch(err) {
-			if (err instanceof InsightError || err instanceof ResultTooLargeError) {
-				res.status(400).json({error: (err as Error).message});
-			}
+			res.status(400).json({error: (err as Error).message});
 		}
 	}
 
