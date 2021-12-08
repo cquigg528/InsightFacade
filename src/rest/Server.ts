@@ -2,7 +2,7 @@ import express, {Application, Request, Response} from "express";
 import * as http from "http";
 import cors from "cors";
 import InsightFacade from "../controller/InsightFacade";
-import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightError, NotFoundError, ResultTooLargeError} from "../controller/IInsightFacade";
 import * as fs from "fs-extra";
 import {persistDir} from "../../test/TestUtil";
 
@@ -100,10 +100,10 @@ export default class Server {
 			const response = await this.facade.removeDataset(req.params.id);
 			res.status(200).json({result: response});
 		} catch (err) {
-			if (err instanceof InsightError) {
+			if (err instanceof NotFoundError) {
+				res.status(404).json({error: (err as NotFoundError).message});
+			} else if (err instanceof InsightError) {
 				res.status(400).json({error: (err as Error).message});
-			} else {
-				res.status(404).json({error: (err as Error).message});
 			}
 		}
 	}
@@ -116,13 +116,16 @@ export default class Server {
 			} else if (req.params.kind === "rooms") {
 				kind = InsightDatasetKind.Rooms;
 			} else {
-				throw new InsightError("Invalid kind!");
+				res.status(400).json({error: "Invalid kind! We only accept courses or rooms."});
+				return;
 			}
 			const response = await this.facade.addDataset(req.params.id,
 				Buffer.from(req.body).toString("base64"), kind);
 			res.status(200).json({result: response});
 		} catch(err) {
-			res.status(400).json({error: (err as InsightError).message});
+			if (err instanceof InsightError) {
+				res.status(400).json({error: (err as Error).message});
+			}
 		}
 	}
 
@@ -148,13 +151,15 @@ export default class Server {
 		try {
 			let notEmptyDisk = await this.facade.checkEmptyDisk();
 			if (!notEmptyDisk) {
-				throw new InsightError("Missing dataset");
+				res.status(400).json({error: "Empty disk!"});
 			} else {
 				const response = await this.facade.performQuery(req.body);
 				res.status(200).json({result: response});
 			}
 		} catch(err) {
-			res.status(400).json({error: (err as InsightError).message});
+			if (err instanceof InsightError || err instanceof ResultTooLargeError) {
+				res.status(400).json({error: (err as Error).message});
+			}
 		}
 	}
 
